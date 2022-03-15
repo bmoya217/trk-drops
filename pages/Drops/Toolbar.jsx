@@ -12,7 +12,7 @@ import Typography from "@mui/material/Typography";
 import { ITEMS_BY_BOSS } from "../../public/utils";
 import Item from "./Item";
 
-const EnhancedTableToolbar = ({ selected, boss, rows, setBoss, setRows, setSelected }) => {
+const EnhancedTableToolbar = ({ selected = [], boss, rows, setBoss, setRows, setSelected }) => {
   return (
     <Toolbar
       sx={{
