@@ -11,7 +11,7 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import { visuallyHidden } from "@mui/utils";
 import EnhancedTableToolbar from "./Toolbar";
-import { getHeadCells, getComparator } from "../utils";
+import { getHeadCells, getComparator } from "../../public/utils";
 
 const EnhancedTableHead = ({
   onSelectAllClick,
@@ -67,7 +67,7 @@ const EnhancedTableHead = ({
   );
 };
 
-const Table = ({ rows, setRows }) => {
+const Table = ({ rows = [], setRows = () => {} }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);

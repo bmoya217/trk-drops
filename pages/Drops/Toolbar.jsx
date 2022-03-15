@@ -9,7 +9,7 @@ import { alpha } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { ITEMS_BY_BOSS } from "../utils";
+import { ITEMS_BY_BOSS } from "../../public/utils";
 import Item from "./Item";
 
 const EnhancedTableToolbar = ({ numSelected, boss, setBoss, setRows }) => {
