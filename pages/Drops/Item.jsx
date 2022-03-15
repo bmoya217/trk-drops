@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 const fetchReport = async (report) => {
   if (!report) return;
 
-  const page = await fetch("api/report?report=" + report, {}).catch((e) => {});
+  const page = await fetch("api/report?report=" + report.trim(), {}).catch((e) => {});
   if (page?.status !== 200) return null;
 
   return page.json();
@@ -15,7 +15,6 @@ const fetchReport = async (report) => {
 const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "undefined";
 const selectResults = ($) => $?.sim?.profilesets?.results ?? [];
 const selectCurrent = ($) => $?.sim?.statistics?.raid_dps?.mean ?? 0;
-const selectReportName = ($) => $?.simbot?.publicTitle ?? "";
 const selectDroptimizerItems = ($) =>
   $?.simbot?.meta?.rawFormData?.droptimizerItems ?? [];
 
@@ -35,6 +34,8 @@ const formatResults = ($) => {
 
   return results?.reduce((prev, curr) => {
     const item = items?.find((item) => item.id === curr.name);
+    if (!item) return prev; // likely a trash drop
+
     const key = getItemName(item.item.name);
 
     // rings/trinkets that have better variation already
