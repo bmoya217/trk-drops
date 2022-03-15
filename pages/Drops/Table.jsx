@@ -165,7 +165,7 @@ const Table = ({ rows = [], setRows = () => {} }) => {
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.Player}
+                      key={row.Player + "_" + index}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
