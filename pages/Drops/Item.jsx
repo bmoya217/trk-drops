@@ -6,13 +6,16 @@ import TextField from "@mui/material/TextField";
 const fetchReport = async (report) => {
   if (!report) return;
 
-  const page = await fetch("api/report?report=" + report.trim(), {}).catch((e) => {});
+  const page = await fetch("api/report?report=" + report.trim(), {}).catch(
+    () => null
+  );
   if (page?.status !== 200) return null;
 
   return page.json();
 };
 
-const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "undefined";
+const selectId = ($) => $?.simbot?.parentSimId ?? "id";
+const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "anon player";
 const selectResults = ($) => $?.sim?.profilesets?.results ?? [];
 const selectCurrent = ($) => $?.sim?.statistics?.raid_dps?.mean ?? 0;
 const selectDroptimizerItems = ($) =>
@@ -57,8 +60,10 @@ const Item = ({ addRow }) => {
 
     const $ = await fetchReport(report);
 
+    console.log($);
     addRow({
       ...EMPTY_ROW,
+      id: selectId($),
       Player: selectPlayer($),
       ...formatResults($),
     });

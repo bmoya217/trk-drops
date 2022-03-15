@@ -12,13 +12,13 @@ import Typography from "@mui/material/Typography";
 import { ITEMS_BY_BOSS } from "../../public/utils";
 import Item from "./Item";
 
-const EnhancedTableToolbar = ({ numSelected, boss, setBoss, setRows }) => {
+const EnhancedTableToolbar = ({ selected, boss, rows, setBoss, setRows, setSelected }) => {
   return (
     <Toolbar
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
+        ...(selected.length > 0 && {
           bgcolor: (theme) =>
             alpha(
               theme.palette.primary.main,
@@ -32,14 +32,14 @@ const EnhancedTableToolbar = ({ numSelected, boss, setBoss, setRows }) => {
       }}
     >
       <div>
-        {numSelected > 0 ? (
+        {selected.length > 0 ? (
           <Typography
             sx={{ flex: "1 1 100%" }}
             color="inherit"
             variant="subtitle1"
             component="div"
           >
-            {numSelected} selected
+            {selected.length} selected
           </Typography>
         ) : (
           <FormControl size="small" style={{ width: "300px" }}>
@@ -60,9 +60,14 @@ const EnhancedTableToolbar = ({ numSelected, boss, setBoss, setRows }) => {
           </FormControl>
         )}
 
-        {numSelected > 0 ? (
+        {selected.length > 0 ? (
           <Tooltip title="Delete">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setRows(rows.filter((row) => !selected.includes(row.id)));
+                setSelected([]);
+              }}
+            >
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -75,7 +80,11 @@ const EnhancedTableToolbar = ({ numSelected, boss, setBoss, setRows }) => {
         )}
       </div>
       <div>
-        <Item addRow={(row) => setRows((rows) => [...rows, row])} />
+        <Item
+          addRow={(row) =>
+            setRows((rows) => [...rows.filter((r) => r.id !== row.id), row])
+          }
+        />
       </div>
     </Toolbar>
   );

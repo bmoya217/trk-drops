@@ -130,10 +130,12 @@ const Table = ({ rows = [], setRows = () => {} }) => {
         }}
       >
         <EnhancedTableToolbar
-          numSelected={selected.length}
+          selected={selected}
           boss={boss}
+          rows={rows}
           setBoss={setBoss}
           setRows={setRows}
+          setSelected={setSelected}
         />
         <TableContainer>
           <MuiTable
@@ -155,17 +157,17 @@ const Table = ({ rows = [], setRows = () => {} }) => {
                 .slice()
                 .sort(getComparator(order, orderBy))
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.Player);
+                  const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.Player)}
+                      onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.Player + "_" + index}
+                      key={row.id}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
