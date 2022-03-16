@@ -1,5 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import { CircularProgress } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
@@ -12,7 +13,16 @@ import Typography from "@mui/material/Typography";
 import { ITEMS_BY_BOSS } from "../../public/utils";
 import Item from "./Item";
 
-const EnhancedTableToolbar = ({ selected = [], boss, rows, setBoss, setRows, setSelected }) => {
+const EnhancedTableToolbar = ({
+  loading,
+  selected = [],
+  boss,
+  rows = [],
+  loadReport,
+  setBoss,
+  setRows,
+  setSelected,
+}) => {
   return (
     <Toolbar
       sx={{
@@ -79,12 +89,9 @@ const EnhancedTableToolbar = ({ selected = [], boss, rows, setBoss, setRows, set
           </Tooltip>
         )}
       </div>
-      <div>
-        <Item
-          addRow={(row) =>
-            setRows((rows) => [...rows.filter((r) => r.id !== row.id), row])
-          }
-        />
+      <div style={{ display: "inline-flex" }}>
+        {loading && <CircularProgress />}
+        <Item loadReport={loadReport} />
       </div>
     </Toolbar>
   );

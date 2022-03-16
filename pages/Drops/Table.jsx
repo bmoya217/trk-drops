@@ -67,7 +67,7 @@ const EnhancedTableHead = ({
   );
 };
 
-const Table = ({ rows = [], setRows = () => {} }) => {
+const Table = ({ loading, rows = [], setRows, loadReport }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
@@ -130,9 +130,11 @@ const Table = ({ rows = [], setRows = () => {} }) => {
         }}
       >
         <EnhancedTableToolbar
+          loading={loading}
           selected={selected}
           boss={boss}
           rows={rows}
+          loadReport={loadReport}
           setBoss={setBoss}
           setRows={setRows}
           setSelected={setSelected}

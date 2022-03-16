@@ -261,3 +261,51 @@ export const getHeadCells = (boss) => {
 
   return ["Player", ...bossItems].map(createHeadCell);
 };
+
+export const fetchReport = async (report) => {
+  if (!report) return [];
+
+  const page = await fetch("api/report?report=" + report.trim(), {}).catch(
+    () => null
+  );
+  if (page?.status !== 200) return [];
+
+  return page.json();
+};
+
+export const selectId = ($) => $?.simbot?.parentSimId ?? "id";
+export const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "anon player";
+export const selectResults = ($) => $?.sim?.profilesets?.results ?? [];
+export const selectCurrent = ($) => $?.sim?.statistics?.raid_dps?.mean ?? 0;
+export const selectDroptimizerItems = ($) =>
+  $?.simbot?.meta?.rawFormData?.droptimizerItems ?? [];
+
+export const getItemName = (item) => {
+  if (TIER_BY_BOSS.Lihuvim.includes(item)) return "Hand Tier";
+  if (TIER_BY_BOSS.Halondrus.includes(item)) return "Leg Tier";
+  if (TIER_BY_BOSS.Anduin.includes(item)) return "Helm Tier";
+  if (TIER_BY_BOSS.Rygelon.includes(item)) return "Chest Tier";
+  if (TIER_BY_BOSS.Lords.includes(item)) return "Shoulder Tier";
+  return item;
+};
+
+export const formatResults = ($) => {
+  const results = selectResults($);
+  const items = selectDroptimizerItems($);
+  const current = selectCurrent($);
+
+  return results?.reduce((prev, curr) => {
+    const item = items?.find((item) => item.id === curr.name);
+    if (!item) return prev; // likely a trash drop
+
+    const key = getItemName(item.item.name);
+
+    // rings/trinkets that have better variation already
+    if (prev[key] !== undefined && prev[key] > curr.mean - current) return prev;
+
+    return {
+      ...prev,
+      [key]: Math.floor(curr.mean - current),
+    };
+  }, {});
+};
