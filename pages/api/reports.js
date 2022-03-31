@@ -12,18 +12,7 @@ const Reports = async (_, res) => {
 
   const reports = records.map((report) => report.URL && report.URL);
 
-  const data = await Promise.all(
-    reports.map((report) =>
-      fetch("https://www.raidbots.com/simbot/report/" + report + "/data.json", {
-        cache: "force-cache",
-      }).then((page) => {
-        if (!page.status === 200) return {};
-        return page.json();
-      })
-    )
-  );
-
-  res.status(200).json(data);
+  res.status(200).json(reports);
 };
 
 export default Reports;

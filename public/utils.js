@@ -262,6 +262,13 @@ export const getHeadCells = (boss) => {
   return ["Player", ...bossItems].map(createHeadCell);
 };
 
+export const fetchReport = async (report) => {
+  const page = await fetch("api/report?report=" + report).catch(() => null);
+  if (page?.status !== 200) return {};
+
+  return page.json();
+};
+
 export const fetchReports = async () => {
   const page = await fetch("api/reports").catch(() => null);
   if (page?.status !== 200) return [];
