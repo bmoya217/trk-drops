@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   EMPTY_ROW,
-  fetchReport,
+  fetchReports,
   formatResults,
   selectId,
   selectPlayer,
@@ -19,9 +19,9 @@ const Drops = () => {
     ]);
   };
 
-  const loadReport = async (report) => {
+  const loadReports = async () => {
     setLoading(true);
-    const reports = await fetchReport(report);
+    const reports = await fetchReports();
     if (!reports?.length) return setLoading(false);
 
     reports.map(($) => {
@@ -35,7 +35,7 @@ const Drops = () => {
     setLoading(false);
   };
 
-  React.useEffect(() => loadReport("*"), []);
+  React.useEffect(() => loadReports(), []);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -43,7 +43,6 @@ const Drops = () => {
         loading={loading}
         rows={rows}
         setRows={setRows}
-        loadReport={loadReport}
       />
     </div>
   );

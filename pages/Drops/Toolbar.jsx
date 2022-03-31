@@ -18,7 +18,6 @@ const EnhancedTableToolbar = ({
   selected = [],
   boss,
   rows = [],
-  loadReport,
   setBoss,
   setRows,
   setSelected,
@@ -91,7 +90,6 @@ const EnhancedTableToolbar = ({
       </div>
       <div style={{ display: "inline-flex" }}>
         {loading && <CircularProgress />}
-        <Item loadReport={loadReport} />
       </div>
     </Toolbar>
   );
