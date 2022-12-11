@@ -1,5 +1,6 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
+import Checkbox from "@mui/material/Checkbox";
+import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,11 +8,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
 import { visuallyHidden } from "@mui/utils";
+import * as React from "react";
+import { getComparator, getHeadCells, ITEMS_BY_BOSS } from "../../public/utils";
 import EnhancedTableToolbar from "./Toolbar";
-import { getHeadCells, getComparator } from "../../public/utils";
 
 const EnhancedTableHead = ({
   onSelectAllClick,
@@ -71,7 +71,7 @@ const Table = ({ loading, rows = [], setRows }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
-  const [boss, setBoss] = React.useState("Guardian");
+  const [boss, setBoss] = React.useState(Object.keys(ITEMS_BY_BOSS)[0]);
   const headCells = getHeadCells(boss);
 
   const handleRequestSort = (_, property) => {
