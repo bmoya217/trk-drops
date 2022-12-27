@@ -6,6 +6,7 @@ import {
   formatResults,
   selectId,
   selectPlayer,
+  validateReport,
 } from "../../public/utils";
 import Table from "./Table";
 
@@ -13,6 +14,7 @@ const Drops = () => {
   const [reports, setReports] = useState([]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [difficulty, setDifficulty] = React.useState("Mythic");
 
   const addRow = (row) => {
     return setRows((rows) => [
@@ -21,16 +23,11 @@ const Drops = () => {
     ]);
   };
 
-  const loadReports = async () => {
-    setLoading(true);
-    const reports = await fetchReports();
-    if (!reports?.length) return setLoading(false);
-    setReports(reports);
-  };
-
   const loadReport = async (report) => {
     const $ = await fetchReport(report);
-    console.log($);
+
+    if (!validateReport($)) return;
+
     addRow({
       ...EMPTY_ROW,
       id: selectId($),
@@ -39,7 +36,17 @@ const Drops = () => {
     });
   };
 
-  useEffect(() => loadReports(), []);
+  useEffect(() => {
+    const loadReports = async () => {
+      setLoading(true);
+      setRows([]);
+      const reports = await fetchReports(difficulty);
+      if (!reports?.length) return setLoading(false);
+      setReports(reports);
+    };
+
+    loadReports(difficulty);
+  }, [difficulty]);
 
   useEffect(() => {
     Promise.all(reports.map(loadReport))
@@ -53,7 +60,13 @@ const Drops = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Table loading={loading} rows={rows} setRows={setRows} />
+      <Table
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        rows={rows}
+        setRows={setRows}
+        loading={loading}
+      />
     </div>
   );
 };

@@ -11,16 +11,17 @@ import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { ITEMS_BY_BOSS } from "../../public/utils";
-import Item from "./Item";
 
 const EnhancedTableToolbar = ({
-  loading,
-  selected = [],
+  difficulty,
+  setDifficulty,
   boss,
-  rows = [],
   setBoss,
+  rows = [],
   setRows,
+  selected = [],
   setSelected,
+  loading,
 }) => {
   return (
     <Toolbar
@@ -51,22 +52,35 @@ const EnhancedTableToolbar = ({
             {selected.length} selected
           </Typography>
         ) : (
-          <FormControl size="small" style={{ width: "300px" }}>
-            <InputLabel id="demo-simple-select-label">Boss</InputLabel>
-            <Select
-              value={boss}
-              label="Boss"
-              onChange={(e) => setBoss(e.target.value)}
-            >
-              {Object.keys(ITEMS_BY_BOSS).map((boss, i) => {
-                return (
-                  <MenuItem key={i} value={boss}>
-                    {boss}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
+          <>
+            <FormControl size="small" style={{ width: "300px" }}>
+              <InputLabel id="demo-simple-select-label">Difficulty</InputLabel>
+              <Select
+                value={difficulty}
+                label="Difficulty"
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                <MenuItem value={"Mythic"}>Mythic</MenuItem>
+                <MenuItem value={"Heroic"}>Heroic</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl size="small" style={{ width: "300px" }}>
+              <InputLabel id="demo-simple-select-label">Boss</InputLabel>
+              <Select
+                value={boss}
+                label="Boss"
+                onChange={(e) => setBoss(e.target.value)}
+              >
+                {Object.keys(ITEMS_BY_BOSS).map((boss, i) => {
+                  return (
+                    <MenuItem key={i} value={boss}>
+                      {boss}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </>
         )}
 
         {selected.length > 0 ? (

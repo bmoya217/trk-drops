@@ -67,7 +67,7 @@ const EnhancedTableHead = ({
   );
 };
 
-const Table = ({ loading, rows = [], setRows }) => {
+const Table = ({ difficulty, setDifficulty, rows = [], setRows, loading }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
@@ -130,13 +130,15 @@ const Table = ({ loading, rows = [], setRows }) => {
         }}
       >
         <EnhancedTableToolbar
-          loading={loading}
-          selected={selected}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
           boss={boss}
-          rows={rows}
           setBoss={setBoss}
+          rows={rows}
           setRows={setRows}
+          selected={selected}
           setSelected={setSelected}
+          loading={loading}
         />
         <TableContainer>
           <MuiTable

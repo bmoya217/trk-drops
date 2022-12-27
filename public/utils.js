@@ -1,3 +1,5 @@
+import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
+
 export const TIER_BY_SLOT = {
   // Grimtotem
   "Chest Tier": [
@@ -229,13 +231,29 @@ export const fetchReport = async (report) => {
   return page.json();
 };
 
-export const fetchReports = async () => {
-  const page = await fetch("api/reports").catch(() => null);
+export const fetchReports = async (difficulty) => {
+  const page = await fetch("api/reports?difficulty=" + difficulty).catch(
+    () => null
+  );
   if (page?.status !== 200) return [];
 
   return page.json();
 };
 
+const isCurrent = (timestamp) =>
+  isWithinInterval(new Date(timestamp), {
+    start: subWeeks(new Date(), 3),
+    end: addWeeks(new Date(), 1),
+  });
+
+export const validateReport = ($) => {
+  console.log($);
+  // if ($?.sim?.options?.desired_targets > 1) return false;
+  if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
+  if ($?.sim?.options?.max_time !== 300) return false;
+  if (!isCurrent($?.build_date + " " + $?.build_time)) return false;
+  return true;
+};
 export const selectId = ($) => $?.simbot?.parentSimId ?? "id";
 export const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "anon player";
 export const selectResults = ($) => $?.sim?.profilesets?.results ?? [];
