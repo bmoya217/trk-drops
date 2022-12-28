@@ -113,7 +113,7 @@ export const ITEMS_BY_BOSS = {
     "Maul of the Earthshaper",
     "Opalfang's Earthbound Legguards",
     "Conjured Chillglobe",
-    "Whispering Incarnate",
+    "Whispering Incarnate Icon",
     "Awak'mani, Grimtotem's Legacy",
   ],
   Sennarth: [
