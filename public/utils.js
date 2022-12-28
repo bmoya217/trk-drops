@@ -92,6 +92,7 @@ export const ITEMS_BY_BOSS = {
     "Decorated Commander's Cindercloak",
     "Valdrakken Protector's Turncoat",
     "Flametender's Legwraps",
+    "Seal of Diurna's Chosen"
   ],
   Terros: [
     "Awakened Planar Pillar",
