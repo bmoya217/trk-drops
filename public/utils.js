@@ -250,21 +250,11 @@ const isCorrectDifficulty = ($, difficulty) =>
   $?.simbot?.meta?.itemLibrary?.[0]?.difficulty?.includes(difficulty.toLowerCase());
 
 export const validateReport = ($, difficulty) => {
-  console.log($?.sim?.options?.desired_targets);
   if ($?.sim?.options?.desired_targets > 1) return false;
-
-  console.log($?.sim?.options?.fight_style);
   if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
-
-  console.log($?.sim?.options?.max_time);
   if ($?.sim?.options?.max_time !== 300) return false;
-
-  console.log($?.simbot?.date);
   if (!isCurrent($?.simbot?.date)) return false;
-
-  console.log(isCorrectDifficulty($, difficulty) );
   if (!isCorrectDifficulty($, difficulty)) return false;
-  console.log("validate");
   return true;
 };
 export const selectId = ($) => $?.simbot?.parentSimId ?? "id";
