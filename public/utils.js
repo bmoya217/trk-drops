@@ -92,6 +92,7 @@ export const ITEMS_BY_BOSS = {
     "Decorated Commander's Cindercloak",
     "Valdrakken Protector's Turncoat",
     "Flametender's Legwraps",
+    "Decoration of Flame",
     "Seal of Diurna's Chosen"
   ],
   Terros: [
@@ -106,6 +107,7 @@ export const ITEMS_BY_BOSS = {
     "Terros's Captive Core",
   ],
   Council: [
+    "Imbued Qalashi Crusher",
     "Councilor's Terrormask",
     "Twisted Loam Spaulders",
     "Embar's Ashen Hauberk",
@@ -114,7 +116,6 @@ export const ITEMS_BY_BOSS = {
     "Opalfang's Earthbound Legguards",
     "Conjured Chillglobe",
     "Whispering Incarnate Icon",
-    "Awak'mani, Grimtotem's Legacy",
   ],
   Sennarth: [
     "Acid-Proof Webbing",
