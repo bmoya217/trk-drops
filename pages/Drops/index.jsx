@@ -26,7 +26,7 @@ const Drops = () => {
   const loadReport = async (report) => {
     const $ = await fetchReport(report);
 
-    if (!validateReport($)) return;
+    if (!validateReport($, difficulty)) return;
 
     addRow({
       ...EMPTY_ROW,
