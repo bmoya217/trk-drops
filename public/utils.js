@@ -267,7 +267,7 @@ export const fetchReports = async (difficulty) => {
 
 const isCurrent = (timestamp) =>
   isWithinInterval(timestamp, {
-    start: subWeeks(new Date(), 3),
+    start: subWeeks(new Date(), 1),
     end: addWeeks(new Date(), 1),
   });
 
