@@ -199,7 +199,10 @@ export const ITEMS_BY_BOSS = {
   ],
 };
 
-export const ITEMS_FLAT = ITEMS_BY_BOSS.reduce((cur, prev) => [...cur, ...prev], []);
+export const ITEMS_FLAT = Object.keys(ITEMS_BY_BOSS).reduce(
+  (prev, curr) => [...ITEMS_BY_BOSS[curr], ...prev],
+  []
+);
 
 export const EMPTY_ROW = ITEMS_FLAT.reduce((prev, curr) => {
   return {
