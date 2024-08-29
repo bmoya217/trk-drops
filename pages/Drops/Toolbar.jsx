@@ -13,6 +13,8 @@ import Typography from "@mui/material/Typography";
 import { ITEMS_BY_BOSS } from "../../public/utils";
 
 const EnhancedTableToolbar = ({
+  team,
+  setTeam,
   difficulty,
   setDifficulty,
   boss,
@@ -53,6 +55,17 @@ const EnhancedTableToolbar = ({
           </Typography>
         ) : (
           <>
+            <FormControl size="small" style={{ width: "300px" }}>
+              <InputLabel id="demo-simple-select-label">Team</InputLabel>
+              <Select
+                value={team}
+                label="Team"
+                onChange={(e) => setTeam(e.target.value)}
+              >
+                <MenuItem value={"Royal"}>Royal</MenuItem>
+                <MenuItem value={"Kingdom"}>Kingdom</MenuItem>
+              </Select>
+            </FormControl>
             <FormControl size="small" style={{ width: "300px" }}>
               <InputLabel id="demo-simple-select-label">Difficulty</InputLabel>
               <Select

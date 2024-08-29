@@ -14,7 +14,8 @@ const Drops = () => {
   const [reports, setReports] = useState([]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [difficulty, setDifficulty] = React.useState("Mythic");
+  const [difficulty, setDifficulty] = useState("Mythic");
+  const [team, setTeam] = useState("Royal");
 
   const addRow = (row) => {
     return setRows((rows) => [
@@ -40,13 +41,13 @@ const Drops = () => {
     const loadReports = async () => {
       setLoading(true);
       setRows([]);
-      const reports = await fetchReports(difficulty);
+      const reports = await fetchReports(team, difficulty);
       if (!reports?.length) return setLoading(false);
       setReports(reports);
     };
 
-    loadReports(difficulty);
-  }, [difficulty]);
+    loadReports();
+  }, [team, difficulty]);
 
   useEffect(() => {
     Promise.all(reports.map(loadReport))
@@ -61,6 +62,8 @@ const Drops = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Table
+        team={team}
+        setTeam={setTeam}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
         rows={rows}

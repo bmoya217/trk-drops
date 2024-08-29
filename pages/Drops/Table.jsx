@@ -67,7 +67,15 @@ const EnhancedTableHead = ({
   );
 };
 
-const Table = ({ difficulty, setDifficulty, rows = [], setRows, loading }) => {
+const Table = ({
+  team,
+  setTeam,
+  difficulty,
+  setDifficulty,
+  rows = [],
+  setRows,
+  loading,
+}) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
@@ -130,6 +138,8 @@ const Table = ({ difficulty, setDifficulty, rows = [], setRows, loading }) => {
         }}
       >
         <EnhancedTableToolbar
+          team={team}
+          setTeam={setTeam}
           difficulty={difficulty}
           setDifficulty={setDifficulty}
           boss={boss}
