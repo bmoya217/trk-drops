@@ -13,6 +13,11 @@ import * as React from "react";
 import { getComparator, getHeadCells, ITEMS_BY_BOSS } from "../../public/utils";
 import EnhancedTableToolbar from "./Toolbar";
 
+const formatter = Intl.NumberFormat("en", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 const EnhancedTableHead = ({
   onSelectAllClick,
   order,
@@ -77,7 +82,7 @@ const Table = ({
   loading,
 }) => {
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
+  const [orderBy, setOrderBy] = React.useState("Player");
   const [selected, setSelected] = React.useState([]);
   const [boss, setBoss] = React.useState(Object.keys(ITEMS_BY_BOSS)[0]);
   const headCells = getHeadCells(boss);
@@ -193,6 +198,9 @@ const Table = ({
                         />
                       </TableCell>
                       {headCells.map((col, i) => {
+                        const value = row[col.id];
+                        const formatted = formatter.format(value);
+
                         return (
                           <TableCell
                             key={i}
@@ -202,7 +210,7 @@ const Table = ({
                             padding="none"
                             align={i ? "right" : "left"}
                           >
-                            {row[col.id]}
+                            {i ? formatted : value}
                           </TableCell>
                         );
                       })}
