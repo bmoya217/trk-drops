@@ -1,28 +1,21 @@
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { CircularProgress } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
-import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { alpha } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import { ITEMS_BY_BOSS } from "../../public/utils";
+import { BOSSES } from "../../public/utils";
 
 const EnhancedTableToolbar = ({
   team,
   setTeam,
   difficulty,
   setDifficulty,
-  boss,
-  setBoss,
-  rows = [],
-  setRows,
-  selected = [],
-  setSelected,
+  grouping,
+  setGrouping,
+  group,
+  setGroup,
+  data,
   loading,
 }) => {
   return (
@@ -30,13 +23,6 @@ const EnhancedTableToolbar = ({
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        ...(selected.length > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
       }}
       style={{
         display: "inline-flex",
@@ -44,75 +30,87 @@ const EnhancedTableToolbar = ({
       }}
     >
       <div>
-        {selected.length > 0 ? (
-          <Typography
-            sx={{ flex: "1 1 100%" }}
-            color="inherit"
-            variant="subtitle1"
-            component="div"
+        {/* select team */}
+        <FormControl size="small" style={{ width: "300px" }}>
+          <InputLabel id="select-team">Team</InputLabel>
+          <Select
+            label="Team"
+            value={team}
+            onChange={(e) => setTeam(e.target.value)}
           >
-            {selected.length} selected
-          </Typography>
-        ) : (
-          <>
-            <FormControl size="small" style={{ width: "300px" }}>
-              <InputLabel id="demo-simple-select-label">Team</InputLabel>
-              <Select
-                value={team}
-                label="Team"
-                onChange={(e) => setTeam(e.target.value)}
-              >
-                <MenuItem value={"Royal"}>Royal</MenuItem>
-                <MenuItem value={"Kingdom"}>Kingdom</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl size="small" style={{ width: "300px" }}>
-              <InputLabel id="demo-simple-select-label">Difficulty</InputLabel>
-              <Select
-                value={difficulty}
-                label="Difficulty"
-                onChange={(e) => setDifficulty(e.target.value)}
-              >
-                <MenuItem value={"Mythic"}>Mythic</MenuItem>
-                <MenuItem value={"Heroic"}>Heroic</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl size="small" style={{ width: "300px" }}>
-              <InputLabel id="demo-simple-select-label">Boss</InputLabel>
-              <Select
-                value={boss}
-                label="Boss"
-                onChange={(e) => setBoss(e.target.value)}
-              >
-                {Object.keys(ITEMS_BY_BOSS).map((boss, i) => {
-                  return (
-                    <MenuItem key={i} value={boss}>
-                      {boss}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </>
+            <MenuItem value={"Royal"}>Royal</MenuItem>
+            <MenuItem value={"Kingdom"}>Kingdom</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* select difficulty */}
+        <FormControl size="small" style={{ width: "300px" }}>
+          <InputLabel id="select-difficulty">Difficulty</InputLabel>
+          <Select
+            label="Difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            <MenuItem value={"Mythic"}>Mythic</MenuItem>
+            <MenuItem value={"Heroic"}>Heroic</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* select grouping  */}
+        <FormControl size="small" style={{ width: "300px" }}>
+          <InputLabel id="select-grouping">Grouping</InputLabel>
+          <Select
+            label="Grouping"
+            value={grouping}
+            onChange={(e) => {
+              setGrouping(e.target.value);
+              if (e.target.value === "Boss") setGroup(BOSSES[0]);
+              else setGroup("");
+            }}
+          >
+            <MenuItem value={"Boss"}>Boss</MenuItem>
+            <MenuItem value={"Player"}>Player</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* select boss  */}
+        {grouping === "Boss" && (
+          <FormControl size="small" style={{ width: "300px" }}>
+            <InputLabel id="select-boss">Boss</InputLabel>
+            <Select
+              label="Boss"
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
+            >
+              {BOSSES.map((boss, i) => {
+                return (
+                  <MenuItem key={`boss-${i}`} value={boss}>
+                    {boss}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
 
-        {selected.length > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton
-              onClick={() => {
-                setRows(rows.filter((row) => !selected.includes(row.id)));
-                setSelected([]);
-              }}
+        {/* select player  */}
+        {grouping === "Player" && (
+          <FormControl size="small" style={{ width: "300px" }}>
+            <InputLabel id="select-player">Player</InputLabel>
+            <Select
+              label="Player"
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
             >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton>
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
+              {Object.keys(data?.[grouping]).map((row, i) => {
+                return (
+                  <MenuItem key={`player-${i}`} value={row}>
+                    {row}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
       </div>
       <div style={{ display: "inline-flex" }}>

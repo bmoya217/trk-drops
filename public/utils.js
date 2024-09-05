@@ -83,129 +83,40 @@ export const TIER_BY_SLOT = {
   ],
 };
 
-// Columns for each boss
-export const ITEMS_BY_BOSS = {
-  Ulgrax: [
-    "Ulgrax's Morsel-Masher",
-    "Venom-Etched Claw",
-    "Husk of Swallowing Darkness",
-    "Final Meal's Horns",
-    "Seasoned Earthen Boulderplates",
-    "Royal Emblem of Nerub-ar",
-    "Bile-Soaked Harness",
-    "Crunchy Intruder's Wristband",
-    "Devourer's Taut Innards",
-    "Greatbelt of the Hungerer",
-    "Rebel's Drained Marrowslacks",
-    "Undermoth-Lined Footpads",
-    "Foul Behemoth's Chelicera",
-  ],
-  Bloodbound: [
-    "Blood-Kissed Kukri",
-    "Sceptor of Manifested Miasma",
-    "Beyond's Dark Visage",
-    "Beacons of the False Dawn",
-    "Goresplattered Membrane",
-    "Polluted Spectre's Cover",
-    "Lost Watcher's Remains",
-    "Shattered Eye Cincture",
-    "Bloodbound Horror's Legplates",
-    "Boots of the Black Bulwark",
-    "Key to the Unseeming",
-    "Aberrant Spellforge",
-    "Creeping Coagulum",
-  ],
-  Sikran: [
-    "Hands Tier",
-    "Honored Executioner's Perforator",
-    "Duelist's Dancing Steel",
-    "Flawless Phase Blade",
-    "Splintershot Silkbow",
-    "Visor of the Evolved Captain",
-    "Throne Defender's Bangles",
-    "Chitin-Spiked Jackboots",
-    "Cosmic-Tinged Treads",
-    "Sikran's Endless Arsenal",
-    "Sureki Zaelot's Insignia",
-  ],
-  "Rasha'nan": [
-    "Shoulders Tier",
-    "Bludgeons of Blistering Wind",
-    "Predator's Feasthooks",
-    "Devotee's Discarded Headdress",
-    "Locket of Broken Memories",
-    "Ravaged Lamplighter's Manacles",
-    "Behemoth's Eroded Cinch",
-    "Rasha'nan's Grotesque Talons",
-    "Skyterror's Corrosive Organ",
-    "Wings of Shattered Sorrow",
-  ],
-  Broodtwister: [
-    "Chest Tier",
-    "Spire of Transfused Horrors",
-    "Broodtwister's Grim Catalyst",
-    "Sanguine Experiment's Bandages",
-    "Black Blood Injectors",
-    "Accelerated Evolution Coil",
-    "Assimilated Eggshell Slippers",
-    "Writhing Ringworm",
-    "Gruesome Syringe",
-    "Ovinax's Mercurial Egg",
-  ],
-  Nexus: [
-    "Legs Tier",
-    "Regicide",
-    "Shade-Touched Silencer",
-    "Ky-veza's Covert Clasps",
-    "Binding of the Starless Night",
-    "Nether Bounty's Greatbelt",
-    "Fleeting Massacre Footpads",
-    "Treacherous Transmitter",
-    "Void Reaper's Contract",
-    "Void Reaper's Warp Blade",
-  ],
-  "Silken Court": [
-    "Helm Tier",
-    "Anub'arash's Colossal Mandible",
-    "Takazj's Entropic Edict",
-    "Silken Advisor's Favor",
-    "Whispering Voidlight Spaulders",
-    "Skeinspinner's Duplicitous Cuffs",
-    "Thousand-Scar Impalers",
-    "Shattershell Greaves",
-    "Spymaster's Web",
-    "Swarmlord's Authority",
-  ],
-  Ansurek: [
-    "Ansurek's Final Judgement",
-    "Sovereign's Disdain",
-    "Crest of the Caustic Despot",
-    "Frame of Felled Insurgents",
-    "Omnivore's Venomous Camouflage",
-    "Queensguard's Carapace",
-    "Devoted Offering's Irons",
-    "Clutches of Paranoia",
-    "Acrid Ascendant's Sash",
-    "Liquidifed Defector's Leggings",
-    "Voidspoken Sarong",
-    "Mad Queen's Mandate",
-    "Seal of the Poisoned Pact",
-  ],
-};
+// Groups by boss
+export const BOSSES = [
+  "Ulgrax the Devourer",
+  "The Bloodbound Horror",
+  "Sikran, Captain of the Sureki",
+  "Rasha'nan",
+  "Eggtender Ovi'nax",
+  "Nexus-Princess Ky'veza",
+  "The Silken Court",
+  "Queen Ansurek",
+];
 
-export const ITEMS_FLAT = Object.keys(ITEMS_BY_BOSS).reduce(
-  (prev, curr) => [...ITEMS_BY_BOSS[curr], ...prev],
-  []
-);
+// Columns for each player
+export const SLOTS = [
+  "head",
+  "neck",
+  "shoulder",
+  "back",
+  "chest",
+  "wrist",
+  "hands",
+  "waist",
+  "legs",
+  "feet",
+  "finger",
+  "trinket",
+  "main_hand",
+  "off_hand",
+];
 
-export const EMPTY_ROW = ITEMS_FLAT.reduce((prev, curr) => {
-  return {
-    ...prev,
-    [curr]: 0,
-  };
-}, {});
-
-export const descendingComparator = (a, b, orderBy) => {
+export const descendingComparator = (order, orderBy) => (a, b) => {
+  const mag = order === "desc" ? 1 : -1;
+  if (!a[orderBy]) return 1 * mag;
+  if (!b[orderBy]) return -1 * mag;
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -217,8 +128,8 @@ export const descendingComparator = (a, b, orderBy) => {
 
 export const getComparator = (order, orderBy) => {
   return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
+    ? (a, b) => descendingComparator(order, orderBy)(a, b)
+    : (a, b) => -descendingComparator(order, orderBy)(a, b);
 };
 
 export const createHeadCell = (name, numeric) => ({
@@ -228,11 +139,13 @@ export const createHeadCell = (name, numeric) => ({
   label: name,
 });
 
-export const getHeadCells = (boss) => {
-  const bossItems = boss && ITEMS_BY_BOSS[boss];
-  if (!bossItems) return ["Player", ...ITEMS_FLAT].map(createHeadCell);
+export const getHeadCells = (rows = [], grouping) => {
+  if (grouping === "Player") return ["name", ...SLOTS];
 
-  return ["Player", ...bossItems].map(createHeadCell);
+  let headCells = new Set();
+  rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
+  headCells.delete("Player");
+  return ["Player", ...headCells];
 };
 
 export const fetchReport = async (report) => {
@@ -289,25 +202,64 @@ export const getItemName = (item) => {
   return item;
 };
 
-export const buildResults = (results, items, current) =>
-  results?.reduce((prev, curr) => {
+/*
+  [grouping]: {
+    [group]: [
+      {
+        [col]: [value],
+        [col]: [value],
+        [col]: [value],
+        ...
+      },
+      ...
+    ]
+  },
+  */
+export const formatResults = ($) => {
+  const player = selectPlayer($);
+  const current = selectCurrent($);
+  const results = selectResults($); // numerical sim results
+  const items = selectDroptimizerItems($); // item description
+
+  // match itemset list with sim results list
+  const data = results?.reduce((prev, curr) => {
     const item = items?.find((item) => item.id === curr.name);
     if (!item) return prev; // likely a trash drop
 
-    const key = getItemName(item.item.name);
+    const itemName = getItemName(item.item.name);
+    const sim = Math.floor(curr.mean - current);
+    const boss = item.item.encounter.name;
+    const slot = item.slot.replace(/[0-9]/g, "");
 
     // rings/trinkets that have better variation already
-    if (prev[key] !== undefined && prev[key] > curr.mean - current) return prev;
+    const check = prev.find((x) => x.itemName === itemName);
+    if (check && check.sim > curr.mean - current) {
+      return prev;
+    }
 
-    return {
-      ...prev,
-      [key]: Math.floor(curr.mean - current),
-    };
-  }, {});
+    return [...prev, { itemName, sim, boss, slot }];
+  }, []);
 
-export const formatResults = ($) => {
-  const results = selectResults($);
-  const items = selectDroptimizerItems($);
-  const current = selectCurrent($);
-  return buildResults(results, items, current);
+  const Boss = Object.fromEntries(
+    BOSSES.map((boss) => {
+      return [
+        boss,
+        [
+          {
+            ...Object.fromEntries(
+              data
+                .filter((d) => d.boss === boss)
+                .map((e) => [e.itemName, e.sim])
+            ),
+            Player: player,
+          },
+        ],
+      ];
+    })
+  );
+
+  const Player = {
+    [player]: data.map((d) => ({ name: d.itemName, [d.slot]: d.sim })),
+  };
+  return { Boss, Player };
 };

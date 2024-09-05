@@ -1,46 +1,54 @@
 import React, { useEffect, useState } from "react";
 import {
-  EMPTY_ROW,
+  BOSSES,
   fetchReport,
   fetchReports,
   formatResults,
-  selectId,
-  selectPlayer,
   validateReport,
 } from "../../public/utils";
 import Table from "./Table";
 
 const Drops = () => {
-  const [reports, setReports] = useState([]);
-  const [rows, setRows] = useState([]);
+  const [team, setTeam] = useState("Royal"); // or Kingdom
+  const [difficulty, setDifficulty] = useState("Mythic"); // or Heroic
+  const [grouping, setGrouping] = useState("Boss"); // or Player
+  const [reports, setReports] = useState([]); // list of urls
+  const [data, setData] = useState({ Boss: {}, Player: {} });
   const [loading, setLoading] = useState(true);
-  const [difficulty, setDifficulty] = useState("Mythic");
-  const [team, setTeam] = useState("Royal");
 
-  const addRow = (row) => {
-    return setRows((rows) => [
-      ...rows.filter((r) => r.Player !== row.Player),
-      row,
-    ]);
+  const addData = (newData) => {
+    setData((data) => {
+      const Boss = BOSSES.reduce((prev, curr) => {
+        return {
+          ...prev,
+          [curr]: [
+            ...(data?.Boss?.[curr] ?? []),
+            ...(newData?.Boss?.[curr] ?? []),
+          ],
+        };
+      }, {});
+
+      const Player = {
+        ...data.Player,
+        ...newData.Player,
+      };
+
+      return { Boss, Player };
+    });
   };
 
-  const loadReport = async (report) => {
-    const $ = await fetchReport(report);
+  const loadReport = async (url) => {
+    const $ = await fetchReport(url);
 
     if (!validateReport($, difficulty)) return;
 
-    addRow({
-      ...EMPTY_ROW,
-      id: selectId($),
-      Player: selectPlayer($),
-      ...formatResults($),
-    });
+    addData(formatResults($));
   };
 
   useEffect(() => {
     const loadReports = async () => {
       setLoading(true);
-      setRows([]);
+      setData({ Boss: {}, Player: {} });
       const reports = await fetchReports(team, difficulty);
       if (!reports?.length) return setLoading(false);
       setReports(reports);
@@ -66,8 +74,10 @@ const Drops = () => {
         setTeam={setTeam}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
-        rows={rows}
-        setRows={setRows}
+        grouping={grouping}
+        setGrouping={setGrouping}
+        data={data}
+        setData={setData}
         loading={loading}
       />
     </div>
