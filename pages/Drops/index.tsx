@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Data, Difficulty, Grouping, Team } from "../../public/types";
 import {
   BOSSES,
   fetchReport,
@@ -9,14 +10,14 @@ import {
 import Table from "./Table";
 
 const Drops = () => {
-  const [team, setTeam] = useState("Royal"); // or Kingdom
-  const [difficulty, setDifficulty] = useState("Mythic"); // or Heroic
-  const [grouping, setGrouping] = useState("Boss"); // or Player
-  const [reports, setReports] = useState([]); // list of urls
-  const [data, setData] = useState({ Boss: {}, Player: {} });
+  const [team, setTeam] = useState(Team.Royal);
+  const [difficulty, setDifficulty] = useState(Difficulty.Mythic);
+  const [grouping, setGrouping] = useState(Grouping.Boss);
+  const [reports, setReports] = useState<string[]>([]);
+  const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
   const [loading, setLoading] = useState(true);
 
-  const addData = (newData) => {
+  const addData = (newData: Data) => {
     setData((data) => {
       const Boss = BOSSES.reduce((prev, curr) => {
         const oldRows = data?.Boss?.[curr] ?? [];
@@ -40,7 +41,7 @@ const Drops = () => {
     });
   };
 
-  const loadReport = async (url) => {
+  const loadReport = async (url: string) => {
     const $ = await fetchReport(url);
 
     if (!validateReport($, difficulty)) return;
@@ -80,7 +81,6 @@ const Drops = () => {
         grouping={grouping}
         setGrouping={setGrouping}
         data={data}
-        setData={setData}
         loading={loading}
       />
     </div>

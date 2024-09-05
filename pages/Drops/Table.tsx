@@ -2,13 +2,25 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
+import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Data, Difficulty, Grouping, Order, Team } from "../../public/types";
 import { BOSSES, getHeadCells } from "../../public/utils";
-import EnhancedTableToolbar from "./Toolbar";
-import { useState } from "react";
-import EnhancedTableHead from "./Head";
 import EnhancedTableBody from "./Body";
+import EnhancedTableHead from "./Head";
+import EnhancedTableToolbar from "./Toolbar";
 
-const Table = ({
+interface Props {
+  team: Team;
+  setTeam: Dispatch<SetStateAction<Team>>;
+  difficulty: Difficulty;
+  setDifficulty: Dispatch<SetStateAction<Difficulty>>;
+  grouping: Grouping;
+  setGrouping: Dispatch<SetStateAction<Grouping>>;
+  data: Data;
+  loading: boolean;
+}
+
+const Table: FC<Props> = ({
   team,
   setTeam,
   difficulty,
@@ -16,18 +28,17 @@ const Table = ({
   grouping,
   setGrouping,
   data,
-  loading,
 }) => {
   const [group, setGroup] = useState(BOSSES[0]);
-  const [order, setOrder] = useState("asc");
+  const [order, setOrder] = useState(Order.asc);
   const [orderBy, setOrderBy] = useState("Player");
 
   const rows = data?.[grouping]?.[group] ?? [];
   const headCells = getHeadCells(rows, grouping);
 
-  const handleRequestSort = (_, property) => {
+  const handleRequestSort = (_: any, property: string) => {
     const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
+    setOrder(isAsc ? Order.desc : Order.asc);
     setOrderBy(property);
   };
 
@@ -68,7 +79,6 @@ const Table = ({
           >
             <EnhancedTableHead
               headCells={headCells}
-              grouping={grouping}
               order={order}
               orderBy={orderBy}
               onRequestSort={handleRequestSort}

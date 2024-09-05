@@ -3,9 +3,23 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Toolbar from "@mui/material/Toolbar";
+import { Dispatch, FC, SetStateAction } from "react";
+import { Data, Difficulty, Grouping, Team } from "../../public/types";
 import { BOSSES } from "../../public/utils";
 
-const EnhancedTableToolbar = ({
+interface Props {
+  team: Team;
+  setTeam: Dispatch<SetStateAction<Team>>;
+  difficulty: Difficulty;
+  setDifficulty: Dispatch<SetStateAction<Difficulty>>;
+  grouping: Grouping;
+  setGrouping: Dispatch<SetStateAction<Grouping>>;
+  group: string;
+  setGroup: Dispatch<SetStateAction<string>>;
+  data: Data;
+}
+
+const EnhancedTableToolbar: FC<Props> = ({
   team,
   setTeam,
   difficulty,
@@ -29,10 +43,10 @@ const EnhancedTableToolbar = ({
         <Select
           label="Team"
           value={team}
-          onChange={(e) => setTeam(e.target.value)}
+          onChange={(e) => setTeam(e.target.value as Team)}
         >
-          <MenuItem value={"Royal"}>Royal</MenuItem>
-          <MenuItem value={"Kingdom"}>Kingdom</MenuItem>
+          <MenuItem value={Team.Royal}>Royal</MenuItem>
+          <MenuItem value={Team.Kingdom}>Kingdom</MenuItem>
         </Select>
       </FormControl>
 
@@ -42,10 +56,10 @@ const EnhancedTableToolbar = ({
         <Select
           label="Difficulty"
           value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
+          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
         >
-          <MenuItem value={"Mythic"}>Mythic</MenuItem>
-          <MenuItem value={"Heroic"}>Heroic</MenuItem>
+          <MenuItem value={Difficulty.Mythic}>Mythic</MenuItem>
+          <MenuItem value={Difficulty.Heroic}>Heroic</MenuItem>
         </Select>
       </FormControl>
 
@@ -56,13 +70,14 @@ const EnhancedTableToolbar = ({
           label="Grouping"
           value={grouping}
           onChange={(e) => {
-            setGrouping(e.target.value);
+            const players = Object.keys(data.Player);
+            setGrouping(e.target.value as Grouping);
             if (e.target.value === "Boss") setGroup(BOSSES[0]);
-            else setGroup("");
+            else setGroup(players.length ? players[0] : "");
           }}
         >
-          <MenuItem value={"Boss"}>Boss</MenuItem>
-          <MenuItem value={"Player"}>Player</MenuItem>
+          <MenuItem value={Grouping.Boss}>Boss</MenuItem>
+          <MenuItem value={Grouping.Player}>Player</MenuItem>
         </Select>
       </FormControl>
 

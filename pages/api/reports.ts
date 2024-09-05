@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { parse } from "csv-parse/sync";
+import { NextApiHandler } from "next";
 
 const MYTHIC =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRX0_D17phIeBDTY7lSEao2OmP_zZTefFzyB4Ro5LGNMoPIhfogHptfZ1RBGMhCMngN1cJq1H_8Pz6_/pub?gid=1538781371&single=true&output=csv";
@@ -9,10 +10,15 @@ const HEROIC =
 const URL = "Sim URL (5 minute patchwerk)";
 const TEAM = "Raid Team";
 
-const byTeam = (team) => (report) => report[TEAM] === team;
-const toUrl = (report) => report[URL] && report[URL];
+interface Report {
+  [TEAM]: string;
+  [URL]: string;
+}
 
-const Reports = async (req, res) => {
+const byTeam = (team: string) => (report: Report) => report[TEAM] === team;
+const toUrl = (report: Report) => report[URL] && report[URL];
+
+const Reports: NextApiHandler = async (req, res) => {
   const team = req?.query?.team === "Royal" ? "Royal" : "Kingdom";
   const url = req?.query?.difficulty === "Mythic" ? MYTHIC : HEROIC;
 
@@ -22,7 +28,7 @@ const Reports = async (req, res) => {
   // parse
   const records = parse(csv, {
     columns: true,
-  });
+  }) as Array<Report>;
 
   // filter sims and get url column data
   const urls = records?.filter(byTeam(team))?.map(toUrl);

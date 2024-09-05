@@ -1,6 +1,8 @@
-import TableBody from "@mui/material/TableBody";
+import { TableBody } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
+import { CSSProperties, FC } from "react";
+import type { Data, Grouping, Order } from "../../public/types";
 import { getComparator, openReport } from "../../public/utils";
 
 const formatter = Intl.NumberFormat("en", {
@@ -8,7 +10,19 @@ const formatter = Intl.NumberFormat("en", {
   maximumFractionDigits: 1,
 });
 
-const EnhancedTableBody = ({ headCells = [], rows = [], order, orderBy }) => {
+interface Props {
+  headCells: string[];
+  rows: Data[Grouping][string];
+  order: Order;
+  orderBy: string;
+}
+
+const EnhancedTableBody: FC<Props> = ({
+  headCells = [],
+  rows = [],
+  order,
+  orderBy,
+}) => {
   return (
     <TableBody>
       {rows
@@ -19,8 +33,9 @@ const EnhancedTableBody = ({ headCells = [], rows = [], order, orderBy }) => {
             <TableRow hover tabIndex={-1} key={`enhanced-row-${index}`}>
               {headCells.map((col, i) => {
                 const value = row[col];
-                const formatted = formatter.format(value);
-                const style = {};
+                const formatted =
+                  typeof value === "number" ? formatter.format(value) : value;
+                const style: CSSProperties = {};
                 if (col === orderBy) style.fontWeight = "bold";
                 if (col === "Player") style.cursor = "pointer";
 
@@ -32,9 +47,13 @@ const EnhancedTableBody = ({ headCells = [], rows = [], order, orderBy }) => {
                     padding="none"
                     align={i ? "right" : "left"}
                     style={style}
-                    onClick={col === "Player" ? openReport(row.id) : undefined}
+                    onClick={
+                      col === "Player"
+                        ? openReport(row.id as string)
+                        : undefined
+                    }
                   >
-                    {isNaN(value) ? value : formatted}
+                    {formatted}
                   </TableCell>
                 );
               })}

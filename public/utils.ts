@@ -1,4 +1,5 @@
 import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
+import { Difficulty, Grouping, Order, Row, Team } from "./types";
 
 export const BOSS_BY_SLOT = {
   head: "The Silken Court",
@@ -122,70 +123,74 @@ export const SLOTS = [
   "off_hand",
 ];
 
-export const openReport = (id) => () => {
+export const openReport = (id: string) => () => {
   window.open("https://www.raidbots.com/simbot/report/" + id, "_blank").focus();
 };
 
-export const descendingComparator = (order, orderBy) => (a, b) => {
-  const mag = order === "desc" ? 1 : -1;
-  if (!a[orderBy]) return 1 * mag;
-  if (!b[orderBy]) return -1 * mag;
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-};
+export const descendingComparator =
+  (order: Order, orderBy: string) => (a: Row, b: Row) => {
+    const mag = order === "desc" ? 1 : -1;
+    if (!a[orderBy]) return 1 * mag;
+    if (!b[orderBy]) return -1 * mag;
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  };
 
-export const getComparator = (order, orderBy) => {
+export const getComparator = (order: Order, orderBy: string) => {
   return order === "desc"
-    ? (a, b) => descendingComparator(order, orderBy)(a, b)
-    : (a, b) => -descendingComparator(order, orderBy)(a, b);
+    ? (a: Row, b: Row) => descendingComparator(order, orderBy)(a, b)
+    : (a: Row, b: Row) => -descendingComparator(order, orderBy)(a, b);
 };
 
-export const getHeadCells = (rows = [], grouping) => {
+export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
   if (grouping === "Player") return ["name", ...SLOTS];
 
-  let headCells = new Set();
+  let headCells = new Set<string>();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete("Player");
   headCells.delete("id");
-  return ["Player", ...[...headCells.keys()].sort()];
+  return ["Player", ...Array.from(headCells).sort()];
 };
 
-export const fetchReport = async (report) => {
-  const page = await fetch("api/report?report=" + report).catch(() => null);
+export const fetchReport = async (report: string) => {
+  const page = await fetch("api/report?report=" + report, {
+    cache: "force-cache",
+  }).catch(() => null);
   if (page?.status !== 200) return {};
 
   return page.json();
 };
 
-export const fetchReports = async (team, difficulty) => {
+export const fetchReports = async (team: Team, difficulty: Difficulty) => {
   const page = await fetch(
-    `api/reports?team=${team}&difficulty=${difficulty}`
+    `api/reports?team=${team}&difficulty=${difficulty}`,
+    { cache: "no-store" }
   ).catch(() => null);
   if (page?.status !== 200) return [];
 
   return page.json();
 };
 
-const isCurrent = (timestamp) =>
+const isCurrent = (timestamp: number) =>
   isWithinInterval(timestamp, {
     start: subWeeks(new Date(), 1),
     end: addWeeks(new Date(), 1),
   });
 
-const isCorrectDifficulty = ($, difficulty) =>
+const isCorrectDifficulty = ($: any, difficulty: Difficulty) =>
   $?.simbot?.meta?.itemLibrary?.[0]?.difficulty?.includes(
     difficulty.toLowerCase()
   );
 
-const isUpgradeEquipped = ($) =>
+const isUpgradeEquipped = ($: any) =>
   $?.simbot?.meta?.rawFormData?.droptimizer?.upgradeEquipped;
 
-export const validateReport = ($, difficulty) => {
+export const validateReport = ($: any, difficulty: Difficulty) => {
   if ($?.sim?.options?.desired_targets > 1) return false;
   if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
   if ($?.sim?.options?.max_time !== 300) return false;
@@ -194,35 +199,31 @@ export const validateReport = ($, difficulty) => {
   if (!isUpgradeEquipped($)) return false;
   return true;
 };
-export const selectId = ($) => $?.simbot?.parentSimId ?? "id";
-export const selectPlayer = ($) => $?.sim?.players?.[0]?.name ?? "anon player";
-export const selectResults = ($) => $?.sim?.profilesets?.results ?? [];
-export const selectCurrent = ($) => $?.sim?.statistics?.raid_dps?.mean ?? 0;
-export const selectDroptimizerItems = ($) =>
+export const selectId = ($: any) => $?.simbot?.parentSimId ?? "id";
+export const selectPlayer = ($: any) =>
+  $?.sim?.players?.[0]?.name ?? "anon player";
+export const selectResults = ($: any) => $?.sim?.profilesets?.results ?? [];
+export const selectCurrent = ($: any) =>
+  $?.sim?.statistics?.raid_dps?.mean ?? 0;
+export const selectDroptimizerItems = ($: any) =>
   $?.simbot?.meta?.rawFormData?.droptimizerItems ?? [];
 
-export const getItemName = (item) => {
-  const slot = Object.keys(TIER_BY_SLOT).find((slot) =>
-    TIER_BY_SLOT[slot].includes(item)
+export const getItemName = (item: string) => {
+  const slot = Object.keys(TIER_BY_SLOT).find(
+    (slot: keyof typeof TIER_BY_SLOT) => TIER_BY_SLOT[slot].includes(item)
   );
   if (slot) return slot;
   return item;
 };
 
-/*
-  [grouping]: {
-    [group]: [
-      {
-        [col]: [value],
-        [col]: [value],
-        [col]: [value],
-        ...
-      },
-      ...
-    ]
-  },
-  */
-export const formatResults = ($) => {
+type ResultsData = {
+  itemName: string;
+  sim: string;
+  boss: string;
+  slot: string;
+};
+
+export const formatResults = ($: any) => {
   const id = selectId($);
   const player = selectPlayer($);
   const current = selectCurrent($);
@@ -230,14 +231,14 @@ export const formatResults = ($) => {
   const items = selectDroptimizerItems($); // item description
 
   // match itemset list with sim results list
-  const data = results?.reduce((prev, curr) => {
-    const item = items?.find((item) => item.id === curr.name);
+  const data: ResultsData[] = results?.reduce((prev: any, curr: any) => {
+    const item = items?.find((item: any) => item.id === curr.name);
     if (!item) return prev; // likely a trash drop
 
     const itemName = getItemName(item.item.name);
     const sim = Math.floor(curr.mean - current);
     const boss = item.item.encounter.name;
-    const slot = item.slot.replace(/[0-9]/g, "");
+    const slot = item.slot.replace(/[0-9]/g, "") as keyof typeof BOSS_BY_SLOT;
 
     // Tier is simmed multiple times for some reason, ignore the bad ones
     const isTier = itemName !== item.item.name;
@@ -245,7 +246,7 @@ export const formatResults = ($) => {
     if (isTier && !tierBoss) return prev;
 
     // look for rings/trinkets slot variation already
-    const index = prev.findIndex((x) => x.itemName === itemName);
+    const index = prev.findIndex((x: any) => x.itemName === itemName);
     if (index === -1) return [...prev, { itemName, sim, boss, slot }];
 
     if (prev[index.sim] > curr.mean - current) return prev;

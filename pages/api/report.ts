@@ -1,7 +1,12 @@
+import type { NextApiHandler } from "next";
+
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-const Report = async (req, res) => {
+const Report: NextApiHandler = async (req, res) => {
   const report = req?.query?.report;
-  if (!report) return res.status(404);
+  if (!report) {
+    res.status(404);
+    return;
+  }
 
   const page = await fetch(
     "https://www.raidbots.com/simbot/report/" + report + "/data.json",
@@ -9,7 +14,10 @@ const Report = async (req, res) => {
       cache: "force-cache",
     }
   );
-  if (!page.status === 200) return res.status(page.status);
+  if (!(page.status === 200)) {
+    res.status(page.status);
+    return;
+  }
 
   const json = await page.json();
 
