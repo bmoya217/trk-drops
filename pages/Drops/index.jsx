@@ -19,12 +19,15 @@ const Drops = () => {
   const addData = (newData) => {
     setData((data) => {
       const Boss = BOSSES.reduce((prev, curr) => {
+        const oldRows = data?.Boss?.[curr] ?? [];
+        const newRows = newData?.Boss?.[curr] ?? [];
+        const filteredRows = oldRows.filter(
+          (oldRow) => !newRows.find((newRow) => newRow.Player === oldRow.Player)
+        );
+
         return {
           ...prev,
-          [curr]: [
-            ...(data?.Boss?.[curr] ?? []),
-            ...(newData?.Boss?.[curr] ?? []),
-          ],
+          [curr]: [...filteredRows, ...newRows],
         };
       }, {});
 

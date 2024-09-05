@@ -102,7 +102,7 @@ const EnhancedTableToolbar = ({
               value={group}
               onChange={(e) => setGroup(e.target.value)}
             >
-              {Object.keys(data?.[grouping]).map((row, i) => {
+              {Object.keys(data?.[grouping]).sort().map((row, i) => {
                 return (
                   <MenuItem key={`player-${i}`} value={row}>
                     {row}

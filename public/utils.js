@@ -1,4 +1,13 @@
 import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
+
+export const BOSS_BY_SLOT = {
+  head: "The Silken Court",
+  shoulder: "Rasha'nan",
+  chest: "Broodtwister Ovi'nax",
+  hands: "Sikran, Captain of the Sureki",
+  legs: "Nexus-Princess Ky'veza",
+};
+
 // Converts multiple items to a single column in the table
 export const TIER_BY_SLOT = {
   // Silken Court
@@ -89,7 +98,7 @@ export const BOSSES = [
   "The Bloodbound Horror",
   "Sikran, Captain of the Sureki",
   "Rasha'nan",
-  "Eggtender Ovi'nax",
+  "Broodtwister Ovi'nax",
   "Nexus-Princess Ky'veza",
   "The Silken Court",
   "Queen Ansurek",
@@ -145,7 +154,7 @@ export const getHeadCells = (rows = [], grouping) => {
   let headCells = new Set();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete("Player");
-  return ["Player", ...headCells];
+  return ["Player", ...[...headCells.keys()].sort()];
 };
 
 export const fetchReport = async (report) => {
@@ -231,13 +240,22 @@ export const formatResults = ($) => {
     const boss = item.item.encounter.name;
     const slot = item.slot.replace(/[0-9]/g, "");
 
-    // rings/trinkets that have better variation already
-    const check = prev.find((x) => x.itemName === itemName);
-    if (check && check.sim > curr.mean - current) {
-      return prev;
-    }
+    // Tier is simmed multiple times for some reason, ignore the bad ones
+    const isTier = itemName !== item.item.name;
+    const tierBoss = boss === BOSS_BY_SLOT[slot];
+    if (isTier && !tierBoss) return prev;
 
-    return [...prev, { itemName, sim, boss, slot }];
+    // look for rings/trinkets slot variation already
+    const index = prev.findIndex((x) => x.itemName === itemName);
+    if (index === -1) return [...prev, { itemName, sim, boss, slot }];
+
+    if (prev[index.sim] > curr.mean - current) return prev;
+
+    return [
+      ...prev.slice(0, index),
+      { itemName, sim, boss, slot },
+      ...prev.slice(index + 1),
+    ];
   }, []);
 
   const Boss = Object.fromEntries(
