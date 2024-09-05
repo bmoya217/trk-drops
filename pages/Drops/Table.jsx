@@ -22,7 +22,7 @@ const Table = ({
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("Player");
 
-  const rows = data[grouping]?.[group] ?? [];
+  const rows = data?.[grouping]?.[group] ?? [];
   const headCells = getHeadCells(rows, grouping);
 
   const handleRequestSort = (_, property) => {
