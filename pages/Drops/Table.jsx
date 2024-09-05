@@ -59,7 +59,6 @@ const Table = ({
           group={group}
           setGroup={setGroup}
           data={data}
-          loading={loading}
         />
         <TableContainer>
           <MuiTable

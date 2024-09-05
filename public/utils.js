@@ -122,6 +122,10 @@ export const SLOTS = [
   "off_hand",
 ];
 
+export const openReport = (id) => () => {
+  window.open("https://www.raidbots.com/simbot/report/" + id, "_blank").focus();
+};
+
 export const descendingComparator = (order, orderBy) => (a, b) => {
   const mag = order === "desc" ? 1 : -1;
   if (!a[orderBy]) return 1 * mag;
@@ -141,19 +145,13 @@ export const getComparator = (order, orderBy) => {
     : (a, b) => -descendingComparator(order, orderBy)(a, b);
 };
 
-export const createHeadCell = (name, numeric) => ({
-  id: name,
-  numeric: Boolean(numeric),
-  disablePadding: true,
-  label: name,
-});
-
 export const getHeadCells = (rows = [], grouping) => {
   if (grouping === "Player") return ["name", ...SLOTS];
 
   let headCells = new Set();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete("Player");
+  headCells.delete("id");
   return ["Player", ...[...headCells.keys()].sort()];
 };
 
@@ -225,6 +223,7 @@ export const getItemName = (item) => {
   },
   */
 export const formatResults = ($) => {
+  const id = selectId($);
   const player = selectPlayer($);
   const current = selectCurrent($);
   const results = selectResults($); // numerical sim results
@@ -270,6 +269,7 @@ export const formatResults = ($) => {
                 .map((e) => [e.itemName, e.sim])
             ),
             Player: player,
+            id,
           },
         ],
       ];
@@ -279,5 +279,6 @@ export const formatResults = ($) => {
   const Player = {
     [player]: data.map((d) => ({ name: d.itemName, [d.slot]: d.sim })),
   };
+
   return { Boss, Player };
 };

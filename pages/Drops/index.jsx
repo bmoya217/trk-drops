@@ -53,7 +53,6 @@ const Drops = () => {
       setLoading(true);
       setData({ Boss: {}, Player: {} });
       const reports = await fetchReports(team, difficulty);
-      if (!reports?.length) return setLoading(false);
       setReports(reports);
     };
 
@@ -61,13 +60,14 @@ const Drops = () => {
   }, [team, difficulty]);
 
   useEffect(() => {
-    Promise.all(reports.map(loadReport))
-      .then(() => {
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    if (!reports.length) return;
+
+    const loadData = async () => {
+      await Promise.all(reports.map(loadReport)).catch(() => {});
+      setLoading(false);
+    };
+
+    loadData();
   }, [reports]);
 
   return (
