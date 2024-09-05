@@ -41,14 +41,6 @@ const Drops = () => {
     });
   };
 
-  const loadReport = async (url: string) => {
-    const $ = await fetchReport(url);
-
-    if (!validateReport($, difficulty)) return;
-
-    addData(formatResults($));
-  };
-
   useEffect(() => {
     const loadReports = async () => {
       setLoading(true);
@@ -64,6 +56,14 @@ const Drops = () => {
     if (!reports.length) return;
 
     const loadData = async () => {
+      const loadReport = async (url: string) => {
+        const $ = await fetchReport(url);
+
+        if (!validateReport($, difficulty)) return;
+
+        addData(formatResults($));
+      };
+
       await Promise.all(reports.map(loadReport)).catch(() => {});
       setLoading(false);
     };

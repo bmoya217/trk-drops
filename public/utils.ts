@@ -154,6 +154,7 @@ export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete("Player");
   headCells.delete("id");
+  headCells.delete("href");
   return ["Player", ...Array.from(headCells).sort()];
 };
 
@@ -221,6 +222,9 @@ type ResultsData = {
   sim: string;
   boss: string;
   slot: string;
+  id: string;
+  bonus_id: string;
+  itemLevel: number;
 };
 
 export const formatResults = ($: any) => {
@@ -239,6 +243,10 @@ export const formatResults = ($: any) => {
     const sim = Math.floor(curr.mean - current);
     const boss = item.item.encounter.name;
     const slot = item.slot.replace(/[0-9]/g, "") as keyof typeof BOSS_BY_SLOT;
+    const id = item.item.id;
+    const bonus_id = item.item.bonus_id;
+    const itemLevel = item.item.itemLevel;
+    const newEntry = { itemName, sim, boss, slot, id, bonus_id, itemLevel };
 
     // Tier is simmed multiple times for some reason, ignore the bad ones
     const isTier = itemName !== item.item.name;
@@ -247,15 +255,11 @@ export const formatResults = ($: any) => {
 
     // look for rings/trinkets slot variation already
     const index = prev.findIndex((x: any) => x.itemName === itemName);
-    if (index === -1) return [...prev, { itemName, sim, boss, slot }];
+    if (index === -1) return [...prev, newEntry];
 
     if (prev[index.sim] > curr.mean - current) return prev;
 
-    return [
-      ...prev.slice(0, index),
-      { itemName, sim, boss, slot },
-      ...prev.slice(index + 1),
-    ];
+    return [...prev.slice(0, index), newEntry, ...prev.slice(index + 1)];
   }, []);
 
   const Boss = Object.fromEntries(
@@ -270,7 +274,7 @@ export const formatResults = ($: any) => {
                 .map((e) => [e.itemName, e.sim])
             ),
             Player: player,
-            id,
+            href: `https://www.raidbots.com/simbot/report/${id}`,
           },
         ],
       ];
@@ -278,7 +282,11 @@ export const formatResults = ($: any) => {
   );
 
   const Player = {
-    [player]: data.map((d) => ({ name: d.itemName, [d.slot]: d.sim })),
+    [player]: data.map((d) => ({
+      name: d.itemName,
+      [d.slot]: d.sim,
+      href: `https://www.wowhead.com/item=${d.id}?bonus=${d.bonus_id}&ilvl=${d.itemLevel}`,
+    })),
   };
 
   return { Boss, Player };

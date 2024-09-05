@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
@@ -41,7 +42,7 @@ const EnhancedTableHead: FC<Props> = ({
               onClick={createSortHandler(headCell)}
               style={orderBy === headCell ? { fontWeight: "bold" } : {}}
             >
-              {headCell}
+              <Typography variant="subtitle1">{headCell}</Typography>
               {orderBy === headCell ? (
                 <Box component="span" sx={visuallyHidden}>
                   {order === "desc" ? "sorted descending" : "sorted ascending"}

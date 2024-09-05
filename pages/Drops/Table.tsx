@@ -7,6 +7,7 @@ import { BOSSES, getHeadCells } from "../../public/utils";
 import EnhancedTableBody from "./Body";
 import EnhancedTableHead from "./Head";
 import EnhancedTableToolbar from "./Toolbar";
+import { Divider } from "@mui/material";
 
 interface Props {
   team: Team;
@@ -44,12 +45,11 @@ const Table: FC<Props> = ({
   return (
     <Paper
       sx={{
-        margin: "10px",
-        padding: "5px",
+        margin: "12px",
+        padding: "8px",
         display: "flex",
         flexDirection: "column",
         borderRadius: 2,
-        flex: 1,
       }}
     >
       <EnhancedTableToolbar
@@ -63,6 +63,9 @@ const Table: FC<Props> = ({
         setGroup={setGroup}
         data={data}
       />
+
+      <Divider />
+
       <TableContainer>
         <MuiTable
           sx={{ minWidth: 750 }}

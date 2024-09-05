@@ -1,3 +1,5 @@
+import { LightMode } from "@mui/icons-material";
+import { Avatar, Fab } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -31,15 +33,19 @@ const EnhancedTableToolbar: FC<Props> = ({
   data,
 }) => {
   return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-      }}
-    >
+    <Toolbar>
+      {/* trk logo */}
+      <Avatar
+        src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
+        alt="Guild logo"
+        sx={{ width: 56, height: 56 }}
+      />
+
       {/* select team */}
-      <FormControl size="small" style={{ width: "300px", paddingRight: 8 }}>
-        <InputLabel id="select-team">Team</InputLabel>
+      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
+        <InputLabel id="select-team" disableAnimation>
+          Team
+        </InputLabel>
         <Select
           label="Team"
           value={team}
@@ -51,7 +57,7 @@ const EnhancedTableToolbar: FC<Props> = ({
       </FormControl>
 
       {/* select difficulty */}
-      <FormControl size="small" style={{ width: "300px", paddingRight: 8 }}>
+      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
         <InputLabel id="select-difficulty">Difficulty</InputLabel>
         <Select
           label="Difficulty"
@@ -64,7 +70,7 @@ const EnhancedTableToolbar: FC<Props> = ({
       </FormControl>
 
       {/* select grouping  */}
-      <FormControl size="small" style={{ width: "300px", paddingRight: 8 }}>
+      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
         <InputLabel id="select-grouping">Grouping</InputLabel>
         <Select
           label="Grouping"
@@ -83,7 +89,7 @@ const EnhancedTableToolbar: FC<Props> = ({
 
       {/* select boss  */}
       {grouping === "Boss" && (
-        <FormControl size="small" style={{ width: "300px" }}>
+        <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
           <InputLabel id="select-boss">Boss</InputLabel>
           <Select
             label="Boss"
@@ -103,7 +109,7 @@ const EnhancedTableToolbar: FC<Props> = ({
 
       {/* select player  */}
       {grouping === "Player" && (
-        <FormControl size="small" style={{ width: "300px" }}>
+        <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
           <InputLabel id="select-player">Player</InputLabel>
           <Select
             label="Player"
@@ -122,6 +128,10 @@ const EnhancedTableToolbar: FC<Props> = ({
           </Select>
         </FormControl>
       )}
+
+      <Fab size="small">
+        <LightMode />
+      </Fab>
     </Toolbar>
   );
 };

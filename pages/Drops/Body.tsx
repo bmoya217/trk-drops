@@ -1,9 +1,9 @@
-import { TableBody } from "@mui/material";
+import { Link, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import { CSSProperties, FC } from "react";
+import { FC } from "react";
 import type { Data, Grouping, Order } from "../../public/types";
-import { getComparator, openReport } from "../../public/utils";
+import { getComparator } from "../../public/utils";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -35,25 +35,26 @@ const EnhancedTableBody: FC<Props> = ({
                 const value = row[col];
                 const formatted =
                   typeof value === "number" ? formatter.format(value) : value;
-                const style: CSSProperties = {};
-                if (col === orderBy) style.fontWeight = "bold";
-                if (col === "Player") style.cursor = "pointer";
+                const link = col === "Player" || col === "name";
 
                 return (
                   <TableCell
                     key={`enhanced-cell-${index}-${i}`}
-                    component="th"
                     scope="row"
-                    padding="none"
                     align={i ? "right" : "left"}
-                    style={style}
-                    onClick={
-                      col === "Player"
-                        ? openReport(row.id as string)
-                        : undefined
-                    }
                   >
-                    {formatted}
+                    {link && (
+                      <Link
+                        href={row.href as string}
+                        target="_blank"
+                        rel="noreferrer"
+                        underline="none"
+                        color="inherit"
+                      >
+                        {formatted}
+                      </Link>
+                    )}
+                    {!link && <Typography>{formatted}</Typography>}
                   </TableCell>
                 );
               })}
@@ -61,13 +62,8 @@ const EnhancedTableBody: FC<Props> = ({
           );
         })}
       {!rows.length && (
-        <TableRow
-          style={{
-            height: 33,
-          }}
-        >
-          <TableCell>No valid reports :)</TableCell>
-          <TableCell colSpan={headCells.length} />
+        <TableRow>
+          <TableCell colSpan={headCells.length}>No valid reports :)</TableCell>
         </TableRow>
       )}
     </TableBody>
