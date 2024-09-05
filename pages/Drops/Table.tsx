@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
@@ -43,56 +42,48 @@ const Table: FC<Props> = ({
   };
 
   return (
-    <Box
+    <Paper
       sx={{
-        width: "100%",
+        margin: "10px",
+        padding: "5px",
         display: "flex",
+        flexDirection: "column",
+        borderRadius: 2,
         flex: 1,
-        padding: "15px",
-        borderRadius: 15,
       }}
     >
-      <Paper
-        sx={{
-          padding: "5px",
-          margin: 0,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <EnhancedTableToolbar
-          team={team}
-          setTeam={setTeam}
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          grouping={grouping}
-          setGrouping={setGrouping}
-          group={group}
-          setGroup={setGroup}
-          data={data}
-        />
-        <TableContainer>
-          <MuiTable
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={"small"}
-          >
-            <EnhancedTableHead
-              headCells={headCells}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <EnhancedTableBody
-              headCells={headCells}
-              rows={rows}
-              order={order}
-              orderBy={orderBy}
-            />
-          </MuiTable>
-        </TableContainer>
-      </Paper>
-    </Box>
+      <EnhancedTableToolbar
+        team={team}
+        setTeam={setTeam}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        grouping={grouping}
+        setGrouping={setGrouping}
+        group={group}
+        setGroup={setGroup}
+        data={data}
+      />
+      <TableContainer>
+        <MuiTable
+          sx={{ minWidth: 750 }}
+          aria-labelledby="tableTitle"
+          size={"small"}
+        >
+          <EnhancedTableHead
+            headCells={headCells}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+          />
+          <EnhancedTableBody
+            headCells={headCells}
+            rows={rows}
+            order={order}
+            orderBy={orderBy}
+          />
+        </MuiTable>
+      </TableContainer>
+    </Paper>
   );
 };
 

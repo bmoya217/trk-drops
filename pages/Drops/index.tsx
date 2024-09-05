@@ -72,18 +72,16 @@ const Drops = () => {
   }, [reports]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Table
-        team={team}
-        setTeam={setTeam}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
-        grouping={grouping}
-        setGrouping={setGrouping}
-        data={data}
-        loading={loading}
-      />
-    </div>
+    <Table
+      team={team}
+      setTeam={setTeam}
+      difficulty={difficulty}
+      setDifficulty={setDifficulty}
+      grouping={grouping}
+      setGrouping={setGrouping}
+      data={data}
+      loading={loading}
+    />
   );
 };
 

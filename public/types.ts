@@ -19,6 +19,7 @@ export enum Grouping {
 }
 
 /*
+data = {
   [grouping]: {
     [group]: [
       {
@@ -30,6 +31,7 @@ export enum Grouping {
       ...
     ]
   },
+}
   */
 export type Row = Record<string, string | number>;
 

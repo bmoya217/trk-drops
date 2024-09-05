@@ -10,8 +10,8 @@
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.5.1",
-    "@mui/material": "^5.5.1",
+    "@mui/icons-material": "^6.0.2",
+    "@mui/material": "^6.0.2",
     "cheerio": "^1.0.0-rc.10",
     "csv-parse": "^5.0.4",
     "date-fns": "^2.29.3",
