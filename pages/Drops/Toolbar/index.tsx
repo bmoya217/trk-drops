@@ -1,10 +1,10 @@
 import {
   Api,
   Blind,
+  DarkMode,
   Groups,
   HowToReg,
   LightMode,
-  DarkMode,
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -55,13 +55,7 @@ const Toolbar: FC<Props> = ({
       onClickAway={() => setOpen(Open.Closed)}
       disableReactTree
     >
-      <MuiToolbar
-        disableGutters
-        sx={{
-          backgroundImage:
-            "https://wow.zamimg.com/modelviewer/live/webthumbs/npc/12/117772.webp",
-        }}
-      >
+      <MuiToolbar disableGutters>
         {/* trk logo */}
         <Avatar
           src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
@@ -126,7 +120,7 @@ const Toolbar: FC<Props> = ({
             setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
           }
         >
-          {theme.palette.mode === "light" ? <DarkMode /> : <LightMode />}
+          {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
         </Fab>
       </MuiToolbar>
     </ClickAwayListener>
