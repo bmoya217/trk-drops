@@ -6,7 +6,7 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import { visuallyHidden } from "@mui/utils";
 import type { FC, MouseEventHandler } from "react";
-import type { Order } from "../../public/types";
+import { Order } from "../../../public/types";
 
 interface Props {
   headCells: string[];
@@ -15,12 +15,7 @@ interface Props {
   onRequestSort: (event: any, property: any) => void;
 }
 
-const EnhancedTableHead: FC<Props> = ({
-  headCells = [],
-  order,
-  orderBy,
-  onRequestSort,
-}) => {
+const Head: FC<Props> = ({ headCells = [], order, orderBy, onRequestSort }) => {
   const createSortHandler =
     (property: string): MouseEventHandler =>
     (event) => {
@@ -56,4 +51,4 @@ const EnhancedTableHead: FC<Props> = ({
   );
 };
 
-export default EnhancedTableHead;
+export default Head;

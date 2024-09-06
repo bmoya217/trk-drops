@@ -1,11 +1,15 @@
 import { Api, Blind, Groups, HowToReg, LightMode } from "@mui/icons-material";
-import { Avatar, ClickAwayListener, Fab } from "@mui/material";
-import Toolbar from "@mui/material/Toolbar";
+import {
+  Avatar,
+  ClickAwayListener,
+  Fab,
+  Toolbar as MuiToolbar,
+} from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
-import { Data, Difficulty, Grouping, Team } from "../../public/types";
-import { BOSSES } from "../../public/utils";
-import { ThemeContext } from "../Context/ThemeContext";
-import EnhancedSelect, { Open } from "./Select";
+import { Data, Difficulty, Grouping, Team } from "../../../public/types";
+import { BOSSES } from "../../../public/utils";
+import { ThemeContext } from "../../Context/ThemeContext";
+import Select, { Open } from "./Select";
 
 interface Props {
   team: Team;
@@ -19,7 +23,7 @@ interface Props {
   data: Data;
 }
 
-const EnhancedToolbar: FC<Props> = ({
+const Toolbar: FC<Props> = ({
   team,
   setTeam,
   difficulty,
@@ -44,7 +48,7 @@ const EnhancedToolbar: FC<Props> = ({
       onClickAway={() => setOpen(Open.Closed)}
       disableReactTree
     >
-      <Toolbar>
+      <MuiToolbar>
         {/* trk logo */}
         <Avatar
           src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
@@ -53,7 +57,7 @@ const EnhancedToolbar: FC<Props> = ({
         />
 
         {/* select team */}
-        <EnhancedSelect
+        <Select
           open={open}
           setOpen={setOpen}
           icon={<Groups />}
@@ -64,7 +68,7 @@ const EnhancedToolbar: FC<Props> = ({
         />
 
         {/* select difficulty */}
-        <EnhancedSelect
+        <Select
           open={open}
           setOpen={setOpen}
           icon={<Api />}
@@ -75,7 +79,7 @@ const EnhancedToolbar: FC<Props> = ({
         />
 
         {/* select grouping */}
-        <EnhancedSelect
+        <Select
           open={open}
           setOpen={setOpen}
           icon={<HowToReg />}
@@ -92,7 +96,7 @@ const EnhancedToolbar: FC<Props> = ({
         />
 
         {/* select group */}
-        <EnhancedSelect
+        <Select
           open={open}
           setOpen={setOpen}
           icon={<Blind />}
@@ -111,9 +115,9 @@ const EnhancedToolbar: FC<Props> = ({
         >
           <LightMode />
         </Fab>
-      </Toolbar>
+      </MuiToolbar>
     </ClickAwayListener>
   );
 };
 
-export default EnhancedToolbar;
+export default Toolbar;

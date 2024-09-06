@@ -1,10 +1,11 @@
+import { LinearProgress } from "@mui/material";
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useState } from "react";
-import { Data, Grouping, Order } from "../../public/types";
-import { getHeadCells } from "../../public/utils";
-import EnhancedTableBody from "./Body";
-import EnhancedTableHead from "./Head";
+import { Data, Grouping, Order } from "../../../public/types";
+import { getHeadCells } from "../../../public/utils";
+import Body from "./Body";
+import Head from "./Head";
 
 interface Props {
   grouping: Grouping;
@@ -13,7 +14,7 @@ interface Props {
   loading: boolean;
 }
 
-const Table: FC<Props> = ({ grouping, group, data }) => {
+const Table: FC<Props> = ({ grouping, group, data, loading }) => {
   const [order, setOrder] = useState(Order.asc);
   const [orderBy, setOrderBy] = useState("Player");
 
@@ -33,17 +34,21 @@ const Table: FC<Props> = ({ grouping, group, data }) => {
         aria-labelledby="tableTitle"
         size={"small"}
       >
-        <EnhancedTableHead
+        <Head
           headCells={headCells}
           order={order}
           orderBy={orderBy}
           onRequestSort={handleRequestSort}
         />
-        <EnhancedTableBody
+
+        {loading && <LinearProgress />}
+
+        <Body
           headCells={headCells}
           rows={rows}
           order={order}
           orderBy={orderBy}
+          loading={loading}
         />
       </MuiTable>
     </TableContainer>

@@ -8,15 +8,14 @@ import {
   formatResults,
   validateReport,
 } from "../../public/utils";
-import EnhancedTable from "./Table";
-import EnhancedToolbar from "./Toolbar";
+import Table from "./Table";
+import Toolbar from "./Toolbar";
 
 const Drops = () => {
   const [team, setTeam] = useState(Team.Royal);
   const [difficulty, setDifficulty] = useState(Difficulty.Mythic);
   const [grouping, setGrouping] = useState(Grouping.Boss);
   const [group, setGroup] = useState(BOSSES[0]);
-  const [reports, setReports] = useState<string[]>([]);
   const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
   const [loading, setLoading] = useState(true);
 
@@ -48,31 +47,22 @@ const Drops = () => {
     const loadReports = async () => {
       setLoading(true);
       setData({ Boss: {}, Player: {} });
+
       const reports = await fetchReports(team, difficulty);
-      setReports(reports);
+      if (!reports?.length) return setLoading(false);
+
+      const loadReport = async (url: string) => {
+        const $ = await fetchReport(url);
+        if (!validateReport($, difficulty)) return;
+        addData(formatResults($));
+      };
+      await Promise.all(reports.map(loadReport)).catch(() => {});
+
+      setLoading(false);
     };
 
     loadReports();
   }, [team, difficulty]);
-
-  useEffect(() => {
-    if (!reports.length) return;
-
-    const loadData = async () => {
-      const loadReport = async (url: string) => {
-        const $ = await fetchReport(url);
-
-        if (!validateReport($, difficulty)) return;
-
-        addData(formatResults($));
-      };
-
-      await Promise.all(reports.map(loadReport)).catch(() => {});
-      setLoading(false);
-    };
-
-    loadData();
-  }, [reports, difficulty]);
 
   return (
     <Paper
@@ -84,7 +74,7 @@ const Drops = () => {
         borderRadius: 2,
       }}
     >
-      <EnhancedToolbar
+      <Toolbar
         team={team}
         setTeam={setTeam}
         difficulty={difficulty}
@@ -98,12 +88,7 @@ const Drops = () => {
 
       <Divider />
 
-      <EnhancedTable
-        grouping={grouping}
-        group={group}
-        data={data}
-        loading={loading}
-      />
+      <Table grouping={grouping} group={group} data={data} loading={loading} />
     </Paper>
   );
 };

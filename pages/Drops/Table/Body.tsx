@@ -2,8 +2,8 @@ import { Link, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC } from "react";
-import type { Data, Grouping, Order } from "../../public/types";
-import { getComparator } from "../../public/utils";
+import type { Data, Grouping, Order } from "../../../public/types";
+import { getComparator } from "../../../public/utils";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -15,6 +15,7 @@ interface Props {
   rows: Data[Grouping][string];
   order: Order;
   orderBy: string;
+  loading: boolean;
 }
 
 const EnhancedTableBody: FC<Props> = ({
@@ -22,6 +23,7 @@ const EnhancedTableBody: FC<Props> = ({
   rows = [],
   order,
   orderBy,
+  loading,
 }) => {
   return (
     <TableBody>
@@ -61,8 +63,9 @@ const EnhancedTableBody: FC<Props> = ({
             </TableRow>
           );
         })}
-      {!rows.length && (
-        <TableRow>
+
+      {!rows.length && !loading && (
+        <TableRow sx={{ justifyContent: "center" }}>
           <TableCell colSpan={headCells.length}>No valid reports :)</TableCell>
         </TableRow>
       )}
