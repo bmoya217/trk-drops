@@ -42,7 +42,7 @@ const EnhancedTableHead: FC<Props> = ({
               onClick={createSortHandler(headCell)}
               style={orderBy === headCell ? { fontWeight: "bold" } : {}}
             >
-              <Typography variant="subtitle1">{headCell}</Typography>
+              <Typography>{headCell}</Typography>
               {orderBy === headCell ? (
                 <Box component="span" sx={visuallyHidden}>
                   {order === "desc" ? "sorted descending" : "sorted ascending"}

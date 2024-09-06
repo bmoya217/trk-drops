@@ -248,17 +248,25 @@ export const formatResults = ($: any) => {
     const itemLevel = item.item.itemLevel;
     const newEntry = { itemName, sim, boss, slot, id, bonus_id, itemLevel };
 
-    // Tier is simmed multiple times for some reason, ignore the bad ones
+    // Ignore catalyst items so we don't over populate the tables
+    const isCatalyst = item.item.tags?.find(
+      (tag: string) => tag === "catalyst"
+    );
+    if (isCatalyst) return prev;
+
+    // Ignore tier from last boss omni token
     const isTier = itemName !== item.item.name;
     const tierBoss = boss === BOSS_BY_SLOT[slot];
     if (isTier && !tierBoss) return prev;
 
-    // look for rings/trinkets slot variation already
+    // look for rings/trinkets slot variation already, if none return normally
     const index = prev.findIndex((x: any) => x.itemName === itemName);
     if (index === -1) return [...prev, newEntry];
 
+    // other ring/trinket variation was better, use that
     if (prev[index.sim] > curr.mean - current) return prev;
 
+    // this ring/trinket variation was better, replace the old one
     return [...prev.slice(0, index), newEntry, ...prev.slice(index + 1)];
   }, []);
 

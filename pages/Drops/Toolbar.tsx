@@ -1,13 +1,11 @@
-import { LightMode } from "@mui/icons-material";
-import { Avatar, Fab } from "@mui/material";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import { Api, Blind, Groups, HowToReg, LightMode } from "@mui/icons-material";
+import { Avatar, ClickAwayListener, Fab } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
 import { Data, Difficulty, Grouping, Team } from "../../public/types";
 import { BOSSES } from "../../public/utils";
+import { ThemeContext } from "../Context/ThemeContext";
+import EnhancedSelect, { Open } from "./Select";
 
 interface Props {
   team: Team;
@@ -21,7 +19,7 @@ interface Props {
   data: Data;
 }
 
-const EnhancedTableToolbar: FC<Props> = ({
+const EnhancedToolbar: FC<Props> = ({
   team,
   setTeam,
   difficulty,
@@ -32,108 +30,90 @@ const EnhancedTableToolbar: FC<Props> = ({
   setGroup,
   data,
 }) => {
+  const [open, setOpen] = useState(Open.Closed);
+
+  const { setTheme } = useContext(ThemeContext);
+
+  const groups =
+    grouping === Grouping.Boss
+      ? BOSSES
+      : Object.keys(data?.Player ?? {}).sort();
   return (
-    <Toolbar>
-      {/* trk logo */}
-      <Avatar
-        src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
-        alt="Guild logo"
-        sx={{ width: 56, height: 56 }}
-      />
+    <ClickAwayListener
+      mouseEvent={open ? "onClick" : false}
+      onClickAway={() => setOpen(Open.Closed)}
+      disableReactTree
+    >
+      <Toolbar>
+        {/* trk logo */}
+        <Avatar
+          src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
+          alt="Guild logo"
+          sx={{ width: 56, height: 56 }}
+        />
 
-      {/* select team */}
-      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="select-team" disableAnimation>
-          Team
-        </InputLabel>
-        <Select
-          label="Team"
+        {/* select team */}
+        <EnhancedSelect
+          open={open}
+          setOpen={setOpen}
+          icon={<Groups />}
+          label={Open.Team}
           value={team}
-          onChange={(e) => setTeam(e.target.value as Team)}
-        >
-          <MenuItem value={Team.Royal}>Royal</MenuItem>
-          <MenuItem value={Team.Kingdom}>Kingdom</MenuItem>
-        </Select>
-      </FormControl>
+          values={[Team.Royal, Team.Kingdom]}
+          setState={setTeam}
+        />
 
-      {/* select difficulty */}
-      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="select-difficulty">Difficulty</InputLabel>
-        <Select
-          label="Difficulty"
+        {/* select difficulty */}
+        <EnhancedSelect
+          open={open}
+          setOpen={setOpen}
+          icon={<Api />}
+          label={Open.Difficulty}
           value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-        >
-          <MenuItem value={Difficulty.Mythic}>Mythic</MenuItem>
-          <MenuItem value={Difficulty.Heroic}>Heroic</MenuItem>
-        </Select>
-      </FormControl>
+          values={[Difficulty.Mythic, Difficulty.Heroic]}
+          setState={setDifficulty}
+        />
 
-      {/* select grouping  */}
-      <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="select-grouping">Grouping</InputLabel>
-        <Select
-          label="Grouping"
+        {/* select grouping */}
+        <EnhancedSelect
+          open={open}
+          setOpen={setOpen}
+          icon={<HowToReg />}
+          label={Open.Grouping}
           value={grouping}
-          onChange={(e) => {
+          values={[Grouping.Boss, Grouping.Player]}
+          setState={setGrouping}
+          onChange={(value: Grouping) => {
+            console.log(value);
             const players = Object.keys(data.Player);
-            setGrouping(e.target.value as Grouping);
-            if (e.target.value === "Boss") setGroup(BOSSES[0]);
+            if (value === Grouping.Boss) setGroup(BOSSES[0]);
             else setGroup(players.length ? players[0] : "");
           }}
+        />
+
+        {/* select group */}
+        <EnhancedSelect
+          open={open}
+          setOpen={setOpen}
+          icon={<Blind />}
+          label={Open.Group}
+          value={group}
+          values={groups}
+          setState={setGroup}
+        />
+
+        <Fab
+          size="small"
+          sx={{ m: 1 }}
+          onClick={() =>
+            setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
+          }
         >
-          <MenuItem value={Grouping.Boss}>Boss</MenuItem>
-          <MenuItem value={Grouping.Player}>Player</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* select boss  */}
-      {grouping === "Boss" && (
-        <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel id="select-boss">Boss</InputLabel>
-          <Select
-            label="Boss"
-            value={group}
-            onChange={(e) => setGroup(e.target.value)}
-          >
-            {BOSSES.map((boss, i) => {
-              return (
-                <MenuItem key={`boss-${i}`} value={boss}>
-                  {boss}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      )}
-
-      {/* select player  */}
-      {grouping === "Player" && (
-        <FormControl size="small" sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel id="select-player">Player</InputLabel>
-          <Select
-            label="Player"
-            value={group}
-            onChange={(e) => setGroup(e.target.value)}
-          >
-            {Object.keys(data?.[grouping])
-              .sort()
-              .map((row, i) => {
-                return (
-                  <MenuItem key={`player-${i}`} value={row}>
-                    {row}
-                  </MenuItem>
-                );
-              })}
-          </Select>
-        </FormControl>
-      )}
-
-      <Fab size="small">
-        <LightMode />
-      </Fab>
-    </Toolbar>
+          <LightMode />
+        </Fab>
+      </Toolbar>
+    </ClickAwayListener>
   );
 };
 
-export default EnhancedTableToolbar;
+export default EnhancedToolbar;

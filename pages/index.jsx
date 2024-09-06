@@ -1,18 +1,12 @@
-import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import ThemeProvider from "./Context/ThemeContext";
 import Drops from "./Drops";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-  },
-});
-
-const Home = () => (
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <Drops />
-  </ThemeProvider>
-);
+const Home = () => {
+  return (
+    <ThemeProvider>
+      <Drops />
+    </ThemeProvider>
+  );
+};
 
 export default Home;

@@ -1,3 +1,4 @@
+import { Divider, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Data, Difficulty, Grouping, Team } from "../../public/types";
 import {
@@ -7,12 +8,14 @@ import {
   formatResults,
   validateReport,
 } from "../../public/utils";
-import Table from "./Table";
+import EnhancedTable from "./Table";
+import EnhancedToolbar from "./Toolbar";
 
 const Drops = () => {
   const [team, setTeam] = useState(Team.Royal);
   const [difficulty, setDifficulty] = useState(Difficulty.Mythic);
   const [grouping, setGrouping] = useState(Grouping.Boss);
+  const [group, setGroup] = useState(BOSSES[0]);
   const [reports, setReports] = useState<string[]>([]);
   const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
   const [loading, setLoading] = useState(true);
@@ -69,19 +72,39 @@ const Drops = () => {
     };
 
     loadData();
-  }, [reports]);
+  }, [reports, difficulty]);
 
   return (
-    <Table
-      team={team}
-      setTeam={setTeam}
-      difficulty={difficulty}
-      setDifficulty={setDifficulty}
-      grouping={grouping}
-      setGrouping={setGrouping}
-      data={data}
-      loading={loading}
-    />
+    <Paper
+      sx={{
+        margin: "12px",
+        padding: "8px",
+        display: "flex",
+        flexDirection: "column",
+        borderRadius: 2,
+      }}
+    >
+      <EnhancedToolbar
+        team={team}
+        setTeam={setTeam}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        grouping={grouping}
+        setGrouping={setGrouping}
+        group={group}
+        setGroup={setGroup}
+        data={data}
+      />
+
+      <Divider />
+
+      <EnhancedTable
+        grouping={grouping}
+        group={group}
+        data={data}
+        loading={loading}
+      />
+    </Paper>
   );
 };
 
