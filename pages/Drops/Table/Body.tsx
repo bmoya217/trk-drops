@@ -64,13 +64,13 @@ const EnhancedTableBody: FC<Props> = ({
           );
         })}
 
-      <TableRow sx={{ justifyContent: "center" }}>
-        <TableCell colSpan={headCells.length}>
-          {!rows.length && !loading && (
+      {!rows.length && !loading && (
+        <TableRow sx={{ justifyContent: "center" }}>
+          <TableCell colSpan={headCells.length}>
             <Typography> No valid reports :)</Typography>
-          )}
-        </TableCell>
-      </TableRow>
+          </TableCell>
+        </TableRow>
+      )}
     </TableBody>
   );
 };

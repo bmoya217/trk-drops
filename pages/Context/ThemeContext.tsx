@@ -40,6 +40,7 @@ const ThemeProvider: FC<{ children: ReactElement }> = ({ children }) => {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
+
   return (
     <ThemeContext.Provider
       value={{

@@ -1,4 +1,11 @@
-import { Api, Blind, Groups, HowToReg, LightMode } from "@mui/icons-material";
+import {
+  Api,
+  Blind,
+  Groups,
+  HowToReg,
+  LightMode,
+  DarkMode,
+} from "@mui/icons-material";
 import {
   Avatar,
   ClickAwayListener,
@@ -36,7 +43,7 @@ const Toolbar: FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(Open.Closed);
 
-  const { setTheme } = useContext(ThemeContext);
+  const { theme, setTheme } = useContext(ThemeContext);
 
   const groups =
     grouping === Grouping.Boss
@@ -48,7 +55,13 @@ const Toolbar: FC<Props> = ({
       onClickAway={() => setOpen(Open.Closed)}
       disableReactTree
     >
-      <MuiToolbar>
+      <MuiToolbar
+        disableGutters
+        sx={{
+          backgroundImage:
+            "https://wow.zamimg.com/modelviewer/live/webthumbs/npc/12/117772.webp",
+        }}
+      >
         {/* trk logo */}
         <Avatar
           src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
@@ -113,7 +126,7 @@ const Toolbar: FC<Props> = ({
             setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
           }
         >
-          <LightMode />
+          {theme.palette.mode === "light" ? <DarkMode /> : <LightMode />}
         </Fab>
       </MuiToolbar>
     </ClickAwayListener>
