@@ -37,7 +37,7 @@ const EnhancedTableBody: FC<Props> = ({
                 const value = row[col];
                 const formatted =
                   typeof value === "number" ? formatter.format(value) : value;
-                const link = col === "Player" || col === "name";
+                const link = col === "Player" || col === "Item";
 
                 return (
                   <TableCell
@@ -52,11 +52,16 @@ const EnhancedTableBody: FC<Props> = ({
                         rel="noreferrer"
                         underline="none"
                         color="inherit"
+                        sx={{ textTransform: "capitalize" }}
                       >
                         {formatted}
                       </Link>
                     )}
-                    {!link && <Typography>{formatted}</Typography>}
+                    {!link && (
+                      <Typography sx={{ textTransform: "capitalize" }}>
+                        {formatted}
+                      </Typography>
+                    )}
                   </TableCell>
                 );
               })}

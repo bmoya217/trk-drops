@@ -9,90 +9,6 @@ export const BOSS_BY_SLOT = {
   legs: "Nexus-Princess Ky'veza",
 };
 
-// Converts multiple items to a single column in the table
-export const TIER_BY_SLOT = {
-  // Silken Court
-  "Helm Tier": [
-    "Entombed Seraph's Casque",
-    "Warscupltor's Barbute",
-    "Lightless Scavenger's Skull",
-    "K'areshi Phantom's Emptiness",
-    "Living Luster's Semblance",
-    "Noetic of the Forgotten Reservoir",
-    "Hood of Violet Rebirth",
-    "Hexflame Coven's All-Seeing Eye",
-    "Gatecrasher's Horns",
-    "Mask of the Greatlynx",
-    "Impalers of the Hypogeal Nemesis",
-    "Exhumed Centurion's Galea",
-    "Horns of the Destroyer",
-  ],
-  // Rasha'nan
-  "Shoulders Tier": [
-    "Entombed Seraph's Plumes",
-    "Warscupltor's Horned Spaulders",
-    "Lightless Scavenger's Taxidermy",
-    "K'areshi Phantom's Shoulderpads",
-    "Living Luster's Dominion",
-    "Concourse of the Forgotten Reservoir",
-    "Beacons of Violet Rebirth",
-    "Hexflame Coven's Altar",
-    "Gatecrasher's Enduring Effigy",
-    "Maw of the Greatlynx",
-    "War-Mantle of the Hypogeal Nemesis",
-    "Exhumed Centurion's Spikes",
-    "Fumaroles of the Destroyer",
-  ],
-  // Broodtwister Ovi'nax
-  "Chest Tier": [
-    "Entombed Seraph's Breastplate",
-    "Warscupltor's Furred Plastron",
-    "Lightless Scavenger's Tunic",
-    "K'areshi Phantom's Nexus Wraps",
-    "Living Luster's Raiment",
-    "Vestments of the Forgotten Reservoir",
-    "Runecoat of Violet Rebirth",
-    "Hexflame Coven's Ritual Harness",
-    "Gatecrasher's Gi",
-    "Hide of the Greatlynx",
-    "Chestguard of the Hypogeal Nemesis",
-    "Exhumed Centurion's Breastplate",
-    "Scales of the Destroyer",
-  ],
-  // Sikran, Captain of the Sureki
-  "Hands Tier": [
-    "Entombed Seraph's Castigation",
-    "Warscupltor's Crushers",
-    "Lightless Scavenger's Mitts",
-    "K'areshi Phantom's Grips",
-    "Living Luster's Touch",
-    "Covenant of the Forgotten Reservoir",
-    "Jeweled Gauntlets of Violet Rebirth",
-    "Hexflame Coven's Sleeves",
-    "Gatecrasher's Protectors",
-    "Eviscerators of the Greatlynx",
-    "Claws of the Hypogeal Nemesis",
-    "Exhumed Centurion's Gauntlets",
-    "Rippers of the Destroyer",
-  ],
-  // Nexus Princess
-  "Legs Tier": [
-    "Entombed Seraph's Greaves",
-    "Warscupltor's Cuisses",
-    "Lightless Scavenger's Stalkings",
-    "K'areshi Phantom's Leggings",
-    "Living Luster's Trousers",
-    "Sarong of the Forgotten Reservoir",
-    "Coattails of Violet Rebirth",
-    "Hexflame Coven's Leggings",
-    "Gatecrasher's Kilt",
-    "Leggings of the Greatlynx",
-    "Pantaloons of the Hypogeal Nemesis",
-    "Exhumed Centurion's Chausses",
-    "Legguards of the Destroyer",
-  ],
-};
-
 // Groups by boss
 export const BOSSES = [
   "Ulgrax the Devourer",
@@ -103,6 +19,7 @@ export const BOSSES = [
   "Nexus-Princess Ky'veza",
   "The Silken Court",
   "Queen Ansurek",
+  "Catalyst",
 ];
 
 // Columns for each player
@@ -148,7 +65,7 @@ export const getComparator = (order: Order, orderBy: string) => {
 };
 
 export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
-  if (grouping === "Player") return ["name", ...SLOTS];
+  if (grouping === "Player") return ["Item", ...SLOTS];
 
   let headCells = new Set<string>();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
@@ -200,22 +117,6 @@ export const validateReport = ($: any, difficulty: Difficulty) => {
   if (!isUpgradeEquipped($)) return false;
   return true;
 };
-export const selectId = ($: any) => $?.simbot?.parentSimId ?? "id";
-export const selectPlayer = ($: any) =>
-  $?.sim?.players?.[0]?.name ?? "anon player";
-export const selectResults = ($: any) => $?.sim?.profilesets?.results ?? [];
-export const selectCurrent = ($: any) =>
-  $?.sim?.statistics?.raid_dps?.mean ?? 0;
-export const selectDroptimizerItems = ($: any) =>
-  $?.simbot?.meta?.rawFormData?.droptimizerItems ?? [];
-
-export const getItemName = (item: string) => {
-  const slot = Object.keys(TIER_BY_SLOT).find(
-    (slot: keyof typeof TIER_BY_SLOT) => TIER_BY_SLOT[slot].includes(item)
-  );
-  if (slot) return slot;
-  return item;
-};
 
 type ResultsData = {
   itemName: string;
@@ -228,45 +129,51 @@ type ResultsData = {
 };
 
 export const formatResults = ($: any) => {
-  const id = selectId($);
-  const player = selectPlayer($);
-  const current = selectCurrent($);
-  const results = selectResults($); // numerical sim results
-  const items = selectDroptimizerItems($); // item description
+  const id = $?.simbot?.parentSimId ?? "id";
+  const player = $?.sim?.players?.[0]?.name ?? "anon player";
+  const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
+  const results = $?.sim?.profilesets?.results ?? []; // numerical sim results
+  const items = $?.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
 
   // match itemset list with sim results list
-  const data: ResultsData[] = results?.reduce((prev: any, curr: any) => {
-    const item = items?.find((item: any) => item.id === curr.name);
-    if (!item) return prev; // likely a trash drop
+  const data: ResultsData[] = items?.reduce((prev: any, item: any) => {
+    const result = results?.reduce((prev: any, result: any) => {
+      if (item.id !== result.name) return prev;
+      if (prev?.mean > result.mean) return prev;
+      return result;
+    }, undefined);
+    if (!result) return prev;
 
-    const itemName = getItemName(item.item.name);
-    const sim = Math.floor(curr.mean - current);
-    const boss = item.item.encounter.name;
-    const slot = item.slot.replace(/[0-9]/g, "") as keyof typeof BOSS_BY_SLOT;
+    const sourceItem = item.item.sourceItem;
+    const isCatalyst = item.item.tags?.find(
+      (tag: string) => tag === "catalyst"
+    );
+
     const id = item.item.id;
+    const slot = item.slot.replace(/[0-9]/g, "");
+    const itemName = sourceItem?.name ? slot + " tier" : item.item.name;
+    const boss = isCatalyst ? "Catalyst" : item.item.encounter.name;
+    const sim = Math.floor(result.mean - current);
     const bonus_id = item.item.bonus_id;
     const itemLevel = item.item.itemLevel;
     const newEntry = { itemName, sim, boss, slot, id, bonus_id, itemLevel };
 
-    // Ignore catalyst items so we don't over populate the tables
-    const isCatalyst = item.item.tags?.find(
-      (tag: string) => tag === "catalyst"
-    );
-    if (isCatalyst) return prev;
+    // ignore tier that isn't on the right boss
+    if (
+      sourceItem &&
+      !isCatalyst &&
+      boss !== BOSS_BY_SLOT[slot as keyof typeof BOSS_BY_SLOT]
+    )
+      return prev;
 
-    // Ignore tier from last boss omni token
-    const isTier = itemName !== item.item.name;
-    const tierBoss = boss === BOSS_BY_SLOT[slot];
-    if (isTier && !tierBoss) return prev;
-
-    // look for rings/trinkets slot variation already, if none return normally
+    // check for item variation, return normally if not found
     const index = prev.findIndex((x: any) => x.itemName === itemName);
     if (index === -1) return [...prev, newEntry];
 
-    // other ring/trinket variation was better, use that
-    if (prev[index.sim] > curr.mean - current) return prev;
+    // other variation was better, use that
+    if (prev[index.sim] > sim) return prev;
 
-    // this ring/trinket variation was better, replace the old one
+    // this variation was better, replace the old one
     return [...prev.slice(0, index), newEntry, ...prev.slice(index + 1)];
   }, []);
 
@@ -291,7 +198,7 @@ export const formatResults = ($: any) => {
 
   const Player = {
     [player]: data.map((d) => ({
-      name: d.itemName,
+      Item: d.itemName,
       [d.slot]: d.sim,
       href: `https://www.wowhead.com/item=${d.id}?bonus=${d.bonus_id}&ilvl=${d.itemLevel}`,
     })),

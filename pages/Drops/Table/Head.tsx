@@ -1,10 +1,8 @@
 import { Typography } from "@mui/material";
-import Box from "@mui/material/Box";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { visuallyHidden } from "@mui/utils";
 import type { FC, MouseEventHandler } from "react";
 import { Order } from "../../../public/types";
 
@@ -37,8 +35,9 @@ const Head: FC<Props> = ({ headCells = [], order, orderBy, onRequestSort }) => {
               onClick={createSortHandler(headCell)}
               style={orderBy === headCell ? { fontWeight: "bold" } : {}}
             >
-              <Typography>{headCell}</Typography>
-          
+              <Typography sx={{ textTransform: "capitalize" }}>
+                {headCell}
+              </Typography>
             </TableSortLabel>
           </TableCell>
         ))}
