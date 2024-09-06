@@ -38,11 +38,7 @@ const Head: FC<Props> = ({ headCells = [], order, orderBy, onRequestSort }) => {
               style={orderBy === headCell ? { fontWeight: "bold" } : {}}
             >
               <Typography>{headCell}</Typography>
-              {orderBy === headCell ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
+          
             </TableSortLabel>
           </TableCell>
         ))}

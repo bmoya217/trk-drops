@@ -10,11 +10,12 @@ import {
   FC,
   ReactElement,
   SetStateAction,
+  useEffect,
   useState,
 } from "react";
 
 interface Context {
-  theme: Theme;
+  theme?: Theme;
   setTheme?: Dispatch<SetStateAction<"light" | "dark">>;
 }
 
@@ -30,11 +31,15 @@ const light = createTheme({
   },
 });
 
-export const ThemeContext = createContext<Context>({ theme: dark });
+export const ThemeContext = createContext<Context>({});
 
 const ThemeProvider: FC<{ children: ReactElement }> = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState("dark");
 
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
   return (
     <ThemeContext.Provider
       value={{

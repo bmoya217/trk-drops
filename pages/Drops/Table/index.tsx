@@ -1,4 +1,3 @@
-import { LinearProgress } from "@mui/material";
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useState } from "react";
@@ -40,8 +39,6 @@ const Table: FC<Props> = ({ grouping, group, data, loading }) => {
           orderBy={orderBy}
           onRequestSort={handleRequestSort}
         />
-
-        {loading && <LinearProgress />}
 
         <Body
           headCells={headCells}

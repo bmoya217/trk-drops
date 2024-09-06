@@ -1,4 +1,4 @@
-import { Divider, Paper } from "@mui/material";
+import { Divider, LinearProgress, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Data, Difficulty, Grouping, Team } from "../../public/types";
 import {
@@ -86,7 +86,7 @@ const Drops = () => {
         data={data}
       />
 
-      <Divider />
+      {loading ? <LinearProgress /> : <Divider />}
 
       <Table grouping={grouping} group={group} data={data} loading={loading} />
     </Paper>
