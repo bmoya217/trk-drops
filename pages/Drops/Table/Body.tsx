@@ -2,8 +2,8 @@ import { Link, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC } from "react";
-import type { Data, Grouping, Order } from "../../../public/types";
-import { getComparator } from "../../../public/utils";
+import type { Data, Grouping, Links, Order } from "../../../public/types";
+import { getComparator, openUrl } from "../../../public/utils";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -13,6 +13,7 @@ const formatter = Intl.NumberFormat("en", {
 interface Props {
   headCells: string[];
   rows: Data[Grouping][string];
+  links: Links;
   order: Order;
   orderBy: string;
   loading: boolean;
@@ -21,6 +22,7 @@ interface Props {
 const EnhancedTableBody: FC<Props> = ({
   headCells = [],
   rows = [],
+  links,
   order,
   orderBy,
   loading,
@@ -31,13 +33,22 @@ const EnhancedTableBody: FC<Props> = ({
         ?.slice()
         .sort(getComparator(order, orderBy))
         .map((row, index) => {
+          const link = row.Player ?? row.Item;
+          const url = link ? links?.[link] : undefined;
+          const onClick = () => link && openUrl(url);
+
           return (
-            <TableRow hover tabIndex={-1} key={`enhanced-row-${index}`}>
+            <TableRow
+              hover
+              tabIndex={-1}
+              key={`enhanced-row-${index}`}
+              sx={link ? { cursor: "pointer" } : {}}
+              onClick={onClick}
+            >
               {headCells.map((col, i) => {
                 const value = row[col];
                 const formatted =
                   typeof value === "number" ? formatter.format(value) : value;
-                const link = col === "Player" || col === "Item";
 
                 return (
                   <TableCell
@@ -45,19 +56,17 @@ const EnhancedTableBody: FC<Props> = ({
                     scope="row"
                     align={i ? "right" : "left"}
                   >
-                    {link && (
+                    {!i ? (
                       <Link
-                        href={row.href as string}
-                        target="_blank"
-                        rel="noreferrer"
+                        href={url}
                         underline="none"
                         color="inherit"
                         sx={{ textTransform: "capitalize" }}
+                        onClick={(e) => e.preventDefault()}
                       >
                         {formatted}
                       </Link>
-                    )}
-                    {!link && (
+                    ) : (
                       <Typography sx={{ textTransform: "capitalize" }}>
                         {formatted}
                       </Typography>

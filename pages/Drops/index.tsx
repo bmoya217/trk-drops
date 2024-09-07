@@ -1,6 +1,6 @@
 import { Divider, LinearProgress, Paper } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Data, Difficulty, Grouping, Team } from "../../public/types";
+import { useEffect, useRef, useState } from "react";
+import { Data, Difficulty, Grouping, Links, Team } from "../../public/types";
 import {
   BOSSES,
   fetchReport,
@@ -17,20 +17,20 @@ const Drops = () => {
   const [grouping, setGrouping] = useState(Grouping.Boss);
   const [group, setGroup] = useState(BOSSES[0]);
   const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
+  const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
+
+  const first = useRef(true);
 
   const addData = (newData: Data) => {
     setData((data) => {
       const Boss = BOSSES.reduce((prev, curr) => {
         const oldRows = data?.Boss?.[curr] ?? [];
         const newRows = newData?.Boss?.[curr] ?? [];
-        const filteredRows = oldRows.filter(
-          (oldRow) => !newRows.find((newRow) => newRow.Player === oldRow.Player)
-        );
 
         return {
           ...prev,
-          [curr]: [...filteredRows, ...newRows],
+          [curr]: [...oldRows, ...newRows],
         };
       }, {});
 
@@ -43,7 +43,21 @@ const Drops = () => {
     });
   };
 
+  const addLinks = (newLinks: Links) => {
+    setLinks((links) => {
+      return {
+        ...links,
+        ...newLinks,
+      };
+    });
+  };
+
   useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+
     const loadReports = async () => {
       setLoading(true);
       setData({ Boss: {}, Player: {} });
@@ -54,7 +68,9 @@ const Drops = () => {
       const loadReport = async (url: string) => {
         const $ = await fetchReport(url);
         if (!validateReport($, difficulty)) return;
-        addData(formatResults($));
+        const [data, links] = formatResults($);
+        addData(data);
+        addLinks(links);
       };
       await Promise.all(reports.map(loadReport)).catch(() => {});
 
@@ -88,7 +104,13 @@ const Drops = () => {
 
       {loading ? <LinearProgress /> : <Divider />}
 
-      <Table grouping={grouping} group={group} data={data} loading={loading} />
+      <Table
+        grouping={grouping}
+        group={group}
+        data={data}
+        links={links}
+        loading={loading}
+      />
     </Paper>
   );
 };

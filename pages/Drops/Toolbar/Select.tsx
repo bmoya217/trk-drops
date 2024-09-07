@@ -47,11 +47,13 @@ const EnhancedSelect: FC<Props<string>> = ({
         ref={anchorRef}
         size="small"
         variant="extended"
-        onClick={() => setOpen(label)}
+        onClick={() =>
+          setOpen((o) => (o === Open.Closed ? label : Open.Closed))
+        }
         sx={{ m: 1, minWidth: 120 }}
       >
         {icon}
-        <Typography variant="subtitle1" fontWeight={'bold'} sx={{ m: 1 }}>
+        <Typography variant="subtitle1" fontWeight={"bold"} sx={{ m: 1 }}>
           {value}
         </Typography>
       </Fab>

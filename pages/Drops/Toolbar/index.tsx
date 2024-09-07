@@ -60,7 +60,7 @@ const Toolbar: FC<Props> = ({
         <Avatar
           src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
           alt="Guild logo"
-          sx={{ width: 56, height: 56 }}
+          sx={{ width: 69, height: 69 }}
         />
 
         {/* select team */}
@@ -95,7 +95,6 @@ const Toolbar: FC<Props> = ({
           values={[Grouping.Boss, Grouping.Player]}
           setState={setGrouping}
           onChange={(value: Grouping) => {
-            console.log(value);
             const players = Object.keys(data.Player);
             if (value === Grouping.Boss) setGroup(BOSSES[0]);
             else setGroup(players.length ? players[0] : "");

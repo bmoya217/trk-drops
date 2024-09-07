@@ -32,9 +32,12 @@ data = {
     ]
   },
 }
+data[grouping][group][row][col] = value
   */
 export type Row = Record<string, string | number>;
 
 export type Data = {
   [key in Grouping]: Record<string, Array<Row>>;
 };
+
+export type Links = Record<string, string>;

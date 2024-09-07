@@ -1,13 +1,5 @@
 import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
-import { Difficulty, Grouping, Order, Row, Team } from "./types";
-
-export const BOSS_BY_SLOT = {
-  head: "The Silken Court",
-  shoulder: "Rasha'nan",
-  chest: "Broodtwister Ovi'nax",
-  hands: "Sikran, Captain of the Sureki",
-  legs: "Nexus-Princess Ky'veza",
-};
+import { Data, Difficulty, Grouping, Links, Order, Row, Team } from "./types";
 
 // Groups by boss
 export const BOSSES = [
@@ -19,7 +11,6 @@ export const BOSSES = [
   "Nexus-Princess Ky'veza",
   "The Silken Court",
   "Queen Ansurek",
-  "Catalyst",
 ];
 
 // Columns for each player
@@ -40,10 +31,11 @@ export const SLOTS = [
   "off_hand",
 ];
 
-export const openReport = (id: string) => () => {
-  window.open("https://www.raidbots.com/simbot/report/" + id, "_blank").focus();
+export const openUrl = (url: string) => {
+  window.open(url, "_blank").focus();
 };
 
+// table utils
 export const descendingComparator =
   (order: Order, orderBy: string) => (a: Row, b: Row) => {
     const mag = order === "desc" ? 1 : -1;
@@ -65,16 +57,16 @@ export const getComparator = (order: Order, orderBy: string) => {
 };
 
 export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
-  if (grouping === "Player") return ["Item", ...SLOTS];
-
   let headCells = new Set<string>();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
-  headCells.delete("Player");
-  headCells.delete("id");
-  headCells.delete("href");
-  return ["Player", ...Array.from(headCells).sort()];
+  headCells.delete(grouping === Grouping.Boss ? "Player" : "Item");
+  return [
+    grouping === Grouping.Boss ? "Player" : "Item",
+    ...Array.from(headCells).sort(),
+  ];
 };
 
+// data fetching
 export const fetchReport = async (report: string) => {
   const page = await fetch("api/report?report=" + report, {
     cache: "force-cache",
@@ -120,15 +112,13 @@ export const validateReport = ($: any, difficulty: Difficulty) => {
 
 type ResultsData = {
   itemName: string;
-  sim: string;
+  sim: number;
   boss: string;
   slot: string;
-  id: string;
-  bonus_id: string;
-  itemLevel: number;
+  link: string;
 };
 
-export const formatResults = ($: any) => {
+export const formatResults = ($: any): [Data, Links] => {
   const id = $?.simbot?.parentSimId ?? "id";
   const player = $?.sim?.players?.[0]?.name ?? "anon player";
   const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
@@ -144,27 +134,19 @@ export const formatResults = ($: any) => {
     }, undefined);
     if (!result) return prev;
 
-    const sourceItem = item.item.sourceItem;
-    const isCatalyst = item.item.tags?.find(
-      (tag: string) => tag === "catalyst"
-    );
+    const isTier = item.item.sourceItem?.name;
 
     const id = item.item.id;
     const slot = item.slot.replace(/[0-9]/g, "");
-    const itemName = sourceItem?.name ? slot + " tier" : item.item.name;
-    const boss = isCatalyst ? "Catalyst" : item.item.encounter.name;
+    const itemName = isTier ? slot + " tier" : item.item.name;
+    const boss = isTier ? "Tier Sets" : item.item.encounter.name;
     const sim = Math.floor(result.mean - current);
     const bonus_id = item.item.bonus_id;
     const itemLevel = item.item.itemLevel;
-    const newEntry = { itemName, sim, boss, slot, id, bonus_id, itemLevel };
+    const link = `https://www.wowhead.com/item=${id}?bonus=${bonus_id}&ilvl=${itemLevel}`;
+    const newEntry: ResultsData = { itemName, sim, boss, slot, link };
 
-    // ignore tier that isn't on the right boss
-    if (
-      sourceItem &&
-      !isCatalyst &&
-      boss !== BOSS_BY_SLOT[slot as keyof typeof BOSS_BY_SLOT]
-    )
-      return prev;
+    if (isTier) return prev;
 
     // check for item variation, return normally if not found
     const index = prev.findIndex((x: any) => x.itemName === itemName);
@@ -189,7 +171,6 @@ export const formatResults = ($: any) => {
                 .map((e) => [e.itemName, e.sim])
             ),
             Player: player,
-            href: `https://www.raidbots.com/simbot/report/${id}`,
           },
         ],
       ];
@@ -200,9 +181,13 @@ export const formatResults = ($: any) => {
     [player]: data.map((d) => ({
       Item: d.itemName,
       [d.slot]: d.sim,
-      href: `https://www.wowhead.com/item=${d.id}?bonus=${d.bonus_id}&ilvl=${d.itemLevel}`,
     })),
   };
 
-  return { Boss, Player };
+  const links = {
+    [player]: `https://www.raidbots.com/simbot/report/${id}`,
+    ...Object.fromEntries(data.map((d) => [d.itemName, d.link])),
+  };
+
+  return [{ Boss, Player }, links];
 };
