@@ -1,5 +1,5 @@
 import { Divider, LinearProgress, Paper } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Data, Difficulty, Grouping, Links, Team } from "../../public/types";
 import {
   BOSSES,
@@ -19,8 +19,6 @@ const Drops = () => {
   const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
   const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
-
-  const first = useRef(true);
 
   const addData = (newData: Data) => {
     setData((data) => {
@@ -53,11 +51,6 @@ const Drops = () => {
   };
 
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-
     const loadReports = async () => {
       setLoading(true);
       setData({ Boss: {}, Player: {} });
