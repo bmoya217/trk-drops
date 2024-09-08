@@ -1,4 +1,4 @@
-import { Divider, LinearProgress, Paper } from "@mui/material";
+import { Box, LinearProgress, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   ByDifficulty,
@@ -123,11 +123,11 @@ const Drops = () => {
   }, [loading]);
 
   return (
-    <Paper
+    <Box
       sx={{
         margin: "12px",
-        padding: "8px",
         display: "flex",
+        flex: 1,
         flexDirection: "column",
         borderRadius: 2,
       }}
@@ -144,18 +144,25 @@ const Drops = () => {
         setGroup={setGroup}
         refetch={() => setLoading(true)}
       />
+      <Paper
+        sx={{
+          padding: "8px",
+          display: "flex",
+          flex: 1,
+        }}
+      >
+        {loading && <LinearProgress />}
 
-      {loading ? <LinearProgress /> : <Divider />}
-
-      <Table
-        difficulty={difficulty}
-        grouping={grouping}
-        group={group}
-        data={data[team]}
-        links={links}
-        loading={loading}
-      />
-    </Paper>
+        <Table
+          difficulty={difficulty}
+          grouping={grouping}
+          group={group}
+          data={data[team]}
+          links={links}
+          loading={loading}
+        />
+      </Paper>
+    </Box>
   );
 };
 

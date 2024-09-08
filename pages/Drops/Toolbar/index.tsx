@@ -8,6 +8,7 @@ import {
 } from "@mui/icons-material";
 import {
   Avatar,
+  Box,
   ClickAwayListener,
   Fab,
   IconButton,
@@ -122,15 +123,17 @@ const Toolbar: FC<Props> = ({
           setState={setGroup}
         />
 
-        <Fab
-          size="small"
-          sx={{ m: 1 }}
-          onClick={() =>
-            setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
-          }
-        >
-          {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
-        </Fab>
+        <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+          <Fab
+            size="small"
+            sx={{ m: 1 }}
+            onClick={() =>
+              setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
+            }
+          >
+            {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
+          </Fab>
+        </Box>
       </MuiToolbar>
     </ClickAwayListener>
   );

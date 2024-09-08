@@ -19,6 +19,7 @@ export const BOSSES = [
   "Nexus-Princess Ky'veza",
   "The Silken Court",
   "Queen Ansurek",
+  "Catalyst",
 ];
 
 // Columns for each player
@@ -125,17 +126,21 @@ export const validateReport = ($: any, difficulty: Difficulty) => {
   return true;
 };
 
-const getDungeonName = (item: any) => {
-  const encounterIds: string[] = item.item.sources.map(
+const getEncounter = (item: any) => {
+  const boss = item.item.encounter?.name;
+  if (boss) return boss;
+
+  const dungeonIds: string[] = item.item.sources.map(
     (src: any) => src.encounterId
   );
-  const encounter = item.item.instance.encounters.find((en: any) =>
-    encounterIds.includes(en.id)
+  const dungeon = item.item.instance.encounters.find((en: any) =>
+    dungeonIds.includes(en.id)
   );
-  return encounter.name;
+  return dungeon?.name ?? "";
 };
 type ResultsData = {
   itemName: string;
+  column: string;
   sim: number;
   boss: string;
   slot: string;
@@ -164,17 +169,14 @@ export const formatResults = (
     const isTier = item.item.sourceItem?.name;
     const id = item.item.id;
     const slot = item.slot.replace(/[0-9]/g, "");
-    const itemName = isTier ? slot + " tier" : item.item.name;
-    const boss = isTier
-      ? "Tier Sets"
-      : (item.item.encounter?.name ?? getDungeonName(item));
+    const itemName = item.item.name;
+    const column = isTier ? slot + " tier" : itemName;
+    const boss = isTier ? "Catalyst" : getEncounter(item);
     const sim = Math.floor(result.mean - current);
     const bonus_id = item.item.bonus_id;
     const itemLevel = item.item.itemLevel;
     const link = `https://www.wowhead.com/item=${id}?bonus=${bonus_id}&ilvl=${itemLevel}`;
-    const newEntry: ResultsData = { itemName, sim, boss, slot, link };
-
-    if (isTier) return prev;
+    const newEntry: ResultsData = { itemName, column, sim, boss, slot, link };
 
     // check for item variation, return normally if not found
     const index = prev.findIndex((x: any) => x.itemName === itemName);
@@ -196,7 +198,7 @@ export const formatResults = (
             ...Object.fromEntries(
               data
                 .filter((d) => d.boss === boss)
-                .map((e) => [e.itemName, e.sim])
+                .map((e) => [e.column ?? e.itemName, e.sim])
             ),
             Player: player,
           },
@@ -213,7 +215,7 @@ export const formatResults = (
   };
 
   const links = {
-    [player]: `https://www.raidbots.com/simbot/report/${id}`,
+    [player + "_" + difficulty]: `https://www.raidbots.com/simbot/report/${id}`,
     ...Object.fromEntries(data.map((d) => [d.itemName, d.link])),
   };
 

@@ -62,6 +62,7 @@ const Table: FC<Props> = ({
         <Body
           headCells={headCells}
           rows={rows}
+          difficulty={difficulty}
           links={links}
           order={order}
           orderBy={orderBy}

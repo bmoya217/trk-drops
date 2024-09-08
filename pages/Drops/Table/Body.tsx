@@ -2,7 +2,13 @@ import { Link, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC } from "react";
-import type { Data, Grouping, Links, Order } from "../../../public/types";
+import type {
+  Data,
+  Difficulty,
+  Grouping,
+  Links,
+  Order,
+} from "../../../public/types";
 import { getComparator, openUrl } from "../../../public/utils";
 
 const formatter = Intl.NumberFormat("en", {
@@ -13,6 +19,7 @@ const formatter = Intl.NumberFormat("en", {
 interface Props {
   headCells: string[];
   rows: Data[Grouping][string];
+  difficulty: Difficulty;
   links: Links;
   order: Order;
   orderBy: string;
@@ -22,6 +29,7 @@ interface Props {
 const EnhancedTableBody: FC<Props> = ({
   headCells = [],
   rows = [],
+  difficulty,
   links,
   order,
   orderBy,
@@ -33,9 +41,9 @@ const EnhancedTableBody: FC<Props> = ({
         ?.slice()
         .sort(getComparator(order, orderBy))
         .map((row, index) => {
-          const link = row.Player ?? row.Item;
-          const url = link ? links?.[link] : undefined;
-          const onClick = () => link && openUrl(url);
+          const link = row.Item ?? row.Player + "_" + difficulty;
+          const url = links?.[link];
+          const onClick = () => url && openUrl(url);
 
           return (
             <TableRow

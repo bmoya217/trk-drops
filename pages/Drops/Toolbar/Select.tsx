@@ -1,6 +1,5 @@
 import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 import {
-  Box,
   Fab,
   Grow,
   MenuItem,
@@ -71,7 +70,8 @@ const EnhancedSelect: FC<Props<string>> = ({
                 placement === "bottom-start" ? "left top" : "left bottom",
             }}
           >
-            <Box
+            <MenuList
+              id="composition-menu"
               sx={{
                 border: 1,
                 m: 1,
@@ -79,25 +79,23 @@ const EnhancedSelect: FC<Props<string>> = ({
                 borderRadius: 1,
               }}
             >
-              <MenuList id="composition-menu">
-                {values.map((item, i) => {
-                  return (
-                    <MenuItem
-                      onClick={() => {
-                        setState(item);
-                        onChange?.(item);
-                        setOpen(Open.Closed);
-                      }}
-                      key={label + i}
-                    >
-                      <Typography sx={{ textTransform: "capitalize" }}>
-                        {item}
-                      </Typography>
-                    </MenuItem>
-                  );
-                })}
-              </MenuList>
-            </Box>
+              {values.map((item, i) => {
+                return (
+                  <MenuItem
+                    onClick={() => {
+                      setState(item);
+                      onChange?.(item);
+                      setOpen(Open.Closed);
+                    }}
+                    key={label + i}
+                  >
+                    <Typography sx={{ textTransform: "capitalize" }}>
+                      {item}
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
           </Grow>
         )}
       </Popper>
