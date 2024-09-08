@@ -47,9 +47,7 @@ const Select: FC<Props<string>> = ({
         ref={anchorRef}
         size="small"
         variant="extended"
-        onClick={() =>
-          setOpen((o) => (o === Open.Closed ? label : Open.Closed))
-        }
+        onClick={() => setOpen((o) => (o === label ? Open.Closed : label))}
         sx={{ m: 1, minWidth: 120 }}
       >
         {icon}

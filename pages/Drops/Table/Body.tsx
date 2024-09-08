@@ -1,4 +1,4 @@
-import { Link, TableBody, Typography } from "@mui/material";
+import { TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC } from "react";
@@ -10,6 +10,7 @@ import type {
   Order,
 } from "../../../public/types";
 import { getComparator, openUrl } from "../../../public/utils";
+import CellText from "../../Components/CellText";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -41,9 +42,8 @@ const EnhancedTableBody: FC<Props> = ({
         ?.slice()
         .sort(getComparator(order, orderBy))
         .map((row, index) => {
-          const link = row.Item ?? row.Player + "_" + difficulty;
-          const url = links?.[link];
-          const onClick = () => url && openUrl(url);
+          const link = links?.[row.Item ?? row.Player + "_" + difficulty];
+          const onClick = () => link && openUrl(link);
 
           return (
             <TableRow
@@ -64,21 +64,7 @@ const EnhancedTableBody: FC<Props> = ({
                     scope="row"
                     align={i ? "right" : "left"}
                   >
-                    {!i ? (
-                      <Link
-                        href={url}
-                        underline="none"
-                        color="inherit"
-                        sx={{ textTransform: "capitalize" }}
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        {formatted}
-                      </Link>
-                    ) : (
-                      <Typography sx={{ textTransform: "capitalize" }}>
-                        {formatted}
-                      </Typography>
-                    )}
+                    <CellText text={formatted} link={!i ? link : undefined} />
                   </TableCell>
                 );
               })}

@@ -1,10 +1,10 @@
-import { Link, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import type { FC, MouseEventHandler } from "react";
 import { Links, Order } from "../../../public/types";
+import CellText from "../../Components/CellText";
 
 interface Props {
   headCells: string[];
@@ -33,10 +33,6 @@ const Head: FC<Props> = ({
         {headCells.map((headCell, i) => {
           const link = links?.[headCell];
           const sorting = orderBy === headCell;
-          const sx = {
-            fontWeight: sorting ? "bold" : "inherit",
-            textTransform: "capitalize",
-          };
 
           return (
             <TableCell
@@ -49,19 +45,7 @@ const Head: FC<Props> = ({
                 direction={sorting ? order : "desc"}
                 onClick={createSortHandler(headCell)}
               >
-                {link ? (
-                  <Link
-                    href={link}
-                    underline="none"
-                    color="inherit"
-                    sx={sx}
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    {headCell}
-                  </Link>
-                ) : (
-                  <Typography sx={sx}>{headCell}</Typography>
-                )}
+                <CellText text={headCell} link={link} bold={sorting} />
               </TableSortLabel>
             </TableCell>
           );
