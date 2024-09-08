@@ -39,54 +39,56 @@ const Drops = () => {
   const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
 
-  const addData = (newData: Data, t: Team, d: Difficulty) => {
-    setData((data) => {
-      const Boss = BOSSES.reduce((prev, curr) => {
-        const oldRows = data?.[t]?.[d]?.Boss?.[curr] ?? [];
-        const newRows = newData?.Boss?.[curr] ?? [];
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const addData = (newData: Data, t: Team, d: Difficulty) => {
+      setData((data) => {
+        const Boss = BOSSES.reduce((prev, curr) => {
+          const oldRows = data?.[t]?.[d]?.Boss?.[curr] ?? [];
+          const newRows = newData?.Boss?.[curr] ?? [];
+
+          return {
+            ...prev,
+            [curr]: [...oldRows, ...newRows],
+          };
+        }, {});
+
+        const Player = {
+          ...data[t][d].Player,
+          ...newData.Player,
+        };
 
         return {
-          ...prev,
-          [curr]: [...oldRows, ...newRows],
+          ...data,
+          [t]: {
+            ...data[t],
+            [d]: { Boss, Player },
+          },
         };
-      }, {});
+      });
+    };
 
-      const Player = {
-        ...data[t][d].Player,
-        ...newData.Player,
-      };
+    const addLinks = (newLinks: Links) => {
+      setLinks((links) => {
+        return {
+          ...links,
+          ...newLinks,
+        };
+      });
+    };
 
-      return {
-        ...data,
-        [t]: {
-          ...data[t],
-          [d]: { Boss, Player },
-        },
-      };
-    });
-  };
-
-  const addLinks = (newLinks: Links) => {
-    setLinks((links) => {
-      return {
-        ...links,
-        ...newLinks,
-      };
-    });
-  };
-
-  useEffect(() => {
     const loadReports = async () => {
       setLoading(true);
       setData(DATA);
 
-      const reports = await fetchReports();
+      const reports = await fetchReports(controller);
       if (!reports) return;
 
-      const loadReport = async (url: string, t: Team, d: Difficulty) => {
-        if (!url) return;
+      const loadReport = async (report: string, t: Team, d: Difficulty) => {
+        if (!report) return;
 
-        const $ = await fetchReport(url);
+        const $ = await fetchReport(report, controller);
         if (!validateReport($, d)) return;
         const [data, links] = formatResults($, d);
         addData(data, t, d);
@@ -113,6 +115,10 @@ const Drops = () => {
     };
 
     loadReports();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   return (

@@ -75,17 +75,26 @@ export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
 };
 
 // data fetching
-export const fetchReport = async (report: string) => {
+export const fetchReport = async (
+  report: string,
+  controller: AbortController
+) => {
   const page = await fetch("api/report?report=" + report, {
     cache: "force-cache",
+    signal: controller.signal,
   }).catch(() => null);
   if (page?.status !== 200) return {};
 
   return page.json();
 };
 
-export const fetchReports = async (): Promise<Reports_Team | null> => {
-  const reports = await fetch(`api/reports`, { cache: "no-store" })
+export const fetchReports = async (
+  controller: AbortController
+): Promise<Reports_Team | null> => {
+  const reports = await fetch(`api/reports`, {
+    cache: "no-store",
+    signal: controller.signal,
+  })
     .then((reports) => reports.json())
     .catch(() => null);
 

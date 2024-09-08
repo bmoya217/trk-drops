@@ -90,7 +90,9 @@ const EnhancedSelect: FC<Props<string>> = ({
                       }}
                       key={label + i}
                     >
-                      <Typography>{item}</Typography>
+                      <Typography sx={{ textTransform: "capitalize" }}>
+                        {item}
+                      </Typography>
                     </MenuItem>
                   );
                 })}
