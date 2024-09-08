@@ -40,6 +40,8 @@ const Drops = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!loading) return;
+
     const controller = new AbortController();
 
     const addData = (newData: Data, t: Team, d: Difficulty) => {
@@ -79,7 +81,6 @@ const Drops = () => {
     };
 
     const loadReports = async () => {
-      setLoading(true);
       setData(DATA);
 
       const reports = await fetchReports(controller);
@@ -119,7 +120,7 @@ const Drops = () => {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [loading]);
 
   return (
     <Paper
@@ -141,6 +142,7 @@ const Drops = () => {
         setGrouping={setGrouping}
         group={group}
         setGroup={setGroup}
+        refetch={() => setLoading(true)}
       />
 
       {loading ? <LinearProgress /> : <Divider />}

@@ -29,7 +29,7 @@ const Table: FC<Props> = ({
   links,
   loading,
 }) => {
-  const [order, setOrder] = useState(Order.asc);
+  const [order, setOrder] = useState(Order.desc);
   const [orderBy, setOrderBy] = useState("Player");
 
   const difficultyRows = data?.[difficulty]?.[grouping]?.[group] ?? [];
@@ -39,8 +39,8 @@ const Table: FC<Props> = ({
   const headCells = getHeadCells(rows, grouping);
 
   const handleRequestSort = (_: any, property: string) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? Order.desc : Order.asc);
+    const isDesc = orderBy === property && order === Order.desc;
+    setOrder(isDesc ? Order.asc : Order.desc);
     setOrderBy(property);
   };
 

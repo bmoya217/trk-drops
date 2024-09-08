@@ -10,6 +10,7 @@ import {
   Avatar,
   ClickAwayListener,
   Fab,
+  IconButton,
   Toolbar as MuiToolbar,
 } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
@@ -33,6 +34,7 @@ interface Props {
   setGrouping: Dispatch<SetStateAction<Grouping>>;
   group: string;
   setGroup: Dispatch<SetStateAction<string>>;
+  refetch: Function;
 }
 
 const Toolbar: FC<Props> = ({
@@ -45,6 +47,7 @@ const Toolbar: FC<Props> = ({
   setGrouping,
   group,
   setGroup,
+  refetch,
 }) => {
   const [open, setOpen] = useState(Open.Closed);
 
@@ -60,13 +63,15 @@ const Toolbar: FC<Props> = ({
       onClickAway={() => setOpen(Open.Closed)}
       disableReactTree
     >
-      <MuiToolbar disableGutters>
+      <MuiToolbar disableGutters variant="regular">
         {/* trk logo */}
-        <Avatar
-          src="https://pbs.twimg.com/profile_images/1531770683738316801/13tNv900_200x200.png"
-          alt="Guild logo"
-          sx={{ width: 69, height: 69 }}
-        />
+        <IconButton size="small" sx={{ p: 0, m: 0 }} onClick={() => refetch()}>
+          <Avatar
+            src="/images/trk.png"
+            alt="TRK"
+            sx={{ width: 64, height: 64 }}
+          />
+        </IconButton>
 
         {/* select team */}
         <Select

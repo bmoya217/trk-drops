@@ -217,7 +217,5 @@ export const formatResults = (
     ...Object.fromEntries(data.map((d) => [d.itemName, d.link])),
   };
 
-  if (difficulty === Difficulty.Dungeon) console.log("formatted");
-
   return [{ Boss, Player }, links];
 };

@@ -32,6 +32,11 @@ const Head: FC<Props> = ({
       <TableRow>
         {headCells.map((headCell, i) => {
           const link = links?.[headCell];
+          const sorting = orderBy === headCell;
+          const sx = {
+            fontWeight: sorting ? "bold" : "inherit",
+            textTransform: "capitalize",
+          };
 
           return (
             <TableCell
@@ -40,25 +45,22 @@ const Head: FC<Props> = ({
               sortDirection={orderBy === headCell ? order : false}
             >
               <TableSortLabel
-                active={orderBy === headCell}
-                direction={orderBy === headCell ? order : "asc"}
+                active={sorting}
+                direction={sorting ? order : "desc"}
                 onClick={createSortHandler(headCell)}
-                style={orderBy === headCell ? { fontWeight: "bold" } : {}}
               >
                 {link ? (
                   <Link
                     href={link}
                     underline="none"
                     color="inherit"
-                    sx={{ textTransform: "capitalize" }}
+                    sx={sx}
                     onClick={(e) => e.preventDefault()}
                   >
                     {headCell}
                   </Link>
                 ) : (
-                  <Typography sx={{ textTransform: "capitalize" }}>
-                    {headCell}
-                  </Typography>
+                  <Typography sx={sx}>{headCell}</Typography>
                 )}
               </TableSortLabel>
             </TableCell>
