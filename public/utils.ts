@@ -9,6 +9,23 @@ import {
   Row,
 } from "./types";
 
+export const CLASS_COLORS = [
+  "",
+  "#C69B6D", // Warrior
+  "#F48CBA", // Paladin
+  "#AAD372", // Hunter
+  "#FFF468", // Rogue
+  "#FFFFFF", // Priest
+  "#C41E3A", // DeathKnight
+  "#0070DD", // Shaman
+  "#3FC7EB", // Mage
+  "#8788EE", // Warlock
+  "#00FF98", // Monk
+  "#FF7C0A", // Druid
+  "#A330C9", // DemonHunter
+  "#33937F", // Evoker
+];
+
 // Groups by boss
 export const BOSSES = [
   "Ulgrax the Devourer",
@@ -44,6 +61,20 @@ export const openUrl = (url: string) => {
   window.open(url, "_blank").focus();
 };
 
+export const getHeight = () => {
+  return Math.max(
+    document?.documentElement?.clientHeight || 0,
+    window?.innerHeight || 0
+  );
+};
+
+export const getWidth = () => {
+  return Math.max(
+    document?.documentElement?.clientWidth || 0,
+    window?.innerWidth || 0
+  );
+};
+
 // table utils
 export const descendingComparator =
   (order: Order, orderBy: string) => (a: Row, b: Row) => {
@@ -69,6 +100,7 @@ export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
   let headCells = new Set<string>();
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete(grouping === Grouping.Boss ? "Player" : "Item");
+  headCells.delete("color");
   return [
     grouping === Grouping.Boss ? "Player" : "Item",
     ...Array.from(headCells).sort(),
@@ -156,6 +188,7 @@ export const formatResults = (
   const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
   const results = $?.sim?.profilesets?.results ?? []; // numerical sim results
   const items = $?.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
+  const color = $?.simbot?.meta?.rawFormData?.character?.class;
 
   // match itemset list with sim results list
   const data: ResultsData[] = items?.reduce((prev: any, item: any) => {
@@ -201,6 +234,7 @@ export const formatResults = (
                 .map((e) => [e.column ?? e.itemName, e.sim])
             ),
             Player: player,
+            color: CLASS_COLORS[color],
           },
         ],
       ];

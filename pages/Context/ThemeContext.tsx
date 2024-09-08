@@ -34,8 +34,8 @@ const light = createTheme({
 export const ThemeContext = createContext<Context>({});
 
 const ThemeProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState("dark");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 

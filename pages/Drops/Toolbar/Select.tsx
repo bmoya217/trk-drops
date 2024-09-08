@@ -14,6 +14,7 @@ export enum Open {
   Difficulty = "Difficulty",
   Grouping = "Grouping",
   Group = "Group",
+  Column = "Column",
   Closed = "Closed",
 }
 
@@ -28,7 +29,7 @@ interface Props<T> {
   onChange?: (value: T) => void;
 }
 
-const EnhancedSelect: FC<Props<string>> = ({
+const Select: FC<Props<string>> = ({
   open,
   setOpen,
   icon,
@@ -103,4 +104,4 @@ const EnhancedSelect: FC<Props<string>> = ({
   );
 };
 
-export default EnhancedSelect;
+export default Select;

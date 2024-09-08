@@ -12,6 +12,7 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^6.0.2",
     "@mui/material": "^6.0.2",
+    "@mui/x-charts": "^7.16.0",
     "cheerio": "^1.0.0-rc.10",
     "csv-parse": "^5.0.4",
     "date-fns": "^2.29.3",

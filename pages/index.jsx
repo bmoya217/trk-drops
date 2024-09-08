@@ -1,11 +1,14 @@
+import ScreenProvider from "./Context/ScreenContext";
 import ThemeProvider from "./Context/ThemeContext";
 import Drops from "./Drops";
 
 const Home = () => {
   return (
-    <ThemeProvider>
-      <Drops />
-    </ThemeProvider>
+    <ScreenProvider>
+      <ThemeProvider>
+        <Drops />
+      </ThemeProvider>
+    </ScreenProvider>
   );
 };
 

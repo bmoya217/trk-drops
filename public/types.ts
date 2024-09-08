@@ -1,3 +1,8 @@
+export enum Screen {
+  Small = "Small",
+  Large = "Large",
+}
+
 export enum Team {
   Royal = "Royal",
   Kingdom = "Kingdom",

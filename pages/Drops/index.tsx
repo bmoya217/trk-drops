@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Paper } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ByDifficulty,
   ByTeam,
@@ -7,6 +7,7 @@ import {
   Difficulty,
   Grouping,
   Links,
+  Screen,
   Team,
 } from "../../public/types";
 import {
@@ -14,8 +15,11 @@ import {
   fetchReport,
   fetchReports,
   formatResults,
+  getHeadCells,
   validateReport,
 } from "../../public/utils";
+import { ScreenContext } from "../Context/ScreenContext";
+import Chart from "./Chart";
 import Table from "./Table";
 import Toolbar from "./Toolbar";
 
@@ -35,9 +39,12 @@ const Drops = () => {
   const [difficulty, setDifficulty] = useState(Difficulty.Mythic);
   const [grouping, setGrouping] = useState(Grouping.Boss);
   const [group, setGroup] = useState(BOSSES[0]);
+  const [column, setColumn] = useState<string | undefined>();
   const [data, setData] = useState<ByTeam>(DATA);
   const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
+
+  const { size } = useContext(ScreenContext);
 
   useEffect(() => {
     if (!loading) return;
@@ -112,7 +119,7 @@ const Drops = () => {
 
       await Promise.all(promises).catch((e) => console.log(e));
 
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     };
 
     loadReports();
@@ -122,6 +129,26 @@ const Drops = () => {
     };
   }, [loading]);
 
+  useEffect(() => {
+    const groups = data?.[team]?.[difficulty]?.[grouping];
+    const groupKeys = Object.keys(groups);
+    const g = groupKeys.includes(group) ? group : groupKeys[0];
+    setGroup(g);
+
+    const rows = groups?.[g];
+    const headCells = getHeadCells(rows, grouping);
+    const c = headCells.slice(1).includes(column) ? column : headCells[1];
+    setColumn(c);
+  }, [team, difficulty, grouping, group, column, data]);
+
+  const difficultyRows = data?.[team]?.[difficulty]?.[grouping]?.[group] ?? [];
+  const playerRows =
+    grouping === Grouping.Player
+      ? (data?.[team]?.Dungeon?.Player?.[group] ?? [])
+      : [];
+  const rows = [...difficultyRows, ...playerRows];
+  const headCells = getHeadCells(rows, grouping);
+
   return (
     <Box
       sx={{
@@ -130,10 +157,10 @@ const Drops = () => {
         flex: 1,
         flexDirection: "column",
         borderRadius: 2,
+        overflow: "hidden",
       }}
     >
       <Toolbar
-        data={data[team]}
         team={team}
         setTeam={setTeam}
         difficulty={difficulty}
@@ -142,25 +169,40 @@ const Drops = () => {
         setGrouping={setGrouping}
         group={group}
         setGroup={setGroup}
+        column={column}
+        setColumn={setColumn}
+        data={data[team]}
+        headCells={headCells}
         refetch={() => setLoading(true)}
       />
+
+      {loading && <LinearProgress />}
+
       <Paper
         sx={{
           padding: "8px",
           display: "flex",
           flex: 1,
+          overflow: "scroll",
         }}
       >
-        {loading && <LinearProgress />}
-
-        <Table
-          difficulty={difficulty}
-          grouping={grouping}
-          group={group}
-          data={data[team]}
-          links={links}
-          loading={loading}
-        />
+        {size === Screen.Large ? (
+          <Table
+            difficulty={difficulty}
+            headCells={headCells}
+            rows={rows}
+            links={links}
+            loading={loading}
+          />
+        ) : (
+          <Chart
+            difficulty={difficulty}
+            column={column}
+            rows={rows}
+            links={links}
+            loading={loading}
+          />
+        )}
       </Paper>
     </Box>
   );

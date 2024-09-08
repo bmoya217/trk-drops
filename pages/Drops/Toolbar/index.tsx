@@ -1,10 +1,11 @@
 import {
   Api,
   Blind,
+  Checkroom,
   DarkMode,
   Groups,
-  HowToReg,
   LightMode,
+  TableView,
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -19,14 +20,15 @@ import {
   ByDifficulty,
   Difficulty,
   Grouping,
+  Screen,
   Team,
 } from "../../../public/types";
 import { BOSSES } from "../../../public/utils";
+import { ScreenContext } from "../../Context/ScreenContext";
 import { ThemeContext } from "../../Context/ThemeContext";
 import Select, { Open } from "./Select";
 
 interface Props {
-  data: ByDifficulty;
   team: Team;
   setTeam: Dispatch<SetStateAction<Team>>;
   difficulty: Difficulty;
@@ -35,11 +37,14 @@ interface Props {
   setGrouping: Dispatch<SetStateAction<Grouping>>;
   group: string;
   setGroup: Dispatch<SetStateAction<string>>;
+  column: string;
+  setColumn: Dispatch<SetStateAction<string>>;
+  data: ByDifficulty;
+  headCells: string[];
   refetch: Function;
 }
 
 const Toolbar: FC<Props> = ({
-  data,
   team,
   setTeam,
   difficulty,
@@ -48,10 +53,14 @@ const Toolbar: FC<Props> = ({
   setGrouping,
   group,
   setGroup,
+  column,
+  setColumn,
+  data,
+  headCells,
   refetch,
 }) => {
   const [open, setOpen] = useState(Open.Closed);
-
+  const { size } = useContext(ScreenContext);
   const { theme, setTheme } = useContext(ThemeContext);
 
   const groups =
@@ -74,66 +83,85 @@ const Toolbar: FC<Props> = ({
           />
         </IconButton>
 
-        {/* select team */}
-        <Select
-          open={open}
-          setOpen={setOpen}
-          icon={<Groups />}
-          label={Open.Team}
-          value={team}
-          values={[Team.Royal, Team.Kingdom]}
-          setState={setTeam}
-        />
-
-        {/* select difficulty */}
-        <Select
-          open={open}
-          setOpen={setOpen}
-          icon={<Api />}
-          label={Open.Difficulty}
-          value={difficulty}
-          values={[Difficulty.Mythic, Difficulty.Heroic]}
-          setState={setDifficulty}
-        />
-
-        {/* select grouping */}
-        <Select
-          open={open}
-          setOpen={setOpen}
-          icon={<HowToReg />}
-          label={Open.Grouping}
-          value={grouping}
-          values={[Grouping.Boss, Grouping.Player]}
-          setState={setGrouping}
-          onChange={(value: Grouping) => {
-            const players = Object.keys(data[difficulty].Player);
-            if (value === Grouping.Boss) setGroup(BOSSES[0]);
-            else setGroup(players.length ? players[0] : "");
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexWrap: "wrap",
           }}
-        />
+        >
+          {/* select team */}
+          <Select
+            open={open}
+            setOpen={setOpen}
+            icon={<Groups />}
+            label={Open.Team}
+            value={team}
+            values={[Team.Royal, Team.Kingdom]}
+            setState={setTeam}
+          />
 
-        {/* select group */}
-        <Select
-          open={open}
-          setOpen={setOpen}
-          icon={<Blind />}
-          label={Open.Group}
-          value={group}
-          values={groups}
-          setState={setGroup}
-        />
+          {/* select difficulty */}
+          <Select
+            open={open}
+            setOpen={setOpen}
+            icon={<Api />}
+            label={Open.Difficulty}
+            value={difficulty}
+            values={[Difficulty.Mythic, Difficulty.Heroic]}
+            setState={setDifficulty}
+          />
 
-        <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-          <Fab
-            size="small"
-            sx={{ m: 1 }}
-            onClick={() =>
-              setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
-            }
-          >
-            {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
-          </Fab>
+          {/* select grouping */}
+          <Select
+            open={open}
+            setOpen={setOpen}
+            icon={<TableView />}
+            label={Open.Grouping}
+            value={grouping}
+            values={[Grouping.Boss, Grouping.Player]}
+            setState={setGrouping}
+            onChange={(value: Grouping) => {
+              const players = Object.keys(data[difficulty].Player);
+              if (value === Grouping.Boss) setGroup(BOSSES[0]);
+              else setGroup(players.length ? players[0] : "");
+            }}
+          />
+
+          {/* select group */}
+          <Select
+            open={open}
+            setOpen={setOpen}
+            icon={<Blind />}
+            label={Open.Group}
+            value={group}
+            values={groups}
+            setState={setGroup}
+          />
+
+          {/* select column */}
+          {size === Screen.Small && (
+            <Select
+              open={open}
+              setOpen={setOpen}
+              icon={<Checkroom />}
+              label={Open.Column}
+              value={column}
+              values={headCells.slice(1)}
+              setState={setColumn}
+            />
+          )}
         </Box>
+
+        <Fab
+          size="small"
+          sx={{ m: 1 }}
+          onClick={() =>
+            setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
+          }
+        >
+          {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
+        </Fab>
       </MuiToolbar>
     </ClickAwayListener>
   );

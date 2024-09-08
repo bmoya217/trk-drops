@@ -1,42 +1,21 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useState } from "react";
-import {
-  Data,
-  Difficulty,
-  Grouping,
-  Links,
-  Order,
-} from "../../../public/types";
-import { getHeadCells } from "../../../public/utils";
+import { Difficulty, Links, Order, Row } from "../../../public/types";
 import Body from "./Body";
 import Head from "./Head";
 
 interface Props {
-  data: Record<Difficulty, Data>;
   difficulty: Difficulty;
-  grouping: Grouping;
-  group: string;
+  headCells: string[];
+  rows: Row[];
   links: Links;
   loading: boolean;
 }
 
-const Table: FC<Props> = ({
-  data,
-  difficulty,
-  grouping,
-  group,
-  links,
-  loading,
-}) => {
+const Table: FC<Props> = ({ difficulty, headCells, rows, links, loading }) => {
   const [order, setOrder] = useState(Order.desc);
   const [orderBy, setOrderBy] = useState("Player");
-
-  const difficultyRows = data?.[difficulty]?.[grouping]?.[group] ?? [];
-  const playerRows =
-    grouping === Grouping.Player ? (data?.Dungeon?.Player?.[group] ?? []) : [];
-  const rows = [...difficultyRows, ...playerRows];
-  const headCells = getHeadCells(rows, grouping);
 
   const handleRequestSort = (_: any, property: string) => {
     const isDesc = orderBy === property && order === Order.desc;
