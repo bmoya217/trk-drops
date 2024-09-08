@@ -68,7 +68,7 @@ const Toolbar: FC<Props> = ({
       ? BOSSES
       : Object.keys(data?.[difficulty]?.Player ?? {}).sort();
 
-  const showGroup = groups.length;
+  const showGroup = group && groups.length;
   const showColum = size === Screen.Small && showGroup && headCells.length > 1;
 
   return (
