@@ -15,12 +15,11 @@ const Report: NextApiHandler = async (req, res) => {
     }
   );
   if (!(page.status === 200)) {
-    res.status(page.status);
+    res.status(page.status).json({});
     return;
   }
 
   const json = await page.json();
-
   res.status(200).json(json);
 };
 

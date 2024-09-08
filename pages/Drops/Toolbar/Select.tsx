@@ -1,4 +1,3 @@
-import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 import {
   Fab,
   Grow,
@@ -7,7 +6,7 @@ import {
   Popper,
   Typography,
 } from "@mui/material";
-import { Dispatch, FC, Fragment, SetStateAction, useRef } from "react";
+import { Dispatch, FC, Fragment, ReactElement, SetStateAction, useRef } from "react";
 
 export enum Open {
   Team = "Team",
@@ -21,7 +20,7 @@ export enum Open {
 interface Props<T> {
   open: Open;
   setOpen: Dispatch<SetStateAction<Open>>;
-  icon: ReactJSXElement;
+  icon: ReactElement;
   label: Open;
   value: T;
   values: T[];
@@ -58,8 +57,8 @@ const Select: FC<Props<string>> = ({
       <Popper
         open={open === label}
         anchorEl={anchorRef.current}
-        placement="bottom"
         transition
+        sx={{ zIndex: 69420 }}
       >
         {({ TransitionProps, placement }) => (
           <Grow

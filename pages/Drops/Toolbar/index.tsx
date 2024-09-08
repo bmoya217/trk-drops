@@ -67,6 +67,10 @@ const Toolbar: FC<Props> = ({
     grouping === Grouping.Boss
       ? BOSSES
       : Object.keys(data?.[difficulty]?.Player ?? {}).sort();
+
+  const showGroup = groups.length;
+  const showColum = size === Screen.Small && showGroup && headCells.length > 1;
+
   return (
     <ClickAwayListener
       mouseEvent={open ? "onClick" : false}
@@ -129,18 +133,20 @@ const Toolbar: FC<Props> = ({
           />
 
           {/* select group */}
-          <Select
-            open={open}
-            setOpen={setOpen}
-            icon={<Blind />}
-            label={Open.Group}
-            value={group}
-            values={groups}
-            setState={setGroup}
-          />
+          {showGroup ? (
+            <Select
+              open={open}
+              setOpen={setOpen}
+              icon={<Blind />}
+              label={Open.Group}
+              value={group}
+              values={groups}
+              setState={setGroup}
+            />
+          ) : null}
 
           {/* select column */}
-          {size === Screen.Small && (
+          {showColum ? (
             <Select
               open={open}
               setOpen={setOpen}
@@ -150,7 +156,7 @@ const Toolbar: FC<Props> = ({
               values={headCells.slice(1)}
               setState={setColumn}
             />
-          )}
+          ) : null}
         </Box>
 
         <Fab
