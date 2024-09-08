@@ -1,5 +1,13 @@
 import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
-import { Data, Difficulty, Grouping, Links, Order, Row, Team } from "./types";
+import {
+  Data,
+  Difficulty,
+  Grouping,
+  Links,
+  Order,
+  Reports_Team,
+  Row,
+} from "./types";
 
 // Groups by boss
 export const BOSSES = [
@@ -76,14 +84,12 @@ export const fetchReport = async (report: string) => {
   return page.json();
 };
 
-export const fetchReports = async (team: Team, difficulty: Difficulty) => {
-  const page = await fetch(
-    `api/reports?team=${team}&difficulty=${difficulty}`,
-    { cache: "no-store" }
-  ).catch(() => null);
-  if (page?.status !== 200) return [];
+export const fetchReports = async (): Promise<Reports_Team | null> => {
+  const reports = await fetch(`api/reports`, { cache: "no-store" })
+    .then((reports) => reports.json())
+    .catch(() => null);
 
-  return page.json();
+  return reports;
 };
 
 const isCurrent = (timestamp: number) =>
@@ -110,6 +116,15 @@ export const validateReport = ($: any, difficulty: Difficulty) => {
   return true;
 };
 
+const getDungeonName = (item: any) => {
+  const encounterIds: string[] = item.item.sources.map(
+    (src: any) => src.encounterId
+  );
+  const encounter = item.item.instance.encounters.find((en: any) =>
+    encounterIds.includes(en.id)
+  );
+  return encounter.name;
+};
 type ResultsData = {
   itemName: string;
   sim: number;
@@ -118,7 +133,10 @@ type ResultsData = {
   link: string;
 };
 
-export const formatResults = ($: any): [Data, Links] => {
+export const formatResults = (
+  $: any,
+  difficulty: Difficulty
+): [Data, Links] => {
   const id = $?.simbot?.parentSimId ?? "id";
   const player = $?.sim?.players?.[0]?.name ?? "anon player";
   const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
@@ -135,11 +153,12 @@ export const formatResults = ($: any): [Data, Links] => {
     if (!result) return prev;
 
     const isTier = item.item.sourceItem?.name;
-
     const id = item.item.id;
     const slot = item.slot.replace(/[0-9]/g, "");
     const itemName = isTier ? slot + " tier" : item.item.name;
-    const boss = isTier ? "Tier Sets" : item.item.encounter.name;
+    const boss = isTier
+      ? "Tier Sets"
+      : (item.item.encounter?.name ?? getDungeonName(item));
     const sim = Math.floor(result.mean - current);
     const bonus_id = item.item.bonus_id;
     const itemLevel = item.item.itemLevel;
@@ -188,6 +207,8 @@ export const formatResults = ($: any): [Data, Links] => {
     [player]: `https://www.raidbots.com/simbot/report/${id}`,
     ...Object.fromEntries(data.map((d) => [d.itemName, d.link])),
   };
+
+  if (difficulty === Difficulty.Dungeon) console.log("formatted");
 
   return [{ Boss, Player }, links];
 };

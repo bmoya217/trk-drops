@@ -13,12 +13,18 @@ import {
   Toolbar as MuiToolbar,
 } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
-import { Data, Difficulty, Grouping, Team } from "../../../public/types";
+import {
+  ByDifficulty,
+  Difficulty,
+  Grouping,
+  Team,
+} from "../../../public/types";
 import { BOSSES } from "../../../public/utils";
 import { ThemeContext } from "../../Context/ThemeContext";
 import Select, { Open } from "./Select";
 
 interface Props {
+  data: ByDifficulty;
   team: Team;
   setTeam: Dispatch<SetStateAction<Team>>;
   difficulty: Difficulty;
@@ -27,10 +33,10 @@ interface Props {
   setGrouping: Dispatch<SetStateAction<Grouping>>;
   group: string;
   setGroup: Dispatch<SetStateAction<string>>;
-  data: Data;
 }
 
 const Toolbar: FC<Props> = ({
+  data,
   team,
   setTeam,
   difficulty,
@@ -39,7 +45,6 @@ const Toolbar: FC<Props> = ({
   setGrouping,
   group,
   setGroup,
-  data,
 }) => {
   const [open, setOpen] = useState(Open.Closed);
 
@@ -48,7 +53,7 @@ const Toolbar: FC<Props> = ({
   const groups =
     grouping === Grouping.Boss
       ? BOSSES
-      : Object.keys(data?.Player ?? {}).sort();
+      : Object.keys(data?.[difficulty]?.Player ?? {}).sort();
   return (
     <ClickAwayListener
       mouseEvent={open ? "onClick" : false}
@@ -95,7 +100,7 @@ const Toolbar: FC<Props> = ({
           values={[Grouping.Boss, Grouping.Player]}
           setState={setGrouping}
           onChange={(value: Grouping) => {
-            const players = Object.keys(data.Player);
+            const players = Object.keys(data[difficulty].Player);
             if (value === Grouping.Boss) setGroup(BOSSES[0]);
             else setGroup(players.length ? players[0] : "");
           }}

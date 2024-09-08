@@ -1,6 +1,14 @@
 import { Divider, LinearProgress, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Data, Difficulty, Grouping, Links, Team } from "../../public/types";
+import {
+  ByDifficulty,
+  ByTeam,
+  Data,
+  Difficulty,
+  Grouping,
+  Links,
+  Team,
+} from "../../public/types";
 import {
   BOSSES,
   fetchReport,
@@ -11,19 +19,30 @@ import {
 import Table from "./Table";
 import Toolbar from "./Toolbar";
 
+const DIFFICULTY: ByDifficulty = {
+  Heroic: { Boss: {}, Player: {} },
+  Mythic: { Boss: {}, Player: {} },
+  Dungeon: { Boss: {}, Player: {} },
+};
+
+const DATA: ByTeam = {
+  Royal: DIFFICULTY,
+  Kingdom: DIFFICULTY,
+};
+
 const Drops = () => {
   const [team, setTeam] = useState(Team.Royal);
   const [difficulty, setDifficulty] = useState(Difficulty.Mythic);
   const [grouping, setGrouping] = useState(Grouping.Boss);
   const [group, setGroup] = useState(BOSSES[0]);
-  const [data, setData] = useState<Data>({ Boss: {}, Player: {} });
+  const [data, setData] = useState<ByTeam>(DATA);
   const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
 
-  const addData = (newData: Data) => {
+  const addData = (newData: Data, t: Team, d: Difficulty) => {
     setData((data) => {
       const Boss = BOSSES.reduce((prev, curr) => {
-        const oldRows = data?.Boss?.[curr] ?? [];
+        const oldRows = data?.[t]?.[d]?.Boss?.[curr] ?? [];
         const newRows = newData?.Boss?.[curr] ?? [];
 
         return {
@@ -33,11 +52,17 @@ const Drops = () => {
       }, {});
 
       const Player = {
-        ...data.Player,
+        ...data[t][d].Player,
         ...newData.Player,
       };
 
-      return { Boss, Player };
+      return {
+        ...data,
+        [t]: {
+          ...data[t],
+          [d]: { Boss, Player },
+        },
+      };
     });
   };
 
@@ -53,25 +78,42 @@ const Drops = () => {
   useEffect(() => {
     const loadReports = async () => {
       setLoading(true);
-      setData({ Boss: {}, Player: {} });
+      setData(DATA);
 
-      const reports = await fetchReports(team, difficulty);
-      if (!reports?.length) return setLoading(false);
+      const reports = await fetchReports();
+      if (!reports) return;
 
-      const loadReport = async (url: string) => {
+      const loadReport = async (url: string, t: Team, d: Difficulty) => {
+        if (!url) return;
+
         const $ = await fetchReport(url);
-        if (!validateReport($, difficulty)) return;
-        const [data, links] = formatResults($);
-        addData(data);
+        if (!validateReport($, d)) return;
+        const [data, links] = formatResults($, d);
+        addData(data, t, d);
         addLinks(links);
       };
-      await Promise.all(reports.map(loadReport)).catch(() => {});
+
+      const promises = Object.keys(reports).reduce(
+        (teams, t: Team) => [
+          ...teams,
+          ...Object.keys(reports[t]).reduce(
+            (diffs, d: Difficulty) => [
+              ...diffs,
+              ...reports[t][d].map((url) => loadReport(url, t, d)),
+            ],
+            []
+          ),
+        ],
+        []
+      );
+
+      await Promise.all(promises).catch((e) => console.log(e));
 
       setLoading(false);
     };
 
     loadReports();
-  }, [team, difficulty]);
+  }, []);
 
   return (
     <Paper
@@ -84,6 +126,7 @@ const Drops = () => {
       }}
     >
       <Toolbar
+        data={data[team]}
         team={team}
         setTeam={setTeam}
         difficulty={difficulty}
@@ -92,15 +135,15 @@ const Drops = () => {
         setGrouping={setGrouping}
         group={group}
         setGroup={setGroup}
-        data={data}
       />
 
       {loading ? <LinearProgress /> : <Divider />}
 
       <Table
+        difficulty={difficulty}
         grouping={grouping}
         group={group}
-        data={data}
+        data={data[team]}
         links={links}
         loading={loading}
       />

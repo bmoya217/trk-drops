@@ -1,42 +1,53 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { parse } from "csv-parse/sync";
 import { NextApiHandler } from "next";
+import {
+  Records,
+  Reports_Difficulty,
+  Reports_Team,
+  Team,
+} from "../../public/types";
 
-const MYTHIC =
+const URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRX0_D17phIeBDTY7lSEao2OmP_zZTefFzyB4Ro5LGNMoPIhfogHptfZ1RBGMhCMngN1cJq1H_8Pz6_/pub?gid=1538781371&single=true&output=csv";
 
-const HEROIC =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRX0_D17phIeBDTY7lSEao2OmP_zZTefFzyB4Ro5LGNMoPIhfogHptfZ1RBGMhCMngN1cJq1H_8Pz6_/pub?gid=1293324523&single=true&output=csv";
-const URL = "Sim URL (5 minute patchwerk)";
-const TEAM = "Raid Team";
+const DIFFICULTY: Reports_Difficulty = {
+  Mythic: [],
+  Heroic: [],
+  Dungeon: [],
+};
 
-interface Report {
-  [TEAM]: string;
-  [URL]: string;
-}
+const REPORTS: Reports_Team = {
+  Royal: DIFFICULTY,
+  Kingdom: DIFFICULTY,
+};
 
-const byTeam = (team: string) => (report: Report) => report[TEAM] === team;
-const toUrl = (report: Report) => report[URL] && report[URL];
+const trimUrl = (value: string) =>
+  value.substring(value.lastIndexOf("/") + 1).trim();
 
-const Reports: NextApiHandler = async (req, res) => {
-  const team = req?.query?.team === "Royal" ? "Royal" : "Kingdom";
-  const url = req?.query?.difficulty === "Mythic" ? MYTHIC : HEROIC;
-
+const Reports: NextApiHandler<Reports_Team> = async (_, res) => {
   // fetch data from google sheets
-  const csv = await fetch(url).then((data) => data.text());
+  const csv = await fetch(URL).then((data) => data.text());
 
   // parse
   const records = parse(csv, {
     columns: true,
-  }) as Array<Report>;
+  }) as Records[];
 
-  // filter sims and get url column data
-  const urls = records?.filter(byTeam(team))?.map(toUrl);
+  // format
+  const reports = records.reduce((prev, record) => {
+    const team = record.Team as Team | "";
+    if (team === "") return prev;
 
-  // trim urls to only report name
-  const reports = urls.map((url) => {
-    return url.substring(url.lastIndexOf("/") + 1).trim();
-  });
+    return {
+      ...prev,
+      [team]: {
+        Mythic: [...prev[team].Mythic, trimUrl(record.Mythic)],
+        Heroic: [...prev[team].Heroic, trimUrl(record.Heroic)],
+        Dungeon: [...prev[team].Dungeon, trimUrl(record.Dungeon)],
+      },
+    };
+  }, REPORTS);
 
   res.status(200).json(reports);
 };
