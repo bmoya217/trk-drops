@@ -107,6 +107,14 @@ export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
   ];
 };
 
+export const getLink = (row: Row, difficulty: Difficulty, links: Links) => {
+  const name = row?.Item ?? row?.Player;
+
+  return (
+    links[name + "_" + difficulty] ?? links[name + "_" + Difficulty.Dungeon]
+  );
+};
+
 // data fetching
 export const fetchReport = async (
   report: string,
@@ -145,16 +153,12 @@ const isCorrectDifficulty = ($: any, difficulty: Difficulty) =>
     difficulty.toLowerCase()
   );
 
-const isUpgradeEquipped = ($: any) =>
-  $?.simbot?.meta?.rawFormData?.droptimizer?.upgradeEquipped;
-
 export const validateReport = ($: any, difficulty: Difficulty) => {
   if ($?.sim?.options?.desired_targets > 1) return false;
   if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
   if ($?.sim?.options?.max_time !== 300) return false;
   if (!isCurrent($?.simbot?.date)) return false;
   if (!isCorrectDifficulty($, difficulty)) return false;
-  if (!isUpgradeEquipped($)) return false;
   return true;
 };
 
@@ -250,7 +254,9 @@ export const formatResults = (
 
   const links = {
     [player + "_" + difficulty]: `https://www.raidbots.com/simbot/report/${id}`,
-    ...Object.fromEntries(data.map((d) => [d.itemName, d.link])),
+    ...Object.fromEntries(
+      data.map((d) => [d.itemName + "_" + difficulty, d.link])
+    ),
   };
 
   return [{ Boss, Player }, links];

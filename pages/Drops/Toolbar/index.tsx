@@ -4,6 +4,7 @@ import {
   ByDifficulty,
   Difficulty,
   Grouping,
+  Links,
   Team,
   View,
 } from "../../../public/types";
@@ -26,6 +27,7 @@ interface Props {
   setView: Dispatch<SetStateAction<View>>;
   data: ByDifficulty;
   headCells: string[];
+  links: Links;
   refetch: Function;
 }
 
@@ -44,6 +46,7 @@ const Toolbar: FC<Props> = ({
   setView,
   data,
   headCells,
+  links,
   refetch,
 }) => {
   return (
@@ -73,7 +76,13 @@ const Toolbar: FC<Props> = ({
         />
       </Box>
 
-      <Theme view={view} setView={setView} />
+      <Theme
+        difficulty={difficulty}
+        group={group}
+        view={view}
+        setView={setView}
+        links={links}
+      />
     </MuiToolbar>
   );
 };

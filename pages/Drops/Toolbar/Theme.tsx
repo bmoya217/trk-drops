@@ -6,19 +6,32 @@ import {
 } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext } from "react";
-import { View } from "../../../public/types";
+import { Difficulty, Links, View } from "../../../public/types";
+import { openUrl } from "../../../public/utils";
 import { ThemeContext } from "../../Context/ThemeContext";
+import Raidbots from "../../Icons/Raidbots";
 
 interface Props {
-  view: string;
+  difficulty: Difficulty;
+  group: string;
+  view: View;
   setView: Dispatch<SetStateAction<View>>;
+  links: Links;
 }
-
-const Theme: FC<Props> = ({ view, setView }) => {
+const Theme: FC<Props> = ({ difficulty, group, view, setView, links }) => {
   const { theme, setTheme } = useContext(ThemeContext);
+  const link = group + "_" + difficulty;
+  const raidbots = links?.[link];
 
   return (
     <Box>
+      {/* sim link when grouping by player */}
+      {raidbots ? (
+        <Fab size="small" sx={{ m: 1 }} onClick={() => openUrl?.(raidbots)}>
+          <Raidbots />
+        </Fab>
+      ) : null}
+
       {/* data view */}
       <Fab
         size="small"

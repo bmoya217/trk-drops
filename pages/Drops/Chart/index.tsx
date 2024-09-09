@@ -1,7 +1,7 @@
 import { axisClasses, BarChart, barLabelClasses } from "@mui/x-charts";
 import { FC, useContext } from "react";
 import { Difficulty, Links, Order, Row } from "../../../public/types";
-import { getComparator, openUrl } from "../../../public/utils";
+import { getComparator, getLink, openUrl } from "../../../public/utils";
 import { ScreenContext } from "../../Context/ScreenContext";
 import Tooltip from "./Tooltip";
 
@@ -89,18 +89,6 @@ const Chart: FC<Props> = ({ difficulty, column, rows, links, loading }) => {
 
           return {};
         },
-        axisContent: {
-          // @ts-ignore
-          onChange: (dataIndex: number) => {
-            const row = dataset?.[dataIndex];
-            if (!row) return {};
-
-            const name = row.Item ?? row.Player + "_" + difficulty;
-            const link = links?.[name];
-
-            //   setLink(link);
-          },
-        },
       }}
       slots={{ axisContent: Tooltip }}
       barLabel={(item, _) => {
@@ -116,8 +104,7 @@ const Chart: FC<Props> = ({ difficulty, column, rows, links, loading }) => {
         const row = dataset[item.dataIndex];
         if (!row) return;
 
-        const name = row.Item ?? row.Player + "_" + difficulty;
-        const link = links?.[name];
+        const link = getLink(row, difficulty, links);
         if (link) openUrl(link);
       }}
       loading={loading}

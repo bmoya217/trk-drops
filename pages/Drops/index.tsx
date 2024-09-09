@@ -92,7 +92,7 @@ const Drops = () => {
       if (!reports) return;
 
       const loadReport = async (report: string, t: Team, d: Difficulty) => {
-        if (!report) return;
+        if (!report || report.length < 10) return;
 
         const $ = await fetchReport(report, controller);
         if (!validateReport($, d)) return;
@@ -173,6 +173,7 @@ const Drops = () => {
         setView={setView}
         data={data[team]}
         headCells={headCells}
+        links={links}
         refetch={() => setLoading(true)}
       />
 

@@ -27,7 +27,9 @@ const trimUrl = (value: string) =>
 
 const Reports: NextApiHandler<Reports_Team> = async (_, res) => {
   // fetch data from google sheets
-  const csv = await fetch(URL).then((data) => data.text());
+  const csv = await fetch(URL, { cache: "no-store" }).then((data) =>
+    data.text()
+  );
 
   // parse
   const records = parse(csv, {
@@ -42,9 +44,9 @@ const Reports: NextApiHandler<Reports_Team> = async (_, res) => {
     return {
       ...prev,
       [team]: {
-        Mythic: [...prev[team].Mythic, trimUrl(record.Mythic)],
-        Heroic: [...prev[team].Heroic, trimUrl(record.Heroic)],
-        Dungeon: [...prev[team].Dungeon, trimUrl(record.Dungeon)],
+        Mythic: [...prev[team]?.Mythic, trimUrl(record.Mythic)],
+        Heroic: [...prev[team]?.Heroic, trimUrl(record.Heroic)],
+        Dungeon: [...prev[team]?.Dungeon, trimUrl(record.Dungeon)],
       },
     };
   }, REPORTS);

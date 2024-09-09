@@ -3,10 +3,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import type { FC, MouseEventHandler } from "react";
-import { Links, Order } from "../../../public/types";
+import { Difficulty, Links, Order } from "../../../public/types";
 import CellText from "../../Components/CellText";
 
 interface Props {
+  difficulty: Difficulty;
   headCells: string[];
   links: Links;
   order: Order;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const Head: FC<Props> = ({
+  difficulty,
   headCells = [],
   links,
   order,
@@ -31,7 +33,7 @@ const Head: FC<Props> = ({
     <TableHead>
       <TableRow>
         {headCells.map((headCell, i) => {
-          const link = links?.[headCell];
+          const link = links?.[headCell + "_" + difficulty];
           const sorting = orderBy === headCell;
 
           return (

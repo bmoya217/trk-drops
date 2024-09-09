@@ -42,6 +42,7 @@ const Table: FC<Props> = ({
     <TableContainer>
       <MuiTable aria-labelledby="tableTitle" size={"small"}>
         <Head
+          difficulty={difficulty}
           headCells={dynamicHead}
           links={links}
           order={order}

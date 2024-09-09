@@ -9,7 +9,7 @@ import type {
   Links,
   Order,
 } from "../../../public/types";
-import { getComparator, openUrl } from "../../../public/utils";
+import { getComparator, getLink, openUrl } from "../../../public/utils";
 import CellText from "../../Components/CellText";
 
 const formatter = Intl.NumberFormat("en", {
@@ -27,7 +27,7 @@ interface Props {
   loading: boolean;
 }
 
-const EnhancedTableBody: FC<Props> = ({
+const Body: FC<Props> = ({
   headCells = [],
   rows = [],
   difficulty,
@@ -42,7 +42,7 @@ const EnhancedTableBody: FC<Props> = ({
         ?.slice()
         .sort(getComparator(order, orderBy))
         .map((row, index) => {
-          const link = links?.[row.Item ?? row.Player + "_" + difficulty];
+          const link = getLink(row, difficulty, links);
           const onClick = () => link && openUrl(link);
 
           return (
@@ -83,4 +83,4 @@ const EnhancedTableBody: FC<Props> = ({
   );
 };
 
-export default EnhancedTableBody;
+export default Body;
