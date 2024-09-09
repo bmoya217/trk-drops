@@ -28,9 +28,9 @@ const Table: FC<Props> = ({
   const { size } = useContext(ScreenContext);
 
   const dynamicHead =
-    size === Screen.Large ? headCells : [headCells[0], column];
+    size === Screen.Large ? headCells : [headCells?.[0], column];
   const dynamicRows =
-    size === Screen.Large ? rows : rows.filter((row) => row[column]);
+    size === Screen.Large ? rows : rows?.filter((row) => row[column]);
 
   const handleRequestSort = (_: any, property: string) => {
     const isDesc = orderBy === property && order === Order.desc;
