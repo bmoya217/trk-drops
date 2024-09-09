@@ -19,6 +19,11 @@ export enum Grouping {
   Player = "Player",
 }
 
+export enum View {
+  Table = "Table",
+  Chart = "Chart",
+}
+
 export type Reports_Difficulty = Record<Difficulty, string[]>;
 export type Reports_Team = Record<Team, Reports_Difficulty>;
 export interface Records extends Record<Difficulty, string> {

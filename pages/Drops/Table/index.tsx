@@ -1,21 +1,36 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
-import { FC, useState } from "react";
-import { Difficulty, Links, Order, Row } from "../../../public/types";
+import { FC, useContext, useState } from "react";
+import { Difficulty, Links, Order, Row, Screen } from "../../../public/types";
+import { ScreenContext } from "../../Context/ScreenContext";
 import Body from "./Body";
 import Head from "./Head";
 
 interface Props {
   difficulty: Difficulty;
+  column: string;
   headCells: string[];
   rows: Row[];
   links: Links;
   loading: boolean;
 }
 
-const Table: FC<Props> = ({ difficulty, headCells, rows, links, loading }) => {
+const Table: FC<Props> = ({
+  difficulty,
+  column,
+  headCells,
+  rows,
+  links,
+  loading,
+}) => {
   const [order, setOrder] = useState(Order.desc);
   const [orderBy, setOrderBy] = useState("Player");
+  const { size } = useContext(ScreenContext);
+
+  const dynamicHead =
+    size === Screen.Large ? headCells : [headCells[0], column];
+  const dynamicRows =
+    size === Screen.Large ? rows : rows.filter((row) => row[column]);
 
   const handleRequestSort = (_: any, property: string) => {
     const isDesc = orderBy === property && order === Order.desc;
@@ -31,7 +46,7 @@ const Table: FC<Props> = ({ difficulty, headCells, rows, links, loading }) => {
         size={"small"}
       >
         <Head
-          headCells={headCells}
+          headCells={dynamicHead}
           links={links}
           order={order}
           orderBy={orderBy}
@@ -39,8 +54,8 @@ const Table: FC<Props> = ({ difficulty, headCells, rows, links, loading }) => {
         />
 
         <Body
-          headCells={headCells}
-          rows={rows}
+          headCells={dynamicHead}
+          rows={dynamicRows}
           difficulty={difficulty}
           links={links}
           order={order}

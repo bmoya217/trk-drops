@@ -29,7 +29,7 @@ const ScreenProvider: FC<{ children: ReactElement }> = ({ children }) => {
   return (
     <ScreenContext.Provider
       value={{
-        size: width < 1510 ? Screen.Small : Screen.Large,
+        size: width < 1000 ? Screen.Small : Screen.Large,
         height,
         width,
       }}

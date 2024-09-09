@@ -1,12 +1,20 @@
 import {
-  Fab,
+  Chip,
   Grow,
   MenuItem,
   MenuList,
+  Paper,
   Popper,
   Typography,
 } from "@mui/material";
-import { Dispatch, FC, Fragment, ReactElement, SetStateAction, useRef } from "react";
+import {
+  Dispatch,
+  FC,
+  Fragment,
+  ReactElement,
+  SetStateAction,
+  useRef,
+} from "react";
 
 export enum Open {
   Team = "Team",
@@ -42,18 +50,15 @@ const Select: FC<Props<string>> = ({
 
   return (
     <Fragment>
-      <Fab
+      <Chip
         ref={anchorRef}
+        icon={icon}
+        label={value}
         size="small"
-        variant="extended"
+        sx={{ textTransform: "capitalize", padding: "8px" }}
         onClick={() => setOpen((o) => (o === label ? Open.Closed : label))}
-        sx={{ m: 1, minWidth: 120 }}
-      >
-        {icon}
-        <Typography variant="subtitle1" fontWeight={"bold"} sx={{ m: 1 }}>
-          {value}
-        </Typography>
-      </Fab>
+      />
+
       <Popper
         open={open === label}
         anchorEl={anchorRef.current}
@@ -68,32 +73,26 @@ const Select: FC<Props<string>> = ({
                 placement === "bottom-start" ? "left top" : "left bottom",
             }}
           >
-            <MenuList
-              id="composition-menu"
-              sx={{
-                border: 1,
-                m: 1,
-                bgcolor: "background.paper",
-                borderRadius: 1,
-              }}
-            >
-              {values.map((item, i) => {
-                return (
-                  <MenuItem
-                    onClick={() => {
-                      setState(item);
-                      onChange?.(item);
-                      setOpen(Open.Closed);
-                    }}
-                    key={label + i}
-                  >
-                    <Typography sx={{ textTransform: "capitalize" }}>
-                      {item}
-                    </Typography>
-                  </MenuItem>
-                );
-              })}
-            </MenuList>
+            <Paper sx={{ border: 1, m: 1 }}>
+              <MenuList>
+                {values.map((item, i) => {
+                  return (
+                    <MenuItem
+                      onClick={() => {
+                        setState(item);
+                        onChange?.(item);
+                        setOpen(Open.Closed);
+                      }}
+                      key={label + i}
+                    >
+                      <Typography sx={{ textTransform: "capitalize" }}>
+                        {item}
+                      </Typography>
+                    </MenuItem>
+                  );
+                })}
+              </MenuList>
+            </Paper>
           </Grow>
         )}
       </Popper>

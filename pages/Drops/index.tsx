@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Paper } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ByDifficulty,
   ByTeam,
@@ -7,8 +7,8 @@ import {
   Difficulty,
   Grouping,
   Links,
-  Screen,
   Team,
+  View,
 } from "../../public/types";
 import {
   BOSSES,
@@ -18,7 +18,6 @@ import {
   getHeadCells,
   validateReport,
 } from "../../public/utils";
-import { ScreenContext } from "../Context/ScreenContext";
 import Chart from "./Chart";
 import Table from "./Table";
 import Toolbar from "./Toolbar";
@@ -40,11 +39,10 @@ const Drops = () => {
   const [grouping, setGrouping] = useState(Grouping.Boss);
   const [group, setGroup] = useState(BOSSES[0]);
   const [column, setColumn] = useState<string | undefined>();
+  const [view, setView] = useState<View>(View.Table);
   const [data, setData] = useState<ByTeam>(DATA);
   const [links, setLinks] = useState<Links>({});
   const [loading, setLoading] = useState(true);
-
-  const { size } = useContext(ScreenContext);
 
   useEffect(() => {
     if (!loading) return;
@@ -171,6 +169,8 @@ const Drops = () => {
         setGroup={setGroup}
         column={column}
         setColumn={setColumn}
+        view={view}
+        setView={setView}
         data={data[team]}
         headCells={headCells}
         refetch={() => setLoading(true)}
@@ -186,9 +186,10 @@ const Drops = () => {
           overflow: "scroll",
         }}
       >
-        {size === Screen.Large ? (
+        {view === View.Table ? (
           <Table
             difficulty={difficulty}
+            column={column}
             headCells={headCells}
             rows={rows}
             links={links}
