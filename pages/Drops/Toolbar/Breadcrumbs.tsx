@@ -1,5 +1,8 @@
 import { Api, Blind, Checkroom, Groups, TableView } from "@mui/icons-material";
-import { Breadcrumbs as MuiBreadcrumbs, ClickAwayListener } from "@mui/material";
+import {
+  ClickAwayListener,
+  Breadcrumbs as MuiBreadcrumbs,
+} from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
 import {
   ByDifficulty,
@@ -7,6 +10,7 @@ import {
   Grouping,
   Screen,
   Team,
+  View,
 } from "../../../public/types";
 import { BOSSES } from "../../../public/utils";
 import { ScreenContext } from "../../Context/ScreenContext";
@@ -23,6 +27,8 @@ interface Props {
   setGroup: Dispatch<SetStateAction<string>>;
   column: string;
   setColumn: Dispatch<SetStateAction<string>>;
+  view: View;
+  setView: Dispatch<SetStateAction<View>>;
   data: ByDifficulty;
   headCells: string[];
 }
@@ -38,6 +44,8 @@ const Breadcrumbs: FC<Props> = ({
   setGroup,
   column,
   setColumn,
+  view,
+  setView,
   data,
   headCells,
 }) => {
@@ -50,7 +58,10 @@ const Breadcrumbs: FC<Props> = ({
       : Object.keys(data?.[difficulty]?.Player ?? {}).sort();
 
   const showGroup = group && groups.length;
-  const showColum = size === Screen.Small && showGroup && headCells.length > 1;
+  const showColum =
+    (view === View.Chart || size === Screen.Small) &&
+    showGroup &&
+    headCells.length > 1;
 
   return (
     <ClickAwayListener

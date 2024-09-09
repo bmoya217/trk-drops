@@ -22,7 +22,7 @@ interface Props {
   setGroup: Dispatch<SetStateAction<string>>;
   column: string;
   setColumn: Dispatch<SetStateAction<string>>;
-  view: string;
+  view: View;
   setView: Dispatch<SetStateAction<View>>;
   data: ByDifficulty;
   headCells: string[];
@@ -66,6 +66,8 @@ const Toolbar: FC<Props> = ({
           setGroup={setGroup}
           column={column}
           setColumn={setColumn}
+          view={view}
+          setView={setView}
           data={data}
           headCells={headCells}
         />

@@ -40,11 +40,7 @@ const Table: FC<Props> = ({
 
   return (
     <TableContainer>
-      <MuiTable
-        sx={{ minWidth: 750 }}
-        aria-labelledby="tableTitle"
-        size={"small"}
-      >
+      <MuiTable aria-labelledby="tableTitle" size={"small"}>
         <Head
           headCells={dynamicHead}
           links={links}
