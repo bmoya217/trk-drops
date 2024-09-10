@@ -39,26 +39,8 @@ export const BOSSES = [
   "Catalyst",
 ];
 
-// Columns for each player
-export const SLOTS = [
-  "head",
-  "neck",
-  "shoulder",
-  "back",
-  "chest",
-  "wrist",
-  "hands",
-  "waist",
-  "legs",
-  "feet",
-  "finger",
-  "trinket",
-  "main_hand",
-  "off_hand",
-];
-
 export const openUrl = (url: string) => {
-  window.open(url, "_blank").focus();
+  window.open(url, "_blank")?.focus();
 };
 
 export const getHeight = () => {
@@ -249,6 +231,7 @@ export const formatResults = (
     [player]: data.map((d) => ({
       Item: d.itemName,
       [d.slot]: d.sim,
+      color: CLASS_COLORS[color],
     })),
   };
 

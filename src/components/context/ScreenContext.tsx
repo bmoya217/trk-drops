@@ -1,6 +1,6 @@
 import { createContext, FC, ReactElement, useEffect, useState } from "react";
-import { Screen } from "../../public/types";
-import { getHeight, getWidth } from "../../public/utils";
+import { Screen } from "../../../public/types";
+import { getHeight, getWidth } from "../../../public/utils";
 
 interface Context {
   size?: Screen;

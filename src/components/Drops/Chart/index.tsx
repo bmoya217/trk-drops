@@ -1,9 +1,10 @@
-import { axisClasses, BarChart, barLabelClasses } from "@mui/x-charts";
+import { axisClasses, BarChart } from "@mui/x-charts";
 import { FC, useContext } from "react";
-import { Difficulty, Links, Order, Row } from "../../../public/types";
-import { getComparator, getLink, openUrl } from "../../../public/utils";
-import { ScreenContext } from "../../Context/ScreenContext";
-import Tooltip from "./Tooltip";
+import { Difficulty, Links, Order, Row } from "../../../../public/types";
+import { getComparator, getLink, openUrl } from "../../../../public/utils";
+import { ScreenContext } from "../../context/ScreenContext";
+import Bar, { Props as BarProps } from "./Bar";
+import Legend, { Props as LegendProps } from "./Legend";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -19,28 +20,21 @@ interface Props {
 }
 
 const Chart: FC<Props> = ({ difficulty, column, rows, links, loading }) => {
-  //   const [link, setLink] = useState<string>(undefined);
   const { width } = useContext(ScreenContext);
 
   const dataset =
     rows
       ?.sort(getComparator(Order.desc, column))
-      ?.filter((row) => row[column]) ?? [];
+      ?.filter((row) => ((row[column] as number) ?? 0) > 0) ?? [];
   const yLabel = rows?.[0]?.Player ? "Player" : "Item";
 
   return (
-    // <Link
-    //   href={link}
-    //   onClick={(e) => e.preventDefault()}
-    //   sx={{ cursor: "inherit" }}
-    // >
     <BarChart
       dataset={dataset}
       series={
         dataset.length
           ? [
               {
-                label: column + " dps",
                 dataKey: column,
                 valueFormatter: formatter.format,
               },
@@ -63,40 +57,30 @@ const Chart: FC<Props> = ({ difficulty, column, rows, links, loading }) => {
           hideTooltip: true,
         },
       ]}
-      sx={{
-        [`.${axisClasses.left} .${axisClasses.tickLabel}`]: {
-          display: "none",
-        },
-        [`.${barLabelClasses.root}`]: {
-          textTransform: "capitalize",
-        },
-      }}
       width={width - 48}
       layout="horizontal"
       tooltip={{ trigger: "none" }}
+      slots={{ legend: Legend, bar: Bar }}
       slotProps={{
-        legend: { hidden: true },
+        legend: {
+          inject: {
+            label: column,
+            link: links?.[column + "_" + difficulty],
+          },
+        } as Partial<LegendProps>,
         bar: (state) => {
           if (!state) return {};
           const row = dataset?.[state.dataIndex];
           if (!row) return {};
 
-          const value = row[column] as number;
-          if (value < 0) state.color = "#b41423";
-
-          const color = row.color as string;
-          state.color = color ? color : state.color;
-
-          return {};
+          return {
+            inject: {
+              label: `${row.Item ?? row.Player ?? ""}`,
+              color: (row.color as string) ?? state.color,
+              link: getLink(row, difficulty, links),
+            },
+          } as Partial<BarProps>;
         },
-      }}
-      slots={{ axisContent: Tooltip }}
-      barLabel={(item, _) => {
-        if (!item) return;
-        const row = dataset[item.dataIndex];
-        if (!row) return "";
-
-        return `${row.Item ?? row.Player ?? ""}`;
       }}
       onItemClick={(e, item) => {
         e.preventDefault();
@@ -107,9 +91,13 @@ const Chart: FC<Props> = ({ difficulty, column, rows, links, loading }) => {
         const link = getLink(row, difficulty, links);
         if (link) openUrl(link);
       }}
+      sx={{
+        [`.${axisClasses.left} .${axisClasses.tickLabel}`]: {
+          display: "none",
+        },
+      }}
       loading={loading}
     />
-    // </Link>
   );
 };
 

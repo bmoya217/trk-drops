@@ -11,9 +11,9 @@ import {
   Screen,
   Team,
   View,
-} from "../../../public/types";
-import { BOSSES } from "../../../public/utils";
-import { ScreenContext } from "../../Context/ScreenContext";
+} from "../../../../public/types";
+import { BOSSES } from "../../../../public/utils";
+import { ScreenContext } from "../../context/ScreenContext";
 import Select, { Open } from "./Select";
 
 interface Props {

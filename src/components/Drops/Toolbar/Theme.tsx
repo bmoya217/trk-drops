@@ -6,10 +6,10 @@ import {
 } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useContext } from "react";
-import { Difficulty, Links, View } from "../../../public/types";
-import { openUrl } from "../../../public/utils";
-import { ThemeContext } from "../../Context/ThemeContext";
-import Raidbots from "../../Icons/Raidbots";
+import { Difficulty, Links, View } from "../../../../public/types";
+import { openUrl } from "../../../../public/utils";
+import { ThemeContext } from "../../context/ThemeContext";
+import Raidbots from "./Raidbots";
 
 interface Props {
   difficulty: Difficulty;

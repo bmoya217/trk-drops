@@ -9,7 +9,7 @@ import {
   Links,
   Team,
   View,
-} from "../../public/types";
+} from "../../../public/types";
 import {
   BOSSES,
   fetchReport,
@@ -17,7 +17,7 @@ import {
   formatResults,
   getHeadCells,
   validateReport,
-} from "../../public/utils";
+} from "../../../public/utils";
 import Chart from "./Chart";
 import Table from "./Table";
 import Toolbar from "./Toolbar";

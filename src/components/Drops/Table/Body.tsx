@@ -8,9 +8,9 @@ import type {
   Grouping,
   Links,
   Order,
-} from "../../../public/types";
-import { getComparator, getLink, openUrl } from "../../../public/utils";
-import CellText from "../../Components/CellText";
+} from "../../../../public/types";
+import { getComparator, getLink, openUrl } from "../../../../public/utils";
+import CellText from "./CellText";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",

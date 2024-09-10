@@ -3,8 +3,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import type { FC, MouseEventHandler } from "react";
-import { Difficulty, Links, Order } from "../../../public/types";
-import CellText from "../../Components/CellText";
+import { Difficulty, Links, Order } from "../../../../public/types";
+import CellText from "./CellText";
 
 interface Props {
   difficulty: Difficulty;

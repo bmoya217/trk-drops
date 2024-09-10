@@ -1,8 +1,8 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useContext, useState } from "react";
-import { Difficulty, Links, Order, Row, Screen } from "../../../public/types";
-import { ScreenContext } from "../../Context/ScreenContext";
+import { Difficulty, Links, Order, Row, Screen } from "../../../../public/types";
+import { ScreenContext } from "../../context/ScreenContext";
 import Body from "./Body";
 import Head from "./Head";
 

@@ -7,7 +7,7 @@ import {
   Links,
   Team,
   View,
-} from "../../../public/types";
+} from "../../../../public/types";
 import Breadcrumbs from "./Breadcrumbs";
 import Logo from "./Logo";
 import Theme from "./Theme";
