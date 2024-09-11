@@ -8,12 +8,22 @@ const Report: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const page = await fetch(
+  let page = await fetch(
     "https://www.raidbots.com/simbot/report/" + report + "/data.json",
     {
       cache: "force-cache",
     }
   );
+
+  if (!(page.status === 200)) {
+    page = await fetch(
+      "https://www.raidbots.com/simbot/report/" + report + "/data.json",
+      {
+        cache: "reload",
+      }
+    );
+  }
+
   if (!(page.status === 200)) {
     res.status(page.status).json({});
     return;
