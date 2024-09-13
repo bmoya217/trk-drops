@@ -1,54 +1,9 @@
-import { Box, Toolbar as MuiToolbar } from "@mui/material";
-import { Dispatch, FC, SetStateAction } from "react";
-import {
-  ByDifficulty,
-  Difficulty,
-  Grouping,
-  Links,
-  Team,
-  View,
-} from "../../../../public/types";
+import { Avatar, Box, Toolbar as MuiToolbar } from "@mui/material";
+import { FC } from "react";
 import Breadcrumbs from "./Breadcrumbs";
-import Logo from "./Logo";
 import Theme from "./Theme";
 
-interface Props {
-  team: Team;
-  setTeam: Dispatch<SetStateAction<Team>>;
-  difficulty: Difficulty;
-  setDifficulty: Dispatch<SetStateAction<Difficulty>>;
-  grouping: Grouping;
-  setGrouping: Dispatch<SetStateAction<Grouping>>;
-  group: string;
-  setGroup: Dispatch<SetStateAction<string>>;
-  column: string;
-  setColumn: Dispatch<SetStateAction<string>>;
-  view: View;
-  setView: Dispatch<SetStateAction<View>>;
-  data: ByDifficulty;
-  headCells: string[];
-  links: Links;
-  refetch: Function;
-}
-
-const Toolbar: FC<Props> = ({
-  team,
-  setTeam,
-  difficulty,
-  setDifficulty,
-  grouping,
-  setGrouping,
-  group,
-  setGroup,
-  column,
-  setColumn,
-  view,
-  setView,
-  data,
-  headCells,
-  links,
-  refetch,
-}) => {
+const Toolbar: FC = () => {
   return (
     <MuiToolbar
       disableGutters
@@ -56,33 +11,16 @@ const Toolbar: FC<Props> = ({
       sx={{ display: "flex", justifyContent: "space-between" }}
     >
       <Box sx={{ display: "flex", flexDirection: "row" }}>
-        <Logo refetch={refetch} />
-
-        <Breadcrumbs
-          team={team}
-          setTeam={setTeam}
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          grouping={grouping}
-          setGrouping={setGrouping}
-          group={group}
-          setGroup={setGroup}
-          column={column}
-          setColumn={setColumn}
-          view={view}
-          setView={setView}
-          data={data}
-          headCells={headCells}
+        <Avatar
+          src="/images/trk.png"
+          alt="TRK"
+          sx={{ width: 64, height: 64 }}
         />
+
+        <Breadcrumbs />
       </Box>
 
-      <Theme
-        difficulty={difficulty}
-        group={group}
-        view={view}
-        setView={setView}
-        links={links}
-      />
+      <Theme />
     </MuiToolbar>
   );
 };

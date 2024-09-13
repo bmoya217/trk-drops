@@ -1,15 +1,11 @@
 import { TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import { FC } from "react";
-import type {
-  Data,
-  Difficulty,
-  Grouping,
-  Links,
-  Order,
-} from "../../../../public/types";
+import { FC, useContext } from "react";
+import { Screen, type Order } from "../../../../public/types";
 import { getComparator, getLink, openUrl } from "../../../../public/utils";
+import { DataContext } from "../../context/DataContext";
+import { ScreenContext } from "../../context/ScreenContext";
 import CellText from "./CellText";
 
 const formatter = Intl.NumberFormat("en", {
@@ -18,27 +14,30 @@ const formatter = Intl.NumberFormat("en", {
 });
 
 interface Props {
-  headCells: string[];
-  rows: Data[Grouping][string];
-  difficulty: Difficulty;
-  links: Links;
   order: Order;
   orderBy: string;
-  loading: boolean;
 }
 
-const Body: FC<Props> = ({
-  headCells = [],
-  rows = [],
-  difficulty,
-  links,
-  order,
-  orderBy,
-  loading,
-}) => {
+const Body: FC<Props> = ({ order, orderBy }) => {
+  const { size } = useContext(ScreenContext);
+  const {
+    difficulty,
+    grouping,
+    group,
+    column,
+    data,
+    headCells,
+    links,
+    loading,
+  } = useContext(DataContext);
+
+  const rows = data[difficulty][grouping][group] ?? [];
+  const dynamicRows =
+    size === Screen.Large ? rows : rows.filter((row) => row[column]);
+
   return (
     <TableBody>
-      {rows
+      {dynamicRows
         ?.slice()
         .sort(getComparator(order, orderBy))
         .map((row, index) => {
@@ -72,7 +71,7 @@ const Body: FC<Props> = ({
           );
         })}
 
-      {!rows.length && !loading && (
+      {!dynamicRows.length && !loading && (
         <TableRow sx={{ justifyContent: "center" }}>
           <TableCell colSpan={headCells.length}>
             <Typography> No valid reports :)</Typography>

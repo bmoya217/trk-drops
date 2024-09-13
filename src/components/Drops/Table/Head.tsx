@@ -2,37 +2,29 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import type { FC, MouseEventHandler } from "react";
-import { Difficulty, Links, Order } from "../../../../public/types";
+import { useContext, type FC } from "react";
+import { Order, Screen } from "../../../../public/types";
+import { DataContext } from "../../context/DataContext";
+import { ScreenContext } from "../../context/ScreenContext";
 import CellText from "./CellText";
 
 interface Props {
-  difficulty: Difficulty;
-  headCells: string[];
-  links: Links;
   order: Order;
   orderBy: string;
-  onRequestSort: (event: any, property: any) => void;
+  onSort: (column: string) => void;
 }
 
-const Head: FC<Props> = ({
-  difficulty,
-  headCells = [],
-  links,
-  order,
-  orderBy,
-  onRequestSort,
-}) => {
-  const createSortHandler =
-    (property: string): MouseEventHandler =>
-    (event) => {
-      onRequestSort(event, property);
-    };
+const Head: FC<Props> = ({ order, orderBy, onSort }) => {
+  const { size } = useContext(ScreenContext);
+  const { difficulty, column, headCells, links } = useContext(DataContext);
+
+  const dynamicHead =
+    size === Screen.Large ? headCells : [headCells?.[0], column];
 
   return (
     <TableHead>
       <TableRow>
-        {headCells.map((headCell, i) => {
+        {dynamicHead.map((headCell, i) => {
           const link = links?.[headCell + "_" + difficulty];
           const sorting = orderBy === headCell;
 
@@ -45,7 +37,7 @@ const Head: FC<Props> = ({
               <TableSortLabel
                 active={sorting}
                 direction={sorting ? order : "desc"}
-                onClick={createSortHandler(headCell)}
+                onClick={() => onSort(headCell)}
               >
                 <CellText text={headCell} link={link} bold={sorting} />
               </TableSortLabel>

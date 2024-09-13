@@ -5,21 +5,17 @@ import {
   Toc,
 } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
-import { Dispatch, FC, SetStateAction, useContext } from "react";
-import { Difficulty, Links, View } from "../../../../public/types";
+import { FC, useContext } from "react";
+import { View } from "../../../../public/types";
 import { openUrl } from "../../../../public/utils";
+import { DataContext } from "../../context/DataContext";
 import { ThemeContext } from "../../context/ThemeContext";
 import Raidbots from "./Raidbots";
 
-interface Props {
-  difficulty: Difficulty;
-  group: string;
-  view: View;
-  setView: Dispatch<SetStateAction<View>>;
-  links: Links;
-}
-const Theme: FC<Props> = ({ difficulty, group, view, setView, links }) => {
+const Theme: FC = () => {
   const { theme, setTheme } = useContext(ThemeContext);
+  const { difficulty, group, view, setView, links } = useContext(DataContext);
+
   const link = group + "_" + difficulty;
   const raidbots = links?.[link];
 

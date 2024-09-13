@@ -3,9 +3,8 @@ import {
   ClickAwayListener,
   Breadcrumbs as MuiBreadcrumbs,
 } from "@mui/material";
-import { Dispatch, FC, SetStateAction, useContext, useState } from "react";
+import { FC, useContext, useState } from "react";
 import {
-  ByDifficulty,
   Difficulty,
   Grouping,
   Screen,
@@ -13,44 +12,28 @@ import {
   View,
 } from "../../../../public/types";
 import { BOSSES } from "../../../../public/utils";
+import { DataContext } from "../../context/DataContext";
 import { ScreenContext } from "../../context/ScreenContext";
 import Select, { Open } from "./Select";
 
-interface Props {
-  team: Team;
-  setTeam: Dispatch<SetStateAction<Team>>;
-  difficulty: Difficulty;
-  setDifficulty: Dispatch<SetStateAction<Difficulty>>;
-  grouping: Grouping;
-  setGrouping: Dispatch<SetStateAction<Grouping>>;
-  group: string;
-  setGroup: Dispatch<SetStateAction<string>>;
-  column: string;
-  setColumn: Dispatch<SetStateAction<string>>;
-  view: View;
-  setView: Dispatch<SetStateAction<View>>;
-  data: ByDifficulty;
-  headCells: string[];
-}
-
-const Breadcrumbs: FC<Props> = ({
-  team,
-  setTeam,
-  difficulty,
-  setDifficulty,
-  grouping,
-  setGrouping,
-  group,
-  setGroup,
-  column,
-  setColumn,
-  view,
-  setView,
-  data,
-  headCells,
-}) => {
+const Breadcrumbs: FC = () => {
   const [open, setOpen] = useState(Open.Closed);
   const { size } = useContext(ScreenContext);
+  const {
+    team,
+    setTeam,
+    difficulty,
+    setDifficulty,
+    grouping,
+    setGrouping,
+    group,
+    setGroup,
+    column,
+    setColumn,
+    view,
+    data,
+    headCells,
+  } = useContext(DataContext);
 
   const groups =
     grouping === Grouping.Boss
