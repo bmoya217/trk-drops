@@ -20,18 +20,11 @@ interface Props {
 
 const Body: FC<Props> = ({ order, orderBy }) => {
   const { size } = useContext(ScreenContext);
-  const {
-    difficulty,
-    grouping,
-    group,
-    column,
-    data,
-    headCells,
-    links,
-    loading,
-  } = useContext(DataContext);
+  const { difficulty, column, links, loading, headCells, rows } =
+    useContext(DataContext);
 
-  const rows = data[difficulty][grouping][group] ?? [];
+  const dynamicHead =
+    size === Screen.Large ? headCells : [headCells?.[0], column];
   const dynamicRows =
     size === Screen.Large ? rows : rows.filter((row) => row[column]);
 
@@ -52,7 +45,7 @@ const Body: FC<Props> = ({ order, orderBy }) => {
               sx={link ? { cursor: "pointer" } : {}}
               onClick={onClick}
             >
-              {headCells.map((col, i) => {
+              {dynamicHead.map((col, i) => {
                 const value = row[col];
                 const formatted =
                   typeof value === "number" ? formatter.format(value) : value;

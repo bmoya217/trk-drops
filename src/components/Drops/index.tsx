@@ -1,8 +1,9 @@
-import { Box, LinearProgress, Paper } from "@mui/material";
+import { Box, Divider, LinearProgress, Paper } from "@mui/material";
 import { useContext } from "react";
 import { View } from "../../../public/types";
 import { DataContext } from "../context/DataContext";
 import Chart from "./Chart";
+import Header from "./Header";
 import Table from "./Table";
 import Toolbar from "./Toolbar";
 
@@ -22,7 +23,9 @@ const Drops = () => {
     >
       <Toolbar />
 
-      {loading && <LinearProgress />}
+      {loading ? <LinearProgress /> : <Divider />}
+
+      <Header />
 
       <Paper
         sx={{

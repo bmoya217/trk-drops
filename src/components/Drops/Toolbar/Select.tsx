@@ -20,8 +20,6 @@ export enum Open {
   Team = "Team",
   Difficulty = "Difficulty",
   Grouping = "Grouping",
-  Group = "Group",
-  Column = "Column",
   Closed = "Closed",
 }
 

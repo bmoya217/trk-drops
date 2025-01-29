@@ -16,7 +16,7 @@ interface Props {
 
 const Head: FC<Props> = ({ order, orderBy, onSort }) => {
   const { size } = useContext(ScreenContext);
-  const { difficulty, column, headCells, links } = useContext(DataContext);
+  const { difficulty, column, links, headCells } = useContext(DataContext);
 
   const dynamicHead =
     size === Screen.Large ? headCells : [headCells?.[0], column];

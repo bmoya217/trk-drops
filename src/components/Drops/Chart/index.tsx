@@ -14,10 +14,8 @@ const formatter = Intl.NumberFormat("en", {
 
 const Chart: FC = () => {
   const { width } = useContext(ScreenContext);
-  const { difficulty, grouping, group, column, data, links, loading } =
-    useContext(DataContext);
+  const { difficulty, column, rows, links, loading } = useContext(DataContext);
 
-  const rows = data[difficulty][grouping][group] ?? [];
   const dataset = rows
     .sort(getComparator(Order.desc, column))
     .filter((row) => ((row[column] as number) ?? 0) > 0);

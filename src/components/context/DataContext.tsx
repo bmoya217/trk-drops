@@ -14,6 +14,7 @@ import {
   Difficulty,
   Grouping,
   Links,
+  Row,
   Team,
   View,
 } from "../../../public/types";
@@ -51,9 +52,11 @@ interface Context {
   view: View;
   setView: Dispatch<SetStateAction<View>>;
   data: ByDifficulty;
-  headCells: string[];
   links: Links;
   loading: boolean;
+  groups: string[];
+  rows: Row[];
+  headCells: string[];
 }
 
 export const DataContext = createContext<Context>({
@@ -70,9 +73,11 @@ export const DataContext = createContext<Context>({
   view: View.Table,
   setView: (_: View) => {},
   data: DIFFICULTY,
-  headCells: [],
   links: {},
   loading: true,
+  groups: [],
+  rows: [],
+  headCells: [],
 });
 
 const DataProvider: FC<{ children: ReactElement }> = ({ children }) => {
@@ -188,6 +193,10 @@ const DataProvider: FC<{ children: ReactElement }> = ({ children }) => {
       : [];
   const rows = [...difficultyRows, ...playerRows];
   const headCells = getHeadCells(rows, grouping);
+  const groups =
+    grouping === Grouping.Boss
+      ? BOSSES
+      : Object.keys(data?.[team]?.[difficulty]?.Player ?? {}).sort();
 
   return (
     <DataContext.Provider
@@ -205,9 +214,11 @@ const DataProvider: FC<{ children: ReactElement }> = ({ children }) => {
         view,
         setView,
         data: data[team],
-        headCells,
         links,
         loading,
+        groups,
+        rows,
+        headCells,
       }}
     >
       {children}
