@@ -2,10 +2,11 @@ import { TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC, useContext } from "react";
-import { Screen, type Order } from "../../../../public/types";
-import { getComparator, getLink, openUrl } from "../../../../public/utils";
-import { DataContext } from "../../context/DataContext";
-import { ScreenContext } from "../../context/ScreenContext";
+import { Screen, type Order } from "../../../public/types";
+import { getComparator, getLink, openUrl } from "../../../public/utils";
+import { useAppSelector } from "../../store/hooks";
+import { ScreenContext } from "../../store/ScreenContext";
+import { dataSlice } from "../../store/slices/dataSlice";
 import CellText from "./CellText";
 
 const formatter = Intl.NumberFormat("en", {
@@ -20,8 +21,12 @@ interface Props {
 
 const Body: FC<Props> = ({ order, orderBy }) => {
   const { size } = useContext(ScreenContext);
-  const { difficulty, column, links, loading, headCells, rows } =
-    useContext(DataContext);
+  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
+  const column = useAppSelector(dataSlice.selectors.selectColumn);
+  const links = useAppSelector(dataSlice.selectors.selectLinks);
+  const loading = useAppSelector(dataSlice.selectors.selectLoading);
+  const headCells = useAppSelector(dataSlice.selectors.selectHeadCells);
+  const rows = useAppSelector(dataSlice.selectors.selectRows);
 
   const dynamicHead =
     size === Screen.Large ? headCells : [headCells?.[0], column];

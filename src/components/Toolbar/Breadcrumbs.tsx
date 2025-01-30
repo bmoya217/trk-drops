@@ -3,24 +3,20 @@ import {
   ClickAwayListener,
   Breadcrumbs as MuiBreadcrumbs,
 } from "@mui/material";
-import { FC, useContext, useState } from "react";
-import { Difficulty, Grouping, Team } from "../../../../public/types";
-import { BOSSES } from "../../../../public/utils";
-import { DataContext } from "../../context/DataContext";
+import { FC, useState } from "react";
+import { Difficulty, Grouping, Team } from "../../../public/types";
+import { BOSSES } from "../../../public/utils";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { dataSlice } from "../../store/slices/dataSlice";
 import Select, { Open } from "./Select";
 
 const Breadcrumbs: FC = () => {
   const [open, setOpen] = useState(Open.Closed);
-  const {
-    team,
-    setTeam,
-    difficulty,
-    setDifficulty,
-    grouping,
-    setGrouping,
-    setGroup,
-    data,
-  } = useContext(DataContext);
+  const team = useAppSelector(dataSlice.selectors.selectTeam);
+  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
+  const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
+  const data = useAppSelector(dataSlice.selectors.selectData);
+  const dispatch = useAppDispatch();
 
   return (
     <ClickAwayListener
@@ -39,7 +35,7 @@ const Breadcrumbs: FC = () => {
           label={Open.Team}
           value={team}
           values={[Team.Royal, Team.Kingdom]}
-          setState={setTeam}
+          setState={(team: Team) => dispatch(dataSlice.actions.setTeam(team))}
         />
 
         {/* select difficulty */}
@@ -50,7 +46,9 @@ const Breadcrumbs: FC = () => {
           label={Open.Difficulty}
           value={difficulty}
           values={[Difficulty.Mythic, Difficulty.Heroic]}
-          setState={setDifficulty}
+          setState={(difficulty: Difficulty) =>
+            dispatch(dataSlice.actions.setDifficulty(difficulty))
+          }
         />
 
         {/* select grouping */}
@@ -61,11 +59,17 @@ const Breadcrumbs: FC = () => {
           label={Open.Grouping}
           value={grouping}
           values={[Grouping.Boss, Grouping.Player]}
-          setState={setGrouping}
+          setState={(grouping: Grouping) =>
+            dispatch(dataSlice.actions.setGrouping(grouping))
+          }
           onChange={(value: Grouping) => {
             const players = Object.keys(data[difficulty].Player);
-            if (value === Grouping.Boss) setGroup(BOSSES[0]);
-            else setGroup(players.length ? players[0] : "");
+            if (value === Grouping.Boss)
+              dispatch(dataSlice.actions.setGroup(BOSSES[0]));
+            else
+              dispatch(
+                dataSlice.actions.setGroup(players.length ? players[0] : "")
+              );
           }}
         />
       </MuiBreadcrumbs>

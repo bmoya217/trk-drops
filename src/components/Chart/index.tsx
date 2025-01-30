@@ -1,9 +1,10 @@
 import { axisClasses, BarChart } from "@mui/x-charts";
 import { FC, useContext } from "react";
-import { Order } from "../../../../public/types";
-import { getComparator, getLink, openUrl } from "../../../../public/utils";
-import { DataContext } from "../../context/DataContext";
-import { ScreenContext } from "../../context/ScreenContext";
+import { Order } from "../../../public/types";
+import { getComparator, getLink, openUrl } from "../../../public/utils";
+import { useAppSelector } from "../../store/hooks";
+import { ScreenContext } from "../../store/ScreenContext";
+import { dataSlice } from "../../store/slices/dataSlice";
 import Bar, { Props as BarProps } from "./Bar";
 import Legend, { Props as LegendProps } from "./Legend";
 
@@ -14,11 +15,15 @@ const formatter = Intl.NumberFormat("en", {
 
 const Chart: FC = () => {
   const { width } = useContext(ScreenContext);
-  const { difficulty, column, rows, links, loading } = useContext(DataContext);
+  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
+  const column = useAppSelector(dataSlice.selectors.selectColumn);
+  const rows = useAppSelector(dataSlice.selectors.selectRows);
+  const links = useAppSelector(dataSlice.selectors.selectLinks);
+  const loading = useAppSelector(dataSlice.selectors.selectLoading);
 
   const dataset = rows
     .sort(getComparator(Order.desc, column))
-    .filter((row) => ((row[column] as number) ?? 0) > 0);
+    .filter((row) => row[column] !== undefined);
   const yLabel = dataset?.[0]?.Player ? "Player" : "Item";
 
   return (
@@ -67,11 +72,14 @@ const Chart: FC = () => {
           const row = dataset?.[state.dataIndex];
           if (!row) return {};
 
+          const value = row[column];
+
           return {
             inject: {
               label: `${row.Item ?? row.Player ?? ""}`,
               color: (row.color as string) ?? state.color,
               link: getLink(row, difficulty, links),
+              isFaded: typeof value === "number" ? value < 0 : false,
             },
           } as Partial<BarProps>;
         },

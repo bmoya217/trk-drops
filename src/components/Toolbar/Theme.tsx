@@ -6,15 +6,20 @@ import {
 } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
 import { FC, useContext } from "react";
-import { View } from "../../../../public/types";
-import { openUrl } from "../../../../public/utils";
-import { DataContext } from "../../context/DataContext";
-import { ThemeContext } from "../../context/ThemeContext";
+import { View } from "../../../public/types";
+import { openUrl } from "../../../public/utils";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { dataSlice } from "../../store/slices/dataSlice";
+import { ThemeContext } from "../../store/ThemeContext";
 import Raidbots from "./Raidbots";
 
 const Theme: FC = () => {
   const { theme, setTheme } = useContext(ThemeContext);
-  const { difficulty, group, view, setView, links } = useContext(DataContext);
+  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
+  const group = useAppSelector(dataSlice.selectors.selectGroup);
+  const view = useAppSelector(dataSlice.selectors.selectView);
+  const links = useAppSelector(dataSlice.selectors.selectLinks);
+  const dispatch = useAppDispatch();
 
   const link = group + "_" + difficulty;
   const raidbots = links?.[link];
@@ -33,7 +38,11 @@ const Theme: FC = () => {
         size="small"
         sx={{ m: 1 }}
         onClick={() =>
-          setView?.((view) => (view === View.Table ? View.Chart : View.Table))
+          dispatch(
+            dataSlice.actions.setView(
+              view === View.Table ? View.Chart : View.Table
+            )
+          )
         }
       >
         {view === View.Table ? (

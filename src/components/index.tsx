@@ -1,14 +1,21 @@
 import { Box, Divider, LinearProgress, Paper } from "@mui/material";
-import { useContext } from "react";
-import { View } from "../../../public/types";
-import { DataContext } from "../context/DataContext";
+import { useEffect } from "react";
+import { View } from "../../public/types";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { dataSlice } from "../store/slices/dataSlice";
 import Chart from "./Chart";
 import Header from "./Header";
 import Table from "./Table";
 import Toolbar from "./Toolbar";
 
 const Drops = () => {
-  const { view, loading } = useContext(DataContext);
+  const view = useAppSelector(dataSlice.selectors.selectView);
+  const loading = useAppSelector(dataSlice.selectors.selectLoading);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(dataSlice.actions.fetchReports());
+  }, []);
 
   return (
     <Box

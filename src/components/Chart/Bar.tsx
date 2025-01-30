@@ -9,6 +9,7 @@ export interface Props extends BarElementProps {
     label: string;
     color: string;
     link: string;
+    isFaded: boolean;
   };
 }
 
@@ -19,7 +20,11 @@ const Bar: FC<Props> = ({ inject, ...props }) => {
         {...props}
         id={`${props.id}`}
         dataIndex={props.ownerState?.dataIndex}
-        fill={inject?.color ?? props.ownerState?.color}
+        fill={
+          !inject?.isFaded
+            ? (inject?.color ?? props.ownerState?.color)
+            : undefined
+        }
       />
       <animated.text
         style={{

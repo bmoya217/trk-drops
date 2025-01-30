@@ -1,7 +1,7 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useState } from "react";
-import { Order } from "../../../../public/types";
+import { Order } from "../../../public/types";
 import Body from "./Body";
 import Head from "./Head";
 

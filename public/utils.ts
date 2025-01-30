@@ -98,25 +98,18 @@ export const getLink = (row: Row, difficulty: Difficulty, links: Links) => {
 };
 
 // data fetching
-export const fetchReport = async (
-  report: string,
-  controller: AbortController
-) => {
+export const fetchReport = async (report: string) => {
   const page = await fetch("api/report?report=" + report, {
     cache: "force-cache",
-    signal: controller.signal,
   }).catch(() => null);
   if (page?.status !== 200) return {};
 
   return page.json();
 };
 
-export const fetchReports = async (
-  controller: AbortController
-): Promise<Reports_Team | null> => {
+export const fetchReports = async (): Promise<Reports_Team | null> => {
   const reports = await fetch(`api/reports`, {
     cache: "no-store",
-    signal: controller.signal,
   })
     .then((reports) => reports.json())
     .catch(() => null);
@@ -139,7 +132,7 @@ export const validateReport = ($: any, difficulty: Difficulty) => {
   if ($?.sim?.options?.desired_targets > 1) return false;
   if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
   if ($?.sim?.options?.max_time !== 300) return false;
-  if (!isCurrent($?.simbot?.date)) return false;
+  // if (!isCurrent($?.simbot?.date)) return false;
   if (!isCorrectDifficulty($, difficulty)) return false;
   return true;
 };
@@ -168,7 +161,7 @@ type ResultsData = {
 export const formatResults = (
   $: any,
   difficulty: Difficulty
-): [Data, Links] => {
+): { data: Data; links: Links } => {
   const id = $?.simbot?.parentSimId ?? "id";
   const player = $?.sim?.players?.[0]?.name ?? "anon player";
   const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
@@ -242,5 +235,8 @@ export const formatResults = (
     ),
   };
 
-  return [{ Boss, Player }, links];
+  return {
+    data: { Boss, Player },
+    links,
+  };
 };

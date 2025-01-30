@@ -3,9 +3,10 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import { useContext, type FC } from "react";
-import { Order, Screen } from "../../../../public/types";
-import { DataContext } from "../../context/DataContext";
-import { ScreenContext } from "../../context/ScreenContext";
+import { Order, Screen } from "../../../public/types";
+import { useAppSelector } from "../../store/hooks";
+import { ScreenContext } from "../../store/ScreenContext";
+import { dataSlice } from "../../store/slices/dataSlice";
 import CellText from "./CellText";
 
 interface Props {
@@ -16,7 +17,10 @@ interface Props {
 
 const Head: FC<Props> = ({ order, orderBy, onSort }) => {
   const { size } = useContext(ScreenContext);
-  const { difficulty, column, links, headCells } = useContext(DataContext);
+  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
+  const column = useAppSelector(dataSlice.selectors.selectColumn);
+  const links = useAppSelector(dataSlice.selectors.selectLinks);
+  const headCells = useAppSelector(dataSlice.selectors.selectHeadCells);
 
   const dynamicHead =
     size === Screen.Large ? headCells : [headCells?.[0], column];

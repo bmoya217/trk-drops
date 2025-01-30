@@ -1,17 +1,18 @@
-import DataProvider from "../components/context/DataContext";
-import ScreenProvider from "../components/context/ScreenContext";
-import ThemeProvider from "../components/context/ThemeContext";
-import Drops from "../components/Drops";
+import { Provider } from "react-redux";
+import Drops from "../components";
+import { store } from "../store";
+import ScreenProvider from "../store/ScreenContext";
+import ThemeProvider from "../store/ThemeContext";
 
 const Home = () => {
   return (
-    <ScreenProvider>
-      <ThemeProvider>
-        <DataProvider>
+    <Provider store={store}>
+      <ScreenProvider>
+        <ThemeProvider>
           <Drops />
-        </DataProvider>
-      </ThemeProvider>
-    </ScreenProvider>
+        </ThemeProvider>
+      </ScreenProvider>
+    </Provider>
   );
 };
 
