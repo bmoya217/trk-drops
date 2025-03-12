@@ -28,14 +28,14 @@ export const CLASS_COLORS = [
 
 // Groups by boss
 export const BOSSES = [
-  "Ulgrax the Devourer",
-  "The Bloodbound Horror",
-  "Sikran, Captain of the Sureki",
-  "Rasha'nan",
-  "Broodtwister Ovi'nax",
-  "Nexus-Princess Ky'veza",
-  "The Silken Court",
-  "Queen Ansurek",
+  "Vexie and the Geargrinders",
+  "Cauldron of Carnage",
+  "Rik Reverb",
+  "Stix Bunkjunker",
+  "Sprocketmonger Lockenstock",
+  "The One-Armed Bandit",
+  "Mug'Zee, Heads of Security",
+  "Chrome King Gallywix",
   "Catalyst",
 ];
 
