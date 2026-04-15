@@ -28,14 +28,15 @@ export const CLASS_COLORS = [
 
 // Groups by boss
 export const BOSSES = [
-  "Vexie and the Geargrinders",
-  "Cauldron of Carnage",
-  "Rik Reverb",
-  "Stix Bunkjunker",
-  "Sprocketmonger Lockenstock",
-  "The One-Armed Bandit",
-  "Mug'Zee, Heads of Security",
-  "Chrome King Gallywix",
+  "Imperator Averzian",
+  "Vorasius",
+  "Fallen-King Salhadaar",
+  "Vaelgor & Ezzorak",
+  "Lightblinded Vanguard",
+  "Crown of the Cosmos",
+  "Chimaerus the Undreamt God",
+  "Belo'ren, Child of Al'ar",
+  "Midnight Falls",
   "Catalyst",
 ];
 
@@ -46,14 +47,14 @@ export const openUrl = (url: string) => {
 export const getHeight = () => {
   return Math.max(
     document?.documentElement?.clientHeight || 0,
-    window?.innerHeight || 0
+    window?.innerHeight || 0,
   );
 };
 
 export const getWidth = () => {
   return Math.max(
     document?.documentElement?.clientWidth || 0,
-    window?.innerWidth || 0
+    window?.innerWidth || 0,
   );
 };
 
@@ -112,7 +113,7 @@ export const fetchReports = async (): Promise<Reports_Team | null> => {
     cache: "no-store",
   })
     .then((reports) => reports.json())
-    .catch(() => null);
+    .catch((): any => null);
 
   return reports;
 };
@@ -125,7 +126,7 @@ const isCurrent = (timestamp: number) =>
 
 const isCorrectDifficulty = ($: any, difficulty: Difficulty) =>
   $?.simbot?.meta?.itemLibrary?.[0]?.difficulty?.includes(
-    difficulty.toLowerCase()
+    difficulty.toLowerCase(),
   );
 
 export const validateReport = ($: any, difficulty: Difficulty) => {
@@ -142,10 +143,10 @@ const getEncounter = (item: any) => {
   if (boss) return boss;
 
   const dungeonIds: string[] = item.item.sources.map(
-    (src: any) => src.encounterId
+    (src: any) => src.encounterId,
   );
   const dungeon = item.item.instance.encounters.find((en: any) =>
-    dungeonIds.includes(en.id)
+    dungeonIds.includes(en.id),
   );
   return dungeon?.name ?? "";
 };
@@ -160,7 +161,7 @@ type ResultsData = {
 
 export const formatResults = (
   $: any,
-  difficulty: Difficulty
+  difficulty: Difficulty,
 ): { data: Data; links: Links } => {
   const id = $?.simbot?.parentSimId ?? "id";
   const player = $?.sim?.players?.[0]?.name ?? "anon player";
@@ -210,14 +211,14 @@ export const formatResults = (
             ...Object.fromEntries(
               data
                 .filter((d) => d.boss === boss)
-                .map((e) => [e.column ?? e.itemName, e.sim])
+                .map((e) => [e.column ?? e.itemName, e.sim]),
             ),
             Player: player,
             color: CLASS_COLORS[color],
           },
         ],
       ];
-    })
+    }),
   );
 
   const Player = {
@@ -231,7 +232,7 @@ export const formatResults = (
   const links = {
     [player + "_" + difficulty]: `https://www.raidbots.com/simbot/report/${id}`,
     ...Object.fromEntries(
-      data.map((d) => [d.itemName + "_" + difficulty, d.link])
+      data.map((d) => [d.itemName + "_" + difficulty, d.link]),
     ),
   };
 
