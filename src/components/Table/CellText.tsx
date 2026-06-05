@@ -10,7 +10,6 @@ interface Props {
 const CellText: FC<Props> = ({ text, link, bold }) => {
   const sx = {
     fontWeight: bold ? "bold" : "inherit",
-    textTransform: "capitalize",
   };
 
   if (link) {

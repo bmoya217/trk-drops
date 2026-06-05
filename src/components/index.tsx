@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { dataSlice } from "../store/slices/dataSlice";
 import Chart from "./Chart";
 import Header from "./Header";
+import List from "./List";
 import Table from "./Table";
 import Toolbar from "./Toolbar";
 
@@ -15,7 +16,7 @@ const Drops = () => {
 
   useEffect(() => {
     dispatch(dataSlice.actions.fetchReports());
-  }, []);
+  }, [dispatch]);
 
   return (
     <Box
@@ -39,10 +40,16 @@ const Drops = () => {
           display: "flex",
           flex: 1,
           padding: "8px",
-          overflow: "scroll",
+          overflow: "auto",
         }}
       >
-        {view === View.Table ? <Table /> : <Chart />}
+        {view === View.Table ? (
+          <Table />
+        ) : view === View.Chart ? (
+          <Chart />
+        ) : (
+          <List />
+        )}
       </Paper>
     </Box>
   );

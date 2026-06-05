@@ -3,11 +3,6 @@ export enum Screen {
   Large = "Large",
 }
 
-export enum Team {
-  Royal = "Royal",
-  Kingdom = "Kingdom",
-}
-
 export enum Difficulty {
   Mythic = "Mythic",
   Heroic = "Heroic",
@@ -22,13 +17,19 @@ export enum Grouping {
 export enum View {
   Table = "Table",
   Chart = "Chart",
+  List = "List",
+}
+
+export enum ArmorType {
+  All = "All",
+  Cloth = "Cloth",
+  Leather = "Leather",
+  Mail = "Mail",
+  Plate = "Plate",
 }
 
 export type Reports_Difficulty = Record<Difficulty, string[]>;
-export type Reports_Team = Record<Team, Reports_Difficulty>;
-export interface Records extends Record<Difficulty, string> {
-  Team: Team;
-}
+export type Records = Record<Difficulty, string>;
 
 /*
 data = {
@@ -53,8 +54,6 @@ export type Data = {
 };
 
 export type ByDifficulty = Record<Difficulty, Data>;
-
-export type ByTeam = Record<Team, ByDifficulty>;
 
 export type Links = Record<string, string>;
 

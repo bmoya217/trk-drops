@@ -1,11 +1,12 @@
 import { addWeeks, isWithinInterval, subWeeks } from "date-fns";
 import {
+  ArmorType,
   Data,
   Difficulty,
   Grouping,
   Links,
   Order,
-  Reports_Team,
+  Reports_Difficulty,
   Row,
 } from "./types";
 
@@ -25,6 +26,42 @@ export const CLASS_COLORS = [
   "#A330C9", // DemonHunter
   "#33937F", // Evoker
 ];
+
+export const ARMOR_TYPES = [
+  ArmorType.Cloth,
+  ArmorType.Leather,
+  ArmorType.Mail,
+  ArmorType.Plate,
+];
+
+const ARMOR_TYPE_BY_CLASS_ID: Record<number, ArmorType> = {
+  1: ArmorType.Plate, // Warrior
+  2: ArmorType.Plate, // Paladin
+  3: ArmorType.Mail, // Hunter
+  4: ArmorType.Leather, // Rogue
+  5: ArmorType.Cloth, // Priest
+  6: ArmorType.Plate, // Death Knight
+  7: ArmorType.Mail, // Shaman
+  8: ArmorType.Cloth, // Mage
+  9: ArmorType.Cloth, // Warlock
+  10: ArmorType.Leather, // Monk
+  11: ArmorType.Leather, // Druid
+  12: ArmorType.Leather, // Demon Hunter
+  13: ArmorType.Mail, // Evoker
+};
+
+export const getArmorType = (row: Row) =>
+  ARMOR_TYPE_BY_CLASS_ID[row.classId as number];
+
+export const filterRowsByArmorType = (rows: Row[], armorType: ArmorType) =>
+  armorType === ArmorType.All
+    ? rows
+    : rows.filter((row) => getArmorType(row) === armorType);
+
+export const filterRowsByArmorTypes = (rows: Row[], armorTypes: ArmorType[]) =>
+  armorTypes.length
+    ? rows.filter((row) => armorTypes.includes(getArmorType(row)))
+    : rows;
 
 // Groups by boss
 export const BOSSES = [
@@ -84,6 +121,7 @@ export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
   rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
   headCells.delete(grouping === Grouping.Boss ? "Player" : "Item");
   headCells.delete("color");
+  headCells.delete("classId");
   return [
     grouping === Grouping.Boss ? "Player" : "Item",
     ...Array.from(headCells).sort(),
@@ -108,7 +146,7 @@ export const fetchReport = async (report: string) => {
   return page.json();
 };
 
-export const fetchReports = async (): Promise<Reports_Team | null> => {
+export const fetchReports = async (): Promise<Reports_Difficulty | null> => {
   const reports = await fetch(`api/reports`, {
     cache: "no-store",
   })
@@ -215,6 +253,7 @@ export const formatResults = (
             ),
             Player: player,
             color: CLASS_COLORS[color],
+            classId: color,
           },
         ],
       ];
@@ -226,6 +265,7 @@ export const formatResults = (
       Item: d.itemName,
       [d.slot]: d.sim,
       color: CLASS_COLORS[color],
+      classId: color,
     })),
   };
 

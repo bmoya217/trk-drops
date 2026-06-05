@@ -1,13 +1,13 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
+  ArmorType,
   ByDifficulty,
-  ByTeam,
   Data,
   Difficulty,
   Grouping,
   Links,
+  Reports_Difficulty,
   Row,
-  Team,
   View,
 } from "../../../public/types";
 import {
@@ -26,19 +26,15 @@ const DIFFICULTY: ByDifficulty = {
   Dungeon: { Boss: {}, Player: {} },
 };
 
-const DATA: ByTeam = {
-  Royal: DIFFICULTY,
-  Kingdom: DIFFICULTY,
-};
-
 export interface DataSliceState {
-  team: Team;
   difficulty: Difficulty;
   grouping: Grouping;
   group: string;
   column: string;
   view: View;
-  data: ByTeam;
+  armorTypes: ArmorType[];
+  slots: string[];
+  data: ByDifficulty;
   links: Links;
   loading: boolean;
   groups: string[];
@@ -47,23 +43,24 @@ export interface DataSliceState {
 }
 
 const initialState: DataSliceState = {
-  team: Team.Royal,
   difficulty: Difficulty.Mythic,
   grouping: Grouping.Boss,
   group: BOSSES[0],
   column: undefined,
   view: View.Table,
-  data: DATA,
+  armorTypes: [],
+  slots: [],
+  data: DIFFICULTY,
   links: {},
   loading: true,
-  groups: [],
+  groups: BOSSES,
   rows: [],
   headCells: [],
 };
 
-const addData = (data: ByTeam, newData: Data, t: Team, d: Difficulty) => {
+const addData = (data: ByDifficulty, newData: Data, d: Difficulty) => {
   const Boss = BOSSES.reduce((prev, curr) => {
-    const oldRows = data?.[t]?.[d]?.Boss?.[curr] ?? [];
+    const oldRows = data?.[d]?.Boss?.[curr] ?? [];
     const newRows = newData?.Boss?.[curr] ?? [];
 
     return {
@@ -73,16 +70,13 @@ const addData = (data: ByTeam, newData: Data, t: Team, d: Difficulty) => {
   }, {});
 
   const Player = {
-    ...data[t][d].Player,
+    ...data[d].Player,
     ...newData.Player,
   };
 
   return {
     ...data,
-    [t]: {
-      ...data[t],
-      [d]: { Boss, Player },
-    },
+    [d]: { Boss, Player },
   };
 };
 
@@ -93,63 +87,78 @@ const addLinks = (links: Links, newLinks: Links) => {
   };
 };
 
-const getGroup = (state: DataSliceState): string => {
-  const groups = state.data?.[state.team]?.[state.difficulty]?.[state.grouping];
-  if (!groups) return "";
-  const groupKeys = Object.keys(groups);
-  return groupKeys.includes(state.group) ? state.group : groupKeys[0];
+const getGroups = (state: DataSliceState): string[] => {
+  if (state.grouping === Grouping.Boss) return BOSSES;
+  return Object.keys(
+    state.data?.[state.difficulty]?.Player ?? {}
+  ).sort();
 };
 
-const getColumn = (state: DataSliceState): string => {
-  const groups = state.data?.[state.team]?.[state.difficulty]?.[state.grouping];
-  const rows = groups?.[state.group];
-  const headCells = getHeadCells(rows, state.grouping);
-  return headCells.slice(1).includes(state.column)
+const getRows = (state: DataSliceState): Row[] => {
+  const difficultyRows =
+    state.data?.[state.difficulty]?.[state.grouping]?.[state.group] ?? [];
+  const playerRows =
+    state.grouping === Grouping.Player
+      ? (state.data?.Dungeon?.Player?.[state.group] ?? [])
+      : [];
+
+  return [...difficultyRows, ...playerRows];
+};
+
+const updateDerivedData = (state: DataSliceState) => {
+  state.groups = getGroups(state);
+  state.group = state.groups.includes(state.group)
+    ? state.group
+    : (state.groups[0] ?? "");
+  state.rows = getRows(state);
+  state.headCells = getHeadCells(state.rows, state.grouping);
+  state.column = state.headCells.slice(1).includes(state.column)
     ? state.column
-    : headCells[1];
+    : state.headCells[1];
 };
 
 export const dataSlice = createAppSlice({
   name: "data",
   initialState,
   reducers: (create) => ({
-    setTeam: create.reducer((state, action: PayloadAction<Team>) => {
-      state.team = action.payload;
-      state.group = getGroup(state);
-      state.column = getColumn(state);
-    }),
     setDifficulty: create.reducer(
       (state, action: PayloadAction<Difficulty>) => {
         state.difficulty = action.payload;
-        state.group = getGroup(state);
-        state.column = getColumn(state);
+        updateDerivedData(state);
       }
     ),
     setGrouping: create.reducer((state, action: PayloadAction<Grouping>) => {
       state.grouping = action.payload;
-      state.group = getGroup(state);
-      state.column = getColumn(state);
+      updateDerivedData(state);
     }),
     setGroup: create.reducer((state, action: PayloadAction<string>) => {
       state.group = action.payload;
-      state.group = getGroup(state);
-      state.column = getColumn(state);
+      updateDerivedData(state);
     }),
     setColumn: create.reducer((state, action: PayloadAction<string>) => {
       state.column = action.payload;
-      state.group = getGroup(state);
-      state.column = getColumn(state);
+      updateDerivedData(state);
     }),
     setView: create.reducer((state, action: PayloadAction<View>) => {
       state.view = action.payload;
     }),
+    toggleArmorType: create.reducer((state, action: PayloadAction<ArmorType>) => {
+      state.armorTypes = state.armorTypes.includes(action.payload)
+        ? state.armorTypes.filter((armorType) => armorType !== action.payload)
+        : [...state.armorTypes, action.payload];
+    }),
+    toggleSlot: create.reducer((state, action: PayloadAction<string>) => {
+      state.slots = state.slots.includes(action.payload)
+        ? state.slots.filter((slot) => slot !== action.payload)
+        : [...state.slots, action.payload];
+    }),
 
     // thunks
     fetchReports: create.asyncThunk(
-      async (): Promise<{ data: ByTeam; links: Links }> => {
+      async (): Promise<{ data: ByDifficulty; links: Links }> => {
         const reports = await fetchReports();
 
-        const loadReport = async (report: string, t: Team, d: Difficulty) => {
+        const loadReport = async (report: string, d: Difficulty) => {
           if (!report || report.length < 10) return;
 
           const $ = await fetchReport(report);
@@ -157,50 +166,46 @@ export const dataSlice = createAppSlice({
           const result = formatResults($, d);
           return {
             ...result,
-            t,
             d,
           };
         };
 
         const loadedReports = await Promise.all(
           Object.keys(reports).reduce(
-            (teams, t: Team) => [
-              ...teams,
-              ...Object.keys(reports[t]).reduce(
-                (diffs, d: Difficulty) => [
-                  ...diffs,
-                  ...reports[t][d].map((url) => loadReport(url, t, d)),
-                ],
-                []
-              ),
+            (diffs, d: Difficulty) => [
+              ...diffs,
+              ...reports[d].map((url) => loadReport(url, d)),
             ],
             []
           )
         );
 
-        const filteredReports = loadedReports.filter((report) => report);
+        const filteredReports = loadedReports.filter(
+          (report): report is { data: Data; links: Links; d: Difficulty } =>
+            Boolean(report)
+        );
 
         return filteredReports.reduce(
           (prev, curr) => {
             return {
-              data: addData(prev.data, curr.data, curr.t, curr.d),
+              data: addData(prev.data, curr.data, curr.d),
               links: addLinks(prev.links, curr.links),
             };
           },
-          { data: DATA, links: [] }
+          { data: DIFFICULTY, links: {} }
         );
       },
       {
         pending: (state) => {
           state.loading = true;
-          state.data = DATA;
+          state.data = DIFFICULTY;
+          updateDerivedData(state);
         },
         fulfilled: (state, action) => {
           state.loading = false;
           state.data = action.payload.data;
           state.links = action.payload.links;
-          state.group = getGroup(state);
-          state.column = getColumn(state);
+          updateDerivedData(state);
         },
         rejected: (state) => {
           state.loading = false;
@@ -209,43 +214,18 @@ export const dataSlice = createAppSlice({
     ),
   }),
   selectors: {
-    selectTeam: (data) => data.team,
     selectDifficulty: (data) => data.difficulty,
     selectGrouping: (data) => data.grouping,
     selectGroup: (data) => data.group,
     selectColumn: (data) => data.column,
     selectView: (data) => data.view,
-    selectData: (data) => data.data[data.team],
+    selectArmorTypes: (data) => data.armorTypes,
+    selectSlots: (data) => data.slots,
+    selectData: (data) => data.data,
     selectLinks: (data) => data.links,
     selectLoading: (data) => data.loading,
-    selectGroups: (data) => {
-      if (data.grouping === Grouping.Boss) return BOSSES;
-      return Object.keys(
-        data.data?.[data.team]?.[data.difficulty]?.Player ?? {}
-      ).sort();
-    },
-    selectRows: (data) => {
-      const difficultyRows =
-        data.data?.[data.team]?.[data.difficulty]?.[data.grouping]?.[
-          data.group
-        ] ?? [];
-      const playerRows =
-        data.grouping === Grouping.Player
-          ? (data.data?.[data.team]?.Dungeon?.Player?.[data.group] ?? [])
-          : [];
-      return [...difficultyRows, ...playerRows];
-    },
-    selectHeadCells: (data) => {
-      const difficultyRows =
-        data.data?.[data.team]?.[data.difficulty]?.[data.grouping]?.[
-          data.group
-        ] ?? [];
-      const playerRows =
-        data.grouping === Grouping.Player
-          ? (data.data?.[data.team]?.Dungeon?.Player?.[data.group] ?? [])
-          : [];
-      const rows = [...difficultyRows, ...playerRows];
-      return getHeadCells(rows, data.grouping);
-    },
+    selectGroups: (data) => data.groups,
+    selectRows: (data) => data.rows,
+    selectHeadCells: (data) => data.headCells,
   },
 });

@@ -17,9 +17,9 @@ import {
 } from "react";
 
 export enum Open {
-  Team = "Team",
   Difficulty = "Difficulty",
   Grouping = "Grouping",
+  View = "View",
   Closed = "Closed",
 }
 
@@ -53,7 +53,16 @@ const Select: FC<Props<string>> = ({
         icon={icon}
         label={value}
         size="small"
-        sx={{ textTransform: "capitalize", padding: "8px" }}
+        aria-label={`${label}: ${value}`}
+        sx={{
+          textTransform: "capitalize",
+          minWidth: 96,
+          justifyContent: "flex-start",
+          ".MuiChip-label": {
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          },
+        }}
         onClick={() => setOpen((o) => (o === label ? Open.Closed : label))}
       />
 

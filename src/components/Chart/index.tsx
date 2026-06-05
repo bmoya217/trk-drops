@@ -22,6 +22,7 @@ const Chart: FC = () => {
   const loading = useAppSelector(dataSlice.selectors.selectLoading);
 
   const dataset = rows
+    .slice()
     .sort(getComparator(Order.desc, column))
     .filter((row) => row[column] !== undefined);
   const yLabel = dataset?.[0]?.Player ? "Player" : "Item";
