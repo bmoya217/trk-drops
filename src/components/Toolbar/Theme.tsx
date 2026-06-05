@@ -8,7 +8,7 @@ import { ThemeContext } from "../../store/ThemeContext";
 import Raidbots from "./Raidbots";
 
 const Theme: FC = () => {
-  const { theme, setTheme } = useContext(ThemeContext);
+  const { mode, setTheme } = useContext(ThemeContext);
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const group = useAppSelector(dataSlice.selectors.selectGroup);
   const links = useAppSelector(dataSlice.selectors.selectLinks);
@@ -24,6 +24,7 @@ const Theme: FC = () => {
         display: "flex",
         flexWrap: "wrap",
         gap: 1,
+        paddingInlineEnd: 6,
         justifyContent: "flex-end",
       }}
     >
@@ -41,7 +42,7 @@ const Theme: FC = () => {
           setTheme?.((theme) => (theme === "light" ? "dark" : "light"))
         }
       >
-        {theme?.palette?.mode === "light" ? <DarkMode /> : <LightMode />}
+        {mode === "light" ? <DarkMode /> : <LightMode />}
       </Fab>
     </Box>
   );

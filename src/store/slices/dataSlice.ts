@@ -25,6 +25,8 @@ const DIFFICULTY: ByDifficulty = {
   Mythic: { Boss: {}, Player: {} },
   Dungeon: { Boss: {}, Player: {} },
 };
+export const DATA_PREFERENCES_STORAGE_KEY = "drops-data-preferences";
+const PERSISTED_DATA_PREFERENCES_MAX_AGE = 60 * 60 * 24 * 365;
 
 export interface DataSliceState {
   difficulty: Difficulty;
@@ -56,6 +58,95 @@ const initialState: DataSliceState = {
   groups: BOSSES,
   rows: [],
   headCells: [],
+};
+
+type PersistedDataPreferences = Pick<
+  DataSliceState,
+  | "armorTypes"
+  | "column"
+  | "difficulty"
+  | "group"
+  | "grouping"
+  | "slots"
+  | "view"
+>;
+
+const isEnumValue = <T extends Record<string, string>>(
+  enumType: T,
+  value: unknown
+): value is T[keyof T] =>
+  typeof value === "string" && Object.values(enumType).includes(value);
+
+const getStringArray = (value: unknown) =>
+  Array.isArray(value) && value.every((item) => typeof item === "string")
+    ? value
+    : undefined;
+
+export const loadDataPreferences = (): Partial<PersistedDataPreferences> => {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const storedPreferences = window.localStorage.getItem(
+      DATA_PREFERENCES_STORAGE_KEY
+    );
+    if (!storedPreferences) return {};
+
+    const parsed = JSON.parse(storedPreferences);
+    if (!parsed || typeof parsed !== "object") return {};
+
+    return {
+      ...(isEnumValue(Difficulty, parsed.difficulty)
+        ? { difficulty: parsed.difficulty }
+        : {}),
+      ...(isEnumValue(Grouping, parsed.grouping)
+        ? { grouping: parsed.grouping }
+        : {}),
+      ...(typeof parsed.group === "string" ? { group: parsed.group } : {}),
+      ...(typeof parsed.column === "string"
+        ? { column: parsed.column }
+        : {}),
+      ...(isEnumValue(View, parsed.view) ? { view: parsed.view } : {}),
+      ...(getStringArray(parsed.armorTypes)
+        ? {
+            armorTypes: getStringArray(parsed.armorTypes).filter((armorType) =>
+              isEnumValue(ArmorType, armorType)
+            ),
+          }
+        : {}),
+      ...(getStringArray(parsed.slots) ? { slots: parsed.slots } : {}),
+    };
+  } catch {
+    return {};
+  }
+};
+
+export const getDataPreferences = (
+  state: DataSliceState
+): PersistedDataPreferences => ({
+  armorTypes: state.armorTypes,
+  column: state.column,
+  difficulty: state.difficulty,
+  group: state.group,
+  grouping: state.grouping,
+  slots: state.slots,
+  view: state.view,
+});
+
+export const createInitialDataState = (
+  preferences: Partial<PersistedDataPreferences> = {}
+): DataSliceState => ({
+  ...initialState,
+  ...preferences,
+});
+
+export const persistDataPreferences = (state: DataSliceState) => {
+  if (typeof window === "undefined") return;
+  const preferences = JSON.stringify(getDataPreferences(state));
+
+  window.localStorage.setItem(DATA_PREFERENCES_STORAGE_KEY, preferences);
+  document.cookie = `${DATA_PREFERENCES_STORAGE_KEY}=${encodeURIComponent(
+    preferences
+  )}; max-age=${PERSISTED_DATA_PREFERENCES_MAX_AGE}; path=/; samesite=lax`;
 };
 
 const addData = (data: ByDifficulty, newData: Data, d: Difficulty) => {
@@ -121,6 +212,11 @@ export const dataSlice = createAppSlice({
   name: "data",
   initialState,
   reducers: (create) => ({
+    hydratePreferences: create.reducer(
+      (state, action: PayloadAction<Partial<PersistedDataPreferences>>) => {
+        Object.assign(state, action.payload);
+      }
+    ),
     setDifficulty: create.reducer(
       (state, action: PayloadAction<Difficulty>) => {
         state.difficulty = action.payload;
@@ -199,7 +295,8 @@ export const dataSlice = createAppSlice({
         pending: (state) => {
           state.loading = true;
           state.data = DIFFICULTY;
-          updateDerivedData(state);
+          state.rows = [];
+          state.headCells = [];
         },
         fulfilled: (state, action) => {
           state.loading = false;

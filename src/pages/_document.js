@@ -3,8 +3,8 @@ import { Head, Html, Main, NextScript } from "next/document";
 export default function Document() {
   return (
     <Html
+      suppressHydrationWarning
       style={{
-        background: "#121212",
         display: "flex",
         height: "100vh",
       }}
@@ -13,7 +13,13 @@ export default function Document() {
         <style
           dangerouslySetInnerHTML={{
             __html:
-              "html,body,#__next{display:flex;flex:1;height:100vh;margin:0;background:#121212;}body{justify-content:center;}#__next{width:100vw;}",
+              ":root,[data-theme='dark']{--app-bg:#121212;--app-fg:#fff;color-scheme:dark;}[data-theme='light']{--app-bg:#fff;--app-fg:rgba(0,0,0,.87);color-scheme:light;}html,body,#__next{display:flex;flex:1;height:100vh;margin:0;background:var(--app-bg);color:var(--app-fg);}body{justify-content:center;}#__next{width:100vw;}",
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var cookieMatch=document.cookie.match(/(?:^|; )theme-mode=(light|dark)(?:;|$)/);var mode=localStorage.getItem('theme-mode')||(cookieMatch&&cookieMatch[1]);if(mode!=='light'&&mode!=='dark')mode='dark';document.documentElement.dataset.theme=mode;document.documentElement.style.colorScheme=mode;}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.style.colorScheme='dark';}})();",
           }}
         />
         <script
@@ -27,7 +33,6 @@ export default function Document() {
       </Head>
       <body
         style={{
-          background: "#121212",
           display: "flex",
           flex: 1,
           height: "100vh",

@@ -1,6 +1,7 @@
 html,
 body {
-  background: #121212;
+  background: var(--app-bg, #121212);
+  color: var(--app-fg, #fff);
   padding: 0;
   margin: 0;
   font-family:
