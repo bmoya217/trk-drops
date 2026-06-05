@@ -6,9 +6,14 @@ import {
   Grouping,
   Links,
   Order,
+  RaidbotsDroptimizerItem,
+  RaidbotsProfileResult,
+  RaidbotsReport,
   Reports_Difficulty,
   Row,
 } from "./types";
+
+type RaidbotsReportDate = NonNullable<RaidbotsReport["simbot"]>["date"];
 
 export const CLASS_COLORS = [
   "",
@@ -123,11 +128,13 @@ export const getLink = (row: Row, difficulty: Difficulty, links: Links) => {
 };
 
 // data fetching
-export const fetchReport = async (report: string) => {
-  const page = await fetch("api/report?report=" + report, {
+export const fetchReport = async (
+  report: string,
+): Promise<RaidbotsReport | null> => {
+  const page = await fetch("api/report?report=" + encodeURIComponent(report), {
     cache: "force-cache",
   }).catch((): null => null);
-  if (page?.status !== 200) return {};
+  if (page?.status !== 200) return null;
 
   return page.json();
 };
@@ -137,40 +144,62 @@ export const fetchReports = async (): Promise<Reports_Difficulty | null> => {
     cache: "no-store",
   })
     .then((reports) => reports.json())
-    .catch((): any => null);
+    .catch((): null => null);
 
   return reports;
 };
 
-const isCurrent = (timestamp: number) =>
-  isWithinInterval(timestamp, {
+const getReportDate = (timestamp: RaidbotsReportDate) => {
+  if (!timestamp) return null;
+
+  if (typeof timestamp === "number") {
+    return new Date(
+      timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp,
+    );
+  }
+
+  const parsedDate = new Date(timestamp);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+};
+
+const isCurrent = (timestamp: RaidbotsReportDate) => {
+  const reportDate = getReportDate(timestamp);
+  if (!reportDate) return false;
+
+  return isWithinInterval(reportDate, {
     start: subWeeks(new Date(), 1),
     end: addWeeks(new Date(), 1),
   });
+};
 
-const isCorrectDifficulty = ($: any, difficulty: Difficulty) =>
-  $?.simbot?.meta?.itemLibrary?.[0]?.difficulty?.includes(
+const isCorrectDifficulty = (report: RaidbotsReport, difficulty: Difficulty) =>
+  report.simbot?.meta?.itemLibrary?.[0]?.difficulty?.includes(
     difficulty.toLowerCase(),
   );
 
-export const validateReport = ($: any, difficulty: Difficulty) => {
-  if ($?.sim?.options?.desired_targets > 1) return false;
-  if ($?.sim?.options?.fight_style !== "Patchwerk") return false;
-  if ($?.sim?.options?.max_time !== 300) return false;
-  // if (!isCurrent($?.simbot?.date)) return false;
-  if (!isCorrectDifficulty($, difficulty)) return false;
+export const validateReport = (
+  report: RaidbotsReport | null,
+  difficulty: Difficulty,
+) => {
+  if (!report) return false;
+  if ((report.sim?.options?.desired_targets ?? 0) > 1) return false;
+  if (report.sim?.options?.fight_style !== "Patchwerk") return false;
+  if (report.sim?.options?.max_time !== 300) return false;
+  // tier is over. comment out for now so data isn't empty
+  // if (!isCurrent(report.simbot?.date)) return false;
+  if (!isCorrectDifficulty(report, difficulty)) return false;
   return true;
 };
 
-const getEncounter = (item: any) => {
+const getEncounter = (item: RaidbotsDroptimizerItem) => {
   const boss = item.item.encounter?.name;
   if (boss) return boss;
 
-  const dungeonIds: string[] = item.item.sources.map(
-    (src: any) => src.encounterId,
+  const dungeonIds = (item.item.sources ?? []).flatMap((src) =>
+    src.encounterId ? [src.encounterId] : [],
   );
-  const dungeon = item.item.instance.encounters.find((en: any) =>
-    dungeonIds.includes(en.id),
+  const dungeon = item.item.instance?.encounters?.find((en) =>
+    en.id ? dungeonIds.includes(en.id) : false,
   );
   return dungeon?.name ?? "";
 };
@@ -184,39 +213,47 @@ type ResultsData = {
 };
 
 export const formatResults = (
-  $: any,
+  report: RaidbotsReport,
   difficulty: Difficulty,
 ): { data: Data; links: Links } => {
-  const id = $?.simbot?.parentSimId ?? "id";
-  const player = $?.sim?.players?.[0]?.name ?? "anon player";
-  const current = $?.sim?.statistics?.raid_dps?.mean ?? 0;
-  const results = $?.sim?.profilesets?.results ?? []; // numerical sim results
-  const items = $?.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
-  const color = $?.simbot?.meta?.rawFormData?.character?.class;
+  const id = report.simbot?.parentSimId ?? "id";
+  const player = report.sim?.players?.[0]?.name ?? "anon player";
+  const current = report.sim?.statistics?.raid_dps?.mean ?? 0;
+  const results = report.sim?.profilesets?.results ?? []; // numerical sim results
+  const items =
+    report.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
+  const color = report.simbot?.meta?.rawFormData?.character?.class;
 
   // match itemset list with sim results list
-  const data: ResultsData[] = items?.reduce((prev: any, item: any) => {
-    const result = results?.reduce((prev: any, result: any) => {
-      if (item.id !== result.name) return prev;
-      if (prev?.mean > result.mean) return prev;
-      return result;
-    }, undefined);
-    if (!result) return prev;
+  const data = items.reduce<ResultsData[]>((prev, item) => {
+    const result = results.reduce<RaidbotsProfileResult | undefined>(
+      (bestResult, result) => {
+        if (item.id !== result.name) return bestResult;
+        if ((bestResult?.mean ?? Number.NEGATIVE_INFINITY) > (result.mean ?? 0)) {
+          return bestResult;
+        }
+        return result;
+      },
+      undefined,
+    );
+    if (result?.mean === undefined) return prev;
 
     const isTier = item.item.sourceItem?.name;
-    const id = item.item.id;
+    const itemId = item.item.id;
     const slot = item.slot.replace(/[0-9]/g, "");
     const itemName = item.item.name;
+    if (!itemName) return prev;
+
     const column = isTier ? slot + " tier" : itemName;
     const boss = isTier ? "Catalyst" : getEncounter(item);
     const sim = Math.floor(result.mean - current);
     const bonus_id = item.item.bonus_id;
     const itemLevel = item.item.itemLevel;
-    const link = `https://www.wowhead.com/item=${id}?bonus=${bonus_id}&ilvl=${itemLevel}`;
+    const link = `https://www.wowhead.com/item=${itemId}?bonus=${bonus_id}&ilvl=${itemLevel}`;
     const newEntry: ResultsData = { itemName, column, sim, boss, slot, link };
 
     // check for item variation, return normally if not found
-    const index = prev.findIndex((x: any) => x.itemName === itemName);
+    const index = prev.findIndex((x) => x.itemName === itemName);
     if (index === -1) return [...prev, newEntry];
 
     // other variation was better, use that

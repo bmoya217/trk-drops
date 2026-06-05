@@ -253,6 +253,7 @@ export const dataSlice = createAppSlice({
     fetchReports: create.asyncThunk(
       async (): Promise<{ data: ByDifficulty; links: Links }> => {
         const reports = await fetchReports();
+        if (!reports) return { data: DIFFICULTY, links: {} };
 
         const loadReport = async (report: string, d: Difficulty) => {
           if (!report || report.length < 10) return;

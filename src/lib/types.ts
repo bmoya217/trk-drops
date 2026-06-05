@@ -31,6 +31,73 @@ export enum ArmorType {
 export type Reports_Difficulty = Record<Difficulty, string[]>;
 export type Records = Record<Difficulty, string>;
 
+export interface RaidbotsReport {
+  sim?: {
+    options?: {
+      desired_targets?: number;
+      fight_style?: string;
+      max_time?: number;
+    };
+    players?: Array<{
+      name?: string;
+    }>;
+    profilesets?: {
+      results?: RaidbotsProfileResult[];
+    };
+    statistics?: {
+      raid_dps?: {
+        mean?: number;
+      };
+    };
+  };
+  simbot?: {
+    date?: number | string;
+    meta?: {
+      itemLibrary?: Array<{
+        difficulty?: string;
+      }>;
+      rawFormData?: {
+        character?: {
+          class?: number;
+        };
+        droptimizerItems?: RaidbotsDroptimizerItem[];
+      };
+    };
+    parentSimId?: string;
+  };
+}
+
+export interface RaidbotsProfileResult {
+  mean?: number;
+  name?: string;
+}
+
+export interface RaidbotsDroptimizerItem {
+  id?: string;
+  item: {
+    bonus_id?: string | number;
+    encounter?: {
+      name?: string;
+    };
+    id?: string | number;
+    instance?: {
+      encounters?: Array<{
+        id?: string;
+        name?: string;
+      }>;
+    };
+    itemLevel?: number;
+    name?: string;
+    sourceItem?: {
+      name?: string;
+    };
+    sources?: Array<{
+      encounterId?: string;
+    }>;
+  };
+  slot: string;
+}
+
 /*
 data = {
   [grouping]: {
