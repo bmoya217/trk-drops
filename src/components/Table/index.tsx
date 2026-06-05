@@ -1,7 +1,7 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useEffect, useState } from "react";
-import { Grouping, Order } from "../../../public/types";
+import { Grouping, Order } from "../../lib/types";
 import { useAppSelector } from "../../store/hooks";
 import { dataSlice } from "../../store/slices/dataSlice";
 import Body from "./Body";

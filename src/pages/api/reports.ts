@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { parse } from "csv-parse/sync";
 import { NextApiHandler } from "next";
-import { Difficulty, Records, Reports_Difficulty } from "../../../public/types";
+import { Difficulty, Records, Reports_Difficulty } from "../../lib/types";
 
 const URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRX0_D17phIeBDTY7lSEao2OmP_zZTefFzyB4Ro5LGNMoPIhfogHptfZ1RBGMhCMngN1cJq1H_8Pz6_/pub?gid=1538781371&single=true&output=csv";

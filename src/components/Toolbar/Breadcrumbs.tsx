@@ -15,8 +15,8 @@ import {
   ToggleButtonGroup,
 } from "@mui/material";
 import { FC, useContext, useState } from "react";
-import { Difficulty, Grouping, View } from "../../../public/types";
-import { BOSSES } from "../../../public/utils";
+import { Difficulty, Grouping, View } from "../../lib/types";
+import { BOSSES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { ScreenContext } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";

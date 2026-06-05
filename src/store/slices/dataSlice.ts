@@ -9,7 +9,7 @@ import {
   Reports_Difficulty,
   Row,
   View,
-} from "../../../public/types";
+} from "../../lib/types";
 import {
   BOSSES,
   fetchReport,
@@ -17,7 +17,7 @@ import {
   formatResults,
   getHeadCells,
   validateReport,
-} from "../../../public/utils";
+} from "../../lib/utils";
 import { createAppSlice } from "../createAppSlice";
 
 const DIFFICULTY: ByDifficulty = {

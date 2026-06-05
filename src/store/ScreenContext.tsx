@@ -1,26 +1,37 @@
-import { createContext, FC, ReactElement, useEffect, useState } from "react";
-import { Screen } from "../../public/types";
-import { getHeight, getWidth } from "../../public/utils";
+import { createContext, FC, ReactNode, useEffect, useState } from "react";
+import { Screen } from "../lib/types";
 
 interface Context {
-  size?: Screen;
+  size: Screen;
   height: number;
   width: number;
 }
 
-export const ScreenContext = createContext<Context>({ height: 0, width: 0 });
+const getViewport = () => ({
+  height: window.innerHeight,
+  width: window.innerWidth,
+});
 
-const ScreenProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const [height, setHeight] = useState(69420);
-  const [width, setWidth] = useState(69420);
+const getScreenSize = (width: number) =>
+  width < 1000 ? Screen.Small : Screen.Large;
+
+export const ScreenContext = createContext<Context>({
+  height: 0,
+  size: Screen.Small,
+  width: 0,
+});
+
+const ScreenProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [viewport, setViewport] = useState({ height: 0, width: 0 });
 
   useEffect(() => {
     const handleResize = () => {
-      setHeight(getHeight());
-      setWidth(getWidth());
+      setViewport(getViewport());
     };
+
     handleResize();
     window.addEventListener("resize", handleResize);
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -29,9 +40,9 @@ const ScreenProvider: FC<{ children: ReactElement }> = ({ children }) => {
   return (
     <ScreenContext.Provider
       value={{
-        size: width < 1000 ? Screen.Small : Screen.Large,
-        height,
-        width,
+        height: viewport.height,
+        size: getScreenSize(viewport.width),
+        width: viewport.width,
       }}
     >
       {children}

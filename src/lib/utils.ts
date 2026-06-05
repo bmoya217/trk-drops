@@ -81,20 +81,6 @@ export const openUrl = (url: string) => {
   window.open(url, "_blank")?.focus();
 };
 
-export const getHeight = () => {
-  return Math.max(
-    document?.documentElement?.clientHeight || 0,
-    window?.innerHeight || 0,
-  );
-};
-
-export const getWidth = () => {
-  return Math.max(
-    document?.documentElement?.clientWidth || 0,
-    window?.innerWidth || 0,
-  );
-};
-
 // table utils
 export const descendingComparator =
   (order: Order, orderBy: string) => (a: Row, b: Row) => {
@@ -140,7 +126,7 @@ export const getLink = (row: Row, difficulty: Difficulty, links: Links) => {
 export const fetchReport = async (report: string) => {
   const page = await fetch("api/report?report=" + report, {
     cache: "force-cache",
-  }).catch(() => null);
+  }).catch((): null => null);
   if (page?.status !== 200) return {};
 
   return page.json();
@@ -234,7 +220,7 @@ export const formatResults = (
     if (index === -1) return [...prev, newEntry];
 
     // other variation was better, use that
-    if (prev[index.sim] > sim) return prev;
+    if (prev[index].sim > sim) return prev;
 
     // this variation was better, replace the old one
     return [...prev.slice(0, index), newEntry, ...prev.slice(index + 1)];

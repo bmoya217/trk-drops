@@ -1,6 +1,6 @@
 import { Box, Divider, LinearProgress, Paper } from "@mui/material";
 import { useEffect } from "react";
-import { View } from "../../public/types";
+import { View } from "../lib/types";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { dataSlice } from "../store/slices/dataSlice";
 import Chart from "./Chart";

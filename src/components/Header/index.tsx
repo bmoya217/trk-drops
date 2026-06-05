@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { ExpandMore, FilterList } from "@mui/icons-material";
 import { FC, useContext, useState } from "react";
-import { Grouping, Screen, View } from "../../../public/types";
-import { ARMOR_TYPES } from "../../../public/utils";
+import { Grouping, Screen, View } from "../../lib/types";
+import { ARMOR_TYPES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { ScreenContext } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
@@ -31,7 +31,7 @@ const Header: FC = () => {
   const dispatch = useAppDispatch();
 
   const showGroup = group && groups.length;
-  const showColum =
+  const showColumn =
     (view === View.Chart ||
       (view === View.Table &&
         size === Screen.Small &&
@@ -84,7 +84,7 @@ const Header: FC = () => {
       ) : null}
 
       {/* select column */}
-      {showColum ? (
+      {showColumn ? (
         <Select
           label={grouping === Grouping.Boss ? "Item" : "Slot"}
           value={column}

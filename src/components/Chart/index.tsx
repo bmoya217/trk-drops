@@ -1,7 +1,7 @@
 import { axisClasses, BarChart } from "@mui/x-charts";
 import { FC, useContext } from "react";
-import { Order } from "../../../public/types";
-import { getComparator, getLink, openUrl } from "../../../public/utils";
+import { Order } from "../../lib/types";
+import { getComparator, getLink, openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { ScreenContext } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";

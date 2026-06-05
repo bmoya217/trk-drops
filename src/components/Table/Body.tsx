@@ -2,14 +2,14 @@ import { Box, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC, Fragment, useContext } from "react";
-import { Grouping, type Order, Screen, type Row } from "../../../public/types";
+import { Grouping, type Order, Screen, type Row } from "../../lib/types";
 import {
   getComparator,
   filterRowsByArmorTypes,
   getHeadCells,
   getLink,
   openUrl,
-} from "../../../public/utils";
+} from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { ScreenContext } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";

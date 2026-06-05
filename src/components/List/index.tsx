@@ -7,13 +7,13 @@ import {
   Typography,
 } from "@mui/material";
 import { FC } from "react";
-import { Grouping, type Row } from "../../../public/types";
+import { Grouping, type Row } from "../../lib/types";
 import {
   filterRowsByArmorTypes,
   getHeadCells,
   getLink,
   openUrl,
-} from "../../../public/utils";
+} from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { dataSlice } from "../../store/slices/dataSlice";
 
@@ -86,7 +86,14 @@ const List: FC = () => {
 
   if (!rows.length && !loading) {
     return (
-      <Box sx={{ display: "grid", minHeight: 160, placeItems: "center", width: "100%" }}>
+      <Box
+        sx={{
+          display: "grid",
+          minHeight: 160,
+          placeItems: "center",
+          width: "100%",
+        }}
+      >
         <Typography color="text.secondary">No valid reports :)</Typography>
       </Box>
     );
@@ -127,40 +134,50 @@ const List: FC = () => {
                 {slot}
               </Typography>
 
-              <Stack spacing={0.75}>
+              <Stack direction="row" flexWrap="wrap" gap={0.75}>
                 {slotItems.map((item) => (
-                  <Box
+                  <Chip
                     key={`${item.slot}-${item.item}`}
-                    sx={{
-                      alignItems: "center",
-                      display: "grid",
-                      gap: 1.5,
-                      gridTemplateColumns: "minmax(0, 1fr) auto",
-                      minHeight: 40,
-                    }}
-                  >
-                    <Link
-                      color="inherit"
-                      href={item.link}
-                      underline="none"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (item.link) openUrl(item.link);
-                      }}
-                    >
-                      <Typography>{item.item}</Typography>
-                    </Link>
+                    label={
+                      <Box
+                        sx={{
+                          alignItems: "center",
+                          display: "flex",
+                          gap: 0.75,
+                        }}
+                      >
+                        <Typography
+                          color="text.primary"
+                          component="span"
+                          fontWeight="bold"
+                          variant="caption"
+                        >
+                          {item.item}
+                        </Typography>
 
-                    <Typography
-                      color={getValueColor(item.value)}
-                      fontWeight="bold"
-                      textAlign="right"
-                    >
-                      {typeof item.value === "number"
-                        ? formatter.format(item.value)
-                        : item.value}
-                    </Typography>
-                  </Box>
+                        <Typography
+                          color={getValueColor(item.value)}
+                          component="span"
+                          fontWeight="bold"
+                          variant="caption"
+                        >
+                          {typeof item.value === "number"
+                            ? formatter.format(item.value)
+                            : item.value}
+                        </Typography>
+                      </Box>
+                    }
+                    size="small"
+                    sx={{
+                      borderColor: "divider",
+                      maxWidth: "100%",
+                      "& .MuiChip-label": {
+                        minWidth: 0,
+                      },
+                    }}
+                    variant="outlined"
+                    onClick={() => item.link && openUrl(item.link)}
+                  />
                 ))}
               </Stack>
             </Box>
@@ -171,21 +188,19 @@ const List: FC = () => {
   }
 
   const bossRows = filterRowsByArmorTypes(rows, armorTypes);
-  const itemSlots = getItemSlots(
-    Object.values(data[difficulty].Player).flat()
-  );
+  const itemSlots = getItemSlots(Object.values(data[difficulty].Player).flat());
   const items = getHeadCells(bossRows, Grouping.Boss)
     .slice(1)
     .map((item) => {
       const players = bossRows
-          .filter((row) => row[item] !== undefined)
-          .map((row) => ({
-            color: row.color as string,
-            link: getLink(row, difficulty, links),
-            player: row.Player as string,
-            value: row[item],
-          }))
-          .sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0));
+        .filter((row) => row[item] !== undefined)
+        .map((row) => ({
+          color: row.color as string,
+          link: getLink(row, difficulty, links),
+          player: row.Player as string,
+          value: row[item],
+        }))
+        .sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0));
 
       return {
         item,
@@ -198,76 +213,81 @@ const List: FC = () => {
 
   return (
     <Stack divider={<Divider />} sx={{ width: "100%" }}>
-      {items.length ? items.map((item) => (
-        <Box key={item.item} sx={{ py: 1.5 }}>
-          <Box
-            sx={{
-              alignItems: "baseline",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 1,
-            }}
-          >
-            <Link
-              color="inherit"
-              href={item.link}
-              underline="none"
-              onClick={(e) => {
-                e.preventDefault();
-                if (item.link) openUrl(item.link);
+      {items.length ? (
+        items.map((item) => (
+          <Box key={item.item} sx={{ py: 1.5 }}>
+            <Box
+              sx={{
+                alignItems: "baseline",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
               }}
             >
-              <Typography fontWeight="bold">{item.item}</Typography>
-            </Link>
-
-            {item.slot ? (
-              <Typography color="text.secondary" variant="caption">
-                {item.slot}
-              </Typography>
-            ) : null}
-
-            <Typography color="text.secondary" variant="caption">
-              {item.players.length} {item.players.length === 1 ? "player" : "players"}
-            </Typography>
-          </Box>
-
-          <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: 1 }}>
-            {item.players.map((player) => (
-              <Chip
-                key={`${item.item}-${player.player}`}
-                label={
-                  <Box sx={{ alignItems: "center", display: "flex", gap: 0.75 }}>
-                    <Typography
-                      component="span"
-                      sx={{ color: player.color, fontWeight: "bold" }}
-                      variant="caption"
-                    >
-                      {player.player}
-                    </Typography>
-
-                    <Typography
-                      color={getValueColor(player.value)}
-                      component="span"
-                      fontWeight="bold"
-                      variant="caption"
-                    >
-                      {typeof player.value === "number"
-                        ? formatter.format(player.value)
-                        : player.value}
-                    </Typography>
-                  </Box>
-                }
-                size="small"
-                sx={{
-                  borderColor: "divider",
+              <Link
+                color="inherit"
+                href={item.link}
+                underline="none"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (item.link) openUrl(item.link);
                 }}
-                variant="outlined"
-                onClick={() => player.link && openUrl(player.link)}
-              />
-            ))}
-          </Stack>
-        </Box>
-      )) : (
+              >
+                <Typography fontWeight="bold">{item.item}</Typography>
+              </Link>
+
+              {item.slot ? (
+                <Typography color="text.secondary" variant="caption">
+                  {item.slot}
+                </Typography>
+              ) : null}
+
+              <Typography color="text.secondary" variant="caption">
+                {item.players.length}{" "}
+                {item.players.length === 1 ? "player" : "players"}
+              </Typography>
+            </Box>
+
+            <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: 1 }}>
+              {item.players.map((player) => (
+                <Chip
+                  key={`${item.item}-${player.player}`}
+                  label={
+                    <Box
+                      sx={{ alignItems: "center", display: "flex", gap: 0.75 }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{ color: player.color, fontWeight: "bold" }}
+                        variant="caption"
+                      >
+                        {player.player}
+                      </Typography>
+
+                      <Typography
+                        color={getValueColor(player.value)}
+                        component="span"
+                        fontWeight="bold"
+                        variant="caption"
+                      >
+                        {typeof player.value === "number"
+                          ? formatter.format(player.value)
+                          : player.value}
+                      </Typography>
+                    </Box>
+                  }
+                  size="small"
+                  sx={{
+                    borderColor: "divider",
+                  }}
+                  variant="outlined"
+                  onClick={() => player.link && openUrl(player.link)}
+                />
+              ))}
+            </Stack>
+          </Box>
+        ))
+      ) : (
         <Box sx={{ display: "grid", minHeight: 160, placeItems: "center" }}>
           <Typography color="text.secondary">No matching drops :)</Typography>
         </Box>

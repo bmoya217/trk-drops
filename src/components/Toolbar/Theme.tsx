@@ -1,7 +1,7 @@
 import { DarkMode, LightMode } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
 import { FC, useContext } from "react";
-import { openUrl } from "../../../public/utils";
+import { openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { dataSlice } from "../../store/slices/dataSlice";
 import { ThemeContext } from "../../store/ThemeContext";
