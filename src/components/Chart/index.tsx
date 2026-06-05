@@ -1,9 +1,9 @@
 import { axisClasses, BarChart } from "@mui/x-charts";
-import { FC, useContext } from "react";
-import { Order } from "../../lib/types";
+import { FC } from "react";
+import { Order, type Row } from "../../lib/types";
 import { getComparator, getLink, openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
-import { ScreenContext } from "../../store/ScreenContext";
+import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
 import Bar, { Props as BarProps } from "./Bar";
 import Legend, { Props as LegendProps } from "./Legend";
@@ -13,33 +13,44 @@ const formatter = Intl.NumberFormat("en", {
   maximumFractionDigits: 1,
 });
 
+const getChartDataset = (rows: Row[], column: string) =>
+  rows
+    .slice()
+    .sort(getComparator(Order.desc, column))
+    .filter((row) => row[column] !== undefined);
+
+const getYAxisLabel = (dataset: Row[]) => {
+  if (dataset?.[0]?.Player) return "Player";
+
+  return "Item";
+};
+
+const getChartSeries = (dataset: Row[], column: string) => {
+  if (!dataset.length) return [];
+
+  return [
+    {
+      dataKey: column,
+      valueFormatter: formatter.format,
+    },
+  ];
+};
+
 const Chart: FC = () => {
-  const { width } = useContext(ScreenContext);
+  const { width } = useScreen();
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const column = useAppSelector(dataSlice.selectors.selectColumn);
   const rows = useAppSelector(dataSlice.selectors.selectRows);
   const links = useAppSelector(dataSlice.selectors.selectLinks);
   const loading = useAppSelector(dataSlice.selectors.selectLoading);
 
-  const dataset = rows
-    .slice()
-    .sort(getComparator(Order.desc, column))
-    .filter((row) => row[column] !== undefined);
-  const yLabel = dataset?.[0]?.Player ? "Player" : "Item";
+  const dataset = getChartDataset(rows, column);
+  const yLabel = getYAxisLabel(dataset);
 
   return (
     <BarChart
       dataset={dataset}
-      series={
-        dataset.length
-          ? [
-              {
-                dataKey: column,
-                valueFormatter: formatter.format,
-              },
-            ]
-          : []
-      }
+      series={getChartSeries(dataset, column)}
       yAxis={[
         {
           dataKey: yLabel,

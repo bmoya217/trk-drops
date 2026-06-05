@@ -14,22 +14,37 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
-import { FC, useContext, useState } from "react";
-import { Difficulty, Grouping, View } from "../../lib/types";
+import { FC, useState } from "react";
+import { Difficulty, Grouping, View, type ByDifficulty } from "../../lib/types";
 import { BOSSES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { ScreenContext } from "../../store/ScreenContext";
+import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
+
+const getDefaultGroup = ({
+  data,
+  difficulty,
+  grouping,
+}: {
+  data: ByDifficulty;
+  difficulty: Difficulty;
+  grouping: Grouping;
+}) => {
+  if (grouping === Grouping.Boss) return BOSSES[0];
+
+  const players = Object.keys(data[difficulty].Player);
+
+  return players.length ? players[0] : "";
+};
 
 const Breadcrumbs: FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { width } = useContext(ScreenContext);
+  const { shouldCollapseFilters: collapseFilters } = useScreen();
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const view = useAppSelector(dataSlice.selectors.selectView);
   const data = useAppSelector(dataSlice.selectors.selectData);
   const dispatch = useAppDispatch();
-  const collapseFilters = width < 760;
 
   const controlSx = {
     "& .MuiToggleButton-root": {
@@ -77,14 +92,13 @@ const Breadcrumbs: FC = () => {
         exclusive
         onChange={(_, value: Grouping | null) => {
           if (!value) return;
+
           dispatch(dataSlice.actions.setGrouping(value));
-          const players = Object.keys(data[difficulty].Player);
-          if (value === Grouping.Boss)
-            dispatch(dataSlice.actions.setGroup(BOSSES[0]));
-          else
-            dispatch(
-              dataSlice.actions.setGroup(players.length ? players[0] : ""),
-            );
+          dispatch(
+            dataSlice.actions.setGroup(
+              getDefaultGroup({ data, difficulty, grouping: value }),
+            ),
+          );
         }}
         size="small"
         sx={controlSx}
@@ -157,7 +171,6 @@ const Breadcrumbs: FC = () => {
               p: 1,
               position: "absolute",
               top: "100%",
-              width: "min(340px, calc(100vw - 88px))",
               zIndex: (theme) => theme.zIndex.appBar,
             }}
           >

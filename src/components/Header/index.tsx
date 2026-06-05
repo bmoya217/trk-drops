@@ -8,18 +8,67 @@ import {
   MenuItem,
 } from "@mui/material";
 import { ExpandMore, FilterList } from "@mui/icons-material";
-import { FC, useContext, useState } from "react";
-import { Grouping, Screen, View } from "../../lib/types";
+import { FC, useState } from "react";
+import { Grouping, View } from "../../lib/types";
 import { ARMOR_TYPES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { ScreenContext } from "../../store/ScreenContext";
+import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
+import { getMenuMaxHeight, menuPositionProps } from "./menu";
 import Select from "./Select";
+
+const getSelectedFilterLabel = (label: string, values: string[]) => {
+  if (!values.length) return label;
+  if (values.length === 1) return `${label}: ${values[0]}`;
+
+  return `${label} (${values.length})`;
+};
+
+const getColumnSelectLabel = (grouping: Grouping) => {
+  if (grouping === Grouping.Boss) return "Item";
+
+  return "Slot";
+};
+
+const getControlVisibility = ({
+  group,
+  grouping,
+  groups,
+  headCells,
+  isLargeScreen,
+  isSmallScreen,
+  view,
+}: {
+  group: string;
+  grouping: Grouping;
+  groups: string[];
+  headCells: string[];
+  isLargeScreen: boolean;
+  isSmallScreen: boolean;
+  view: View;
+}) => {
+  const hasGroup = Boolean(group && groups.length);
+  const hasMultipleColumns = headCells.length > 1;
+  const isBossTable = grouping === Grouping.Boss && view === View.Table;
+  const isPlayerTable = grouping === Grouping.Player && view === View.Table;
+
+  return {
+    showArmor:
+      grouping === Grouping.Boss &&
+      (view === View.List || (isBossTable && isLargeScreen)),
+    showColumn:
+      hasGroup &&
+      hasMultipleColumns &&
+      (view === View.Chart || (isBossTable && isSmallScreen)),
+    showGroup: hasGroup,
+    showSlot: isPlayerTable && hasMultipleColumns,
+  };
+};
 
 const Header: FC = () => {
   const [armorAnchor, setArmorAnchor] = useState<null | HTMLElement>(null);
   const [slotAnchor, setSlotAnchor] = useState<null | HTMLElement>(null);
-  const { size } = useContext(ScreenContext);
+  const { height, isLargeScreen, isSmallScreen } = useScreen();
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const group = useAppSelector(dataSlice.selectors.selectGroup);
   const column = useAppSelector(dataSlice.selectors.selectColumn);
@@ -30,29 +79,19 @@ const Header: FC = () => {
   const headCells = useAppSelector(dataSlice.selectors.selectHeadCells);
   const dispatch = useAppDispatch();
 
-  const showGroup = group && groups.length;
-  const showColumn =
-    (view === View.Chart ||
-      (view === View.Table &&
-        size === Screen.Small &&
-        grouping === Grouping.Boss)) &&
-    showGroup &&
-    headCells.length > 1;
-  const showSlot =
-    grouping === Grouping.Player && view === View.Table && headCells.length > 1;
-  const showArmor =
-    grouping === Grouping.Boss &&
-    (view === View.List || (view === View.Table && size === Screen.Large));
-  const armorLabel = !armorTypes.length
-    ? "Armor"
-    : armorTypes.length === 1
-      ? `Armor: ${armorTypes[0]}`
-      : `Armor: ${armorTypes.length} selected`;
-  const slotLabel = !slots.length
-    ? "Slot"
-    : slots.length === 1
-      ? `Slot: ${slots[0]}`
-      : `Slot (${slots.length})`;
+  const { showArmor, showColumn, showGroup, showSlot } = getControlVisibility({
+    group,
+    grouping,
+    groups,
+    headCells,
+    isLargeScreen,
+    isSmallScreen,
+    view,
+  });
+  const armorLabel = getSelectedFilterLabel("Armor", armorTypes);
+  const slotLabel = getSelectedFilterLabel("Slot", slots);
+  const armorMenuMaxHeight = getMenuMaxHeight(armorAnchor, height);
+  const slotMenuMaxHeight = getMenuMaxHeight(slotAnchor, height);
   const slotValues = headCells.slice(1);
   const filterButtonSx = (active: boolean) => ({
     borderColor: active ? "primary.main" : "divider",
@@ -86,7 +125,7 @@ const Header: FC = () => {
       {/* select column */}
       {showColumn ? (
         <Select
-          label={grouping === Grouping.Boss ? "Item" : "Slot"}
+          label={getColumnSelectLabel(grouping)}
           value={column}
           values={headCells.slice(1)}
           onChange={(column: string) =>
@@ -116,6 +155,15 @@ const Header: FC = () => {
             id="slot-filter-menu"
             onClose={() => setSlotAnchor(null)}
             open={Boolean(slotAnchor)}
+            {...menuPositionProps}
+            slotProps={{
+              paper: {
+                sx: {
+                  maxHeight: slotMenuMaxHeight,
+                  overflowY: "auto",
+                },
+              },
+            }}
           >
             {slotValues.map((slot) => {
               const selected = slots.includes(slot);
@@ -155,6 +203,15 @@ const Header: FC = () => {
             id="armor-filter-menu"
             onClose={() => setArmorAnchor(null)}
             open={Boolean(armorAnchor)}
+            {...menuPositionProps}
+            slotProps={{
+              paper: {
+                sx: {
+                  maxHeight: armorMenuMaxHeight,
+                  overflowY: "auto",
+                },
+              },
+            }}
           >
             {ARMOR_TYPES.map((armorType) => {
               const selected = armorTypes.includes(armorType);

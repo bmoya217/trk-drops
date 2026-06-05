@@ -2,13 +2,14 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { useContext, type FC } from "react";
-import { Grouping, Order, Screen } from "../../lib/types";
+import { type FC } from "react";
+import { Grouping, Order, type Difficulty, type Links } from "../../lib/types";
 import { filterRowsByArmorTypes, getHeadCells } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
-import { ScreenContext } from "../../store/ScreenContext";
+import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
 import CellText from "./CellText";
+import { getVisibleTableColumns } from "./helpers";
 
 interface Props {
   order: Order;
@@ -16,8 +17,24 @@ interface Props {
   onSort: (column: string) => void;
 }
 
+const getHeadCellLink = ({
+  difficulty,
+  grouping,
+  headCell,
+  links,
+}: {
+  difficulty: Difficulty;
+  grouping: Grouping;
+  headCell: string;
+  links: Links;
+}) => {
+  if (grouping === Grouping.Player) return undefined;
+
+  return links?.[`${headCell}_${difficulty}`];
+};
+
 const Head: FC<Props> = ({ order, orderBy, onSort }) => {
-  const { size } = useContext(ScreenContext);
+  const { isLargeScreen } = useScreen();
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const armorTypes = useAppSelector(dataSlice.selectors.selectArmorTypes);
@@ -30,21 +47,24 @@ const Head: FC<Props> = ({ order, orderBy, onSort }) => {
     grouping,
   );
 
-  const dynamicHead =
-    grouping === Grouping.Player
-      ? ["Item", "DPS"]
-      : size === Screen.Large
-        ? armorHeadCells
-        : [headCells?.[0], column];
+  const dynamicHead = getVisibleTableColumns({
+    armorHeadCells,
+    column,
+    grouping,
+    headCells,
+    isLargeScreen,
+  });
 
   return (
     <TableHead>
       <TableRow>
         {dynamicHead.map((headCell, i) => {
-          const link =
-            grouping === Grouping.Player
-              ? undefined
-              : links?.[headCell + "_" + difficulty];
+          const link = getHeadCellLink({
+            difficulty,
+            grouping,
+            headCell,
+            links,
+          });
           const sorting = orderBy === headCell;
           const align = i ? "center" : "left";
 

@@ -1,8 +1,8 @@
 import { Box, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import { FC, Fragment, useContext } from "react";
-import { Grouping, type Order, Screen, type Row } from "../../lib/types";
+import { FC, Fragment } from "react";
+import { Grouping, type Order } from "../../lib/types";
 import {
   getComparator,
   filterRowsByArmorTypes,
@@ -11,9 +11,10 @@ import {
   openUrl,
 } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
-import { ScreenContext } from "../../store/ScreenContext";
+import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
 import CellText from "./CellText";
+import { getVisibleTableColumns, getVisibleTableRows } from "./helpers";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -25,24 +26,8 @@ interface Props {
   orderBy: string;
 }
 
-const getSlot = (row: Row) =>
-  Object.keys(row).find(
-    (key) => key !== "Item" && key !== "color" && key !== "classId",
-  ) ?? "";
-
-const getPlayerTableRows = (rows: Row[]) =>
-  rows.map((row): Row => {
-    const slot = getSlot(row);
-
-    return {
-      ...row,
-      Slot: slot,
-      DPS: row[slot],
-    };
-  });
-
 const Body: FC<Props> = ({ order, orderBy }) => {
-  const { size } = useContext(ScreenContext);
+  const { isLargeScreen } = useScreen();
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const armorTypes = useAppSelector(dataSlice.selectors.selectArmorTypes);
@@ -56,18 +41,21 @@ const Body: FC<Props> = ({ order, orderBy }) => {
   const isPlayerView = grouping === Grouping.Player;
   const bossRows = filterRowsByArmorTypes(rows, armorTypes);
   const armorHeadCells = getHeadCells(bossRows, grouping);
-  const dynamicHead = isPlayerView
-    ? ["Item", "DPS"]
-    : size === Screen.Large
-      ? armorHeadCells
-      : [headCells?.[0], column];
-  const dynamicRows = isPlayerView
-    ? getPlayerTableRows(rows).filter(
-        (row) => !slots.length || slots.includes(`${row.Slot}`),
-      )
-    : size === Screen.Large
-      ? bossRows
-      : rows.filter((row) => row[column]);
+  const dynamicHead = getVisibleTableColumns({
+    armorHeadCells,
+    column,
+    grouping,
+    headCells,
+    isLargeScreen,
+  });
+  const dynamicRows = getVisibleTableRows({
+    bossRows,
+    column,
+    grouping,
+    isLargeScreen,
+    rows,
+    slots,
+  });
   const sortedRows = dynamicRows?.slice().sort((a, b) => {
     return getComparator(order, orderBy)(a, b);
   });

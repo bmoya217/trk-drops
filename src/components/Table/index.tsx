@@ -1,11 +1,12 @@
 import MuiTable from "@mui/material/Table";
 import TableContainer from "@mui/material/TableContainer";
 import { FC, useEffect, useState } from "react";
-import { Grouping, Order } from "../../lib/types";
+import { Order } from "../../lib/types";
 import { useAppSelector } from "../../store/hooks";
 import { dataSlice } from "../../store/slices/dataSlice";
 import Body from "./Body";
 import Head from "./Head";
+import { getDefaultTableSortColumn } from "./helpers";
 
 const Table: FC = () => {
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
@@ -16,7 +17,7 @@ const Table: FC = () => {
 
   useEffect(() => {
     setOrder(Order.desc);
-    setOrderBy(grouping === Grouping.Player ? "DPS" : "Player");
+    setOrderBy(getDefaultTableSortColumn(grouping));
   }, [armorTypes, grouping, slots]);
 
   const onSort = (column: string) => {
