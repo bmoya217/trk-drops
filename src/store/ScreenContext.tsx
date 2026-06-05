@@ -50,7 +50,7 @@ export const ScreenContext = createContext<Context>({
 export const useScreen = () => useContext(ScreenContext);
 
 const ScreenProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [viewport, setViewport] = useState({ height: 0, width: 0 });
+  const [viewport, setViewport] = useState({ height: 768, width: 1024 });
 
   useEffect(() => {
     const handleResize = () => {

@@ -19,11 +19,12 @@ const Theme: FC = () => {
   return (
     <Box
       sx={{
+        alignItems: "center",
+        alignSelf: "center",
         display: "flex",
         flexWrap: "wrap",
-        justifyContent: "flex-end",
         gap: 1,
-        pt: { xs: 0.5, sm: 1 },
+        justifyContent: "flex-end",
       }}
     >
       {/* sim link when grouping by player */}

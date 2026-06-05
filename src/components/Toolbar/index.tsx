@@ -1,6 +1,7 @@
 import { Avatar, Box, Toolbar as MuiToolbar } from "@mui/material";
 import { FC } from "react";
-import Breadcrumbs from "./Breadcrumbs";
+import { HEADER_COMPACT_MAX } from "../../lib/layout";
+import DataControls from "./DataControls";
 import Theme from "./Theme";
 
 const Toolbar: FC = () => {
@@ -9,10 +10,10 @@ const Toolbar: FC = () => {
       disableGutters
       variant="regular"
       sx={{
+        alignItems: "center",
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: { xs: "flex-start", sm: "center" },
         gap: 1.5,
+        justifyContent: "space-between",
         minHeight: "auto",
         py: 1,
       }}
@@ -22,21 +23,28 @@ const Toolbar: FC = () => {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          gap: { xs: 1, sm: 1.5 },
+          gap: 1.5,
           minWidth: 0,
+          [HEADER_COMPACT_MAX]: {
+            gap: 1,
+          },
         }}
       >
         <Avatar
           src="/images/trk.png"
           alt="TRK"
           sx={{
-            width: { xs: 48, sm: 64 },
-            height: { xs: 48, sm: 64 },
+            width: 64,
+            height: 64,
             flexShrink: 0,
+            [HEADER_COMPACT_MAX]: {
+              width: 48,
+              height: 48,
+            },
           }}
         />
 
-        <Breadcrumbs />
+        <DataControls />
       </Box>
 
       <Theme />

@@ -27,8 +27,12 @@ const Table: FC = () => {
   };
 
   return (
-    <TableContainer>
-      <MuiTable aria-labelledby="tableTitle" size={"small"}>
+    <TableContainer sx={{ flex: 1, minHeight: 0 }}>
+      <MuiTable
+        aria-labelledby="tableTitle"
+        size={"small"}
+        sx={{ minWidth: "100%" }}
+      >
         <Head order={order} orderBy={orderBy} onSort={onSort} />
 
         <Body order={order} orderBy={orderBy} />

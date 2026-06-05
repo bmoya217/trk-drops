@@ -24,7 +24,9 @@ const Drops = () => {
         display: "flex",
         flex: 1,
         flexDirection: "column",
+        height: "calc(100vh - 24px)",
         margin: "12px",
+        minHeight: 0,
         borderRadius: 2,
         overflow: "hidden",
       }}
@@ -39,6 +41,7 @@ const Drops = () => {
         sx={{
           display: "flex",
           flex: 1,
+          minHeight: 0,
           padding: "8px",
           overflow: "auto",
         }}

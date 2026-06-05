@@ -15,10 +15,10 @@ import {
   ToggleButtonGroup,
 } from "@mui/material";
 import { FC, useState } from "react";
+import { HEADER_COMPACT_MAX } from "../../lib/layout";
 import { Difficulty, Grouping, View, type ByDifficulty } from "../../lib/types";
 import { BOSSES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
 
 const getDefaultGroup = ({
@@ -37,9 +37,8 @@ const getDefaultGroup = ({
   return players.length ? players[0] : "";
 };
 
-const Breadcrumbs: FC = () => {
+const DataControls: FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { shouldCollapseFilters: collapseFilters } = useScreen();
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const view = useAppSelector(dataSlice.selectors.selectView);
@@ -69,11 +68,22 @@ const Breadcrumbs: FC = () => {
     p: 0.25,
   };
 
-  const controls = (
+  const renderControls = () => (
     <Stack
-      direction={collapseFilters ? "column" : "row"}
-      spacing={collapseFilters ? 0.75 : 1}
-      sx={{ flexWrap: collapseFilters ? "nowrap" : "wrap", minWidth: 0 }}
+      direction="row"
+      spacing={1}
+      sx={{
+        flexWrap: "wrap",
+        minWidth: 0,
+        [HEADER_COMPACT_MAX]: {
+          flexDirection: "column",
+          flexWrap: "nowrap",
+          gap: 0.75,
+          "& > :not(style) ~ :not(style)": {
+            marginLeft: 0,
+          },
+        },
+      }}
     >
       <ToggleButtonGroup
         exclusive
@@ -133,53 +143,73 @@ const Breadcrumbs: FC = () => {
     </Stack>
   );
 
-  if (!collapseFilters) return controls;
-
   return (
-    <ClickAwayListener onClickAway={() => setFiltersOpen(false)}>
-      <Box sx={{ minWidth: 0, position: "relative" }}>
-        <Button
-          aria-controls={filtersOpen ? "dataset-filter-panel" : undefined}
-          aria-expanded={filtersOpen ? "true" : undefined}
-          aria-haspopup="true"
-          endIcon={<ExpandMore fontSize="small" />}
-          onClick={() => setFiltersOpen((open) => !open)}
-          size="small"
-          startIcon={<FilterList fontSize="small" />}
-          variant="outlined"
+    <>
+      <Box
+        sx={{
+          display: "block",
+          [HEADER_COMPACT_MAX]: {
+            display: "none",
+          },
+        }}
+      >
+        {renderControls()}
+      </Box>
+
+      <ClickAwayListener onClickAway={() => setFiltersOpen(false)}>
+        <Box
           sx={{
-            borderColor: "divider",
-            color: "text.primary",
-            minHeight: 40,
-            textTransform: "none",
-            "&:hover": {
-              bgcolor: "action.hover",
-              borderColor: "text.secondary",
+            display: "none",
+            minWidth: 0,
+            position: "relative",
+            [HEADER_COMPACT_MAX]: {
+              display: "block",
             },
           }}
         >
-          Data filters
-        </Button>
-
-        {filtersOpen ? (
-          <Paper
-            elevation={6}
-            id="dataset-filter-panel"
+          <Button
+            aria-controls={filtersOpen ? "dataset-filter-panel" : undefined}
+            aria-expanded={filtersOpen ? "true" : undefined}
+            aria-haspopup="true"
+            endIcon={<ExpandMore fontSize="small" />}
+            onClick={() => setFiltersOpen((open) => !open)}
+            size="small"
+            startIcon={<FilterList fontSize="small" />}
+            variant="outlined"
             sx={{
-              left: 0,
-              mt: 1,
-              p: 1,
-              position: "absolute",
-              top: "100%",
-              zIndex: (theme) => theme.zIndex.appBar,
+              borderColor: "divider",
+              color: "text.primary",
+              minHeight: 40,
+              textTransform: "none",
+              "&:hover": {
+                bgcolor: "action.hover",
+                borderColor: "text.secondary",
+              },
             }}
           >
-            {controls}
-          </Paper>
-        ) : null}
-      </Box>
-    </ClickAwayListener>
+            Data filters
+          </Button>
+
+          {filtersOpen ? (
+            <Paper
+              elevation={6}
+              id="dataset-filter-panel"
+              sx={{
+                left: 0,
+                mt: 1,
+                p: 1,
+                position: "absolute",
+                top: "100%",
+                zIndex: (theme) => theme.zIndex.appBar,
+              }}
+            >
+              {renderControls()}
+            </Paper>
+          ) : null}
+        </Box>
+      </ClickAwayListener>
+    </>
   );
 };
 
-export default Breadcrumbs;
+export default DataControls;

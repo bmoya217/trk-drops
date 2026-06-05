@@ -10,7 +10,6 @@ import {
   FC,
   ReactElement,
   SetStateAction,
-  useEffect,
   useState,
 } from "react";
 
@@ -35,11 +34,6 @@ export const ThemeContext = createContext<Context>({});
 
 const ThemeProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null;
 
   return (
     <ThemeContext.Provider
@@ -49,7 +43,7 @@ const ThemeProvider: FC<{ children: ReactElement }> = ({ children }) => {
       }}
     >
       <MuiThemeProvider theme={theme === "light" ? light : dark}>
-        <CssBaseline />
+        <CssBaseline enableColorScheme />
         {children}
       </MuiThemeProvider>
     </ThemeContext.Provider>

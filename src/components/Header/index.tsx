@@ -9,12 +9,16 @@ import {
 } from "@mui/material";
 import { ExpandMore, FilterList } from "@mui/icons-material";
 import { FC, useState } from "react";
+import {
+  HEADER_COMPACT_MAX,
+  TABLE_COLLAPSED_MAX,
+  TABLE_EXPANDED_MIN,
+} from "../../lib/layout";
 import { Grouping, View } from "../../lib/types";
 import { ARMOR_TYPES } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { useScreen } from "../../store/ScreenContext";
 import { dataSlice } from "../../store/slices/dataSlice";
-import { getMenuMaxHeight, menuPositionProps } from "./menu";
+import { menuPositionProps } from "./menu";
 import Select from "./Select";
 
 const getSelectedFilterLabel = (label: string, values: string[]) => {
@@ -35,31 +39,24 @@ const getControlVisibility = ({
   grouping,
   groups,
   headCells,
-  isLargeScreen,
-  isSmallScreen,
+  loading,
   view,
 }: {
   group: string;
   grouping: Grouping;
   groups: string[];
   headCells: string[];
-  isLargeScreen: boolean;
-  isSmallScreen: boolean;
+  loading: boolean;
   view: View;
 }) => {
-  const hasGroup = Boolean(group && groups.length);
+  const hasGroup = Boolean(!loading && group && groups.length);
   const hasMultipleColumns = headCells.length > 1;
   const isBossTable = grouping === Grouping.Boss && view === View.Table;
   const isPlayerTable = grouping === Grouping.Player && view === View.Table;
 
   return {
-    showArmor:
-      grouping === Grouping.Boss &&
-      (view === View.List || (isBossTable && isLargeScreen)),
-    showColumn:
-      hasGroup &&
-      hasMultipleColumns &&
-      (view === View.Chart || (isBossTable && isSmallScreen)),
+    showArmor: hasGroup && grouping === Grouping.Boss && (view === View.List || isBossTable),
+    showColumn: hasGroup && hasMultipleColumns && (view === View.Chart || isBossTable),
     showGroup: hasGroup,
     showSlot: isPlayerTable && hasMultipleColumns,
   };
@@ -68,7 +65,6 @@ const getControlVisibility = ({
 const Header: FC = () => {
   const [armorAnchor, setArmorAnchor] = useState<null | HTMLElement>(null);
   const [slotAnchor, setSlotAnchor] = useState<null | HTMLElement>(null);
-  const { height, isLargeScreen, isSmallScreen } = useScreen();
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const group = useAppSelector(dataSlice.selectors.selectGroup);
   const column = useAppSelector(dataSlice.selectors.selectColumn);
@@ -77,6 +73,7 @@ const Header: FC = () => {
   const slots = useAppSelector(dataSlice.selectors.selectSlots);
   const groups = useAppSelector(dataSlice.selectors.selectGroups);
   const headCells = useAppSelector(dataSlice.selectors.selectHeadCells);
+  const loading = useAppSelector(dataSlice.selectors.selectLoading);
   const dispatch = useAppDispatch();
 
   const { showArmor, showColumn, showGroup, showSlot } = getControlVisibility({
@@ -84,15 +81,28 @@ const Header: FC = () => {
     grouping,
     groups,
     headCells,
-    isLargeScreen,
-    isSmallScreen,
+    loading,
     view,
   });
   const armorLabel = getSelectedFilterLabel("Armor", armorTypes);
   const slotLabel = getSelectedFilterLabel("Slot", slots);
-  const armorMenuMaxHeight = getMenuMaxHeight(armorAnchor, height);
-  const slotMenuMaxHeight = getMenuMaxHeight(slotAnchor, height);
   const slotValues = headCells.slice(1);
+  const largeOnlySx =
+    grouping === Grouping.Boss && view === View.Table
+      ? {
+          [TABLE_COLLAPSED_MAX]: {
+            display: "none",
+          },
+        }
+      : undefined;
+  const smallOnlySx =
+    grouping === Grouping.Boss && view === View.Table
+      ? {
+          [TABLE_EXPANDED_MIN]: {
+            display: "none",
+          },
+        }
+      : undefined;
   const filterButtonSx = (active: boolean) => ({
     borderColor: active ? "primary.main" : "divider",
     borderRadius: 6,
@@ -124,18 +134,27 @@ const Header: FC = () => {
 
       {/* select column */}
       {showColumn ? (
-        <Select
-          label={getColumnSelectLabel(grouping)}
-          value={column}
-          values={headCells.slice(1)}
-          onChange={(column: string) =>
-            dispatch(dataSlice.actions.setColumn(column))
-          }
-        />
+        <Box sx={smallOnlySx}>
+          <Select
+            label={getColumnSelectLabel(grouping)}
+            value={column}
+            values={headCells.slice(1)}
+            onChange={(column: string) =>
+              dispatch(dataSlice.actions.setColumn(column))
+            }
+          />
+        </Box>
       ) : null}
 
       {showSlot ? (
-        <FormControl sx={{ minWidth: { xs: 132, sm: 160 } }}>
+        <FormControl
+          sx={{
+            minWidth: 160,
+            [HEADER_COMPACT_MAX]: {
+              minWidth: 132,
+            },
+          }}
+        >
           <Button
             aria-controls={slotAnchor ? "slot-filter-menu" : undefined}
             aria-expanded={slotAnchor ? "true" : undefined}
@@ -159,7 +178,7 @@ const Header: FC = () => {
             slotProps={{
               paper: {
                 sx: {
-                  maxHeight: slotMenuMaxHeight,
+                  maxHeight: "calc(100vh - 96px)",
                   overflowY: "auto",
                 },
               },
@@ -183,7 +202,7 @@ const Header: FC = () => {
       ) : null}
 
       {showArmor ? (
-        <FormControl sx={{ minWidth: { xs: 140, sm: 160 } }}>
+        <FormControl sx={{ minWidth: 160, ...largeOnlySx }}>
           <Button
             aria-controls={armorAnchor ? "armor-filter-menu" : undefined}
             aria-expanded={armorAnchor ? "true" : undefined}
@@ -207,7 +226,7 @@ const Header: FC = () => {
             slotProps={{
               paper: {
                 sx: {
-                  maxHeight: armorMenuMaxHeight,
+                  maxHeight: "calc(100vh - 96px)",
                   overflowY: "auto",
                 },
               },
@@ -240,9 +259,13 @@ const Header: FC = () => {
         alignItems: "flex-end",
         display: "flex",
         flexWrap: "wrap",
-        gap: { xs: 1, sm: 1.5 },
+        gap: 1.5,
+        minHeight: 64,
         position: "relative",
         py: 1.5,
+        [HEADER_COMPACT_MAX]: {
+          gap: 1,
+        },
       }}
     >
       {controls}
