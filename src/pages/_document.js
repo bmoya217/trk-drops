@@ -10,6 +10,7 @@ export default function Document() {
       }}
     >
       <Head>
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
         <style
           dangerouslySetInnerHTML={{
             __html:
