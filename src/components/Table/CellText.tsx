@@ -5,10 +5,12 @@ interface Props {
   text?: string;
   link?: string;
   bold?: boolean;
+  color?: string;
 }
 
-const CellText: FC<Props> = ({ text, link, bold }) => {
+const CellText: FC<Props> = ({ text, link, bold, color }) => {
   const sx = {
+    color,
     fontWeight: bold ? "bold" : "inherit",
   };
 

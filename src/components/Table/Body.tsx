@@ -102,7 +102,15 @@ const Body: FC<Props> = ({ order, orderBy }) => {
                         ) : null}
                       </Box>
                     ) : (
-                      <CellText text={formatted} link={link} />
+                      <CellText
+                        text={formatted}
+                        link={link}
+                        color={
+                          !i && !isPlayerView
+                            ? (row.color as string)
+                            : undefined
+                        }
+                      />
                     )}
                   </TableCell>
                 );
