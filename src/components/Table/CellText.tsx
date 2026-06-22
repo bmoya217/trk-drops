@@ -16,6 +16,8 @@ const CellText: FC<Props> = ({ text, link, bold }) => {
     return (
       <Link
         href={link}
+        target="_blank"
+        rel="noopener noreferrer"
         underline="none"
         color="inherit"
         sx={sx}

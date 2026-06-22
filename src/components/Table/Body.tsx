@@ -89,7 +89,7 @@ const Body: FC<Props> = ({ order, orderBy }) => {
                       <Box>
                         <CellText
                           text={formatted}
-                          link={!i ? link : undefined}
+                          link={link}
                         />
                         {!slots.length ? (
                           <Typography
@@ -102,7 +102,7 @@ const Body: FC<Props> = ({ order, orderBy }) => {
                         ) : null}
                       </Box>
                     ) : (
-                      <CellText text={formatted} link={!i ? link : undefined} />
+                      <CellText text={formatted} link={link} />
                     )}
                   </TableCell>
                 );
