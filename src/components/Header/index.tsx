@@ -13,7 +13,7 @@ import {
   TABLE_COLLAPSED_MAX,
   TABLE_EXPANDED_MIN,
 } from "../../lib/layout";
-import { ARMOR_TYPES } from "../../lib/utils";
+import { ARMOR_TYPES, formatSlot } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectHeaderModel } from "../../store/viewSelectors";
 import { dataSlice } from "../../store/slices/dataSlice";
@@ -39,6 +39,7 @@ const Header: FC = () => {
     slotLabel,
     slots,
     slotValues,
+    valueSlots,
   } = useAppSelector(selectHeaderModel);
   const dispatch = useAppDispatch();
 
@@ -100,6 +101,8 @@ const Header: FC = () => {
             label={columnLabel}
             value={column}
             values={slotValues}
+            formatValue={columnLabel === "Slot" ? formatSlot : undefined}
+            optionSecondaryText={valueSlots}
             onChange={(column: string) =>
               dispatch(dataSlice.actions.setColumn(column))
             }
@@ -146,7 +149,7 @@ const Header: FC = () => {
                   onClick={() => dispatch(dataSlice.actions.toggleSlot(slot))}
                 >
                   <Checkbox checked={selected} size="small" />
-                  <ListItemText primary={slot} />
+                  <ListItemText primary={formatSlot(slot)} />
                 </MenuItem>
               );
             })}

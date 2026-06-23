@@ -30,7 +30,11 @@ const CellText: FC<Props> = ({ text, link, bold, color }) => {
     );
   }
 
-  return <Typography sx={sx}>{text}</Typography>;
+  return (
+    <Typography component="span" sx={sx}>
+      {text}
+    </Typography>
+  );
 };
 
 export default CellText;

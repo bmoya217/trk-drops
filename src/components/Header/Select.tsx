@@ -1,13 +1,8 @@
 import { ExpandMore } from "@mui/icons-material";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem } from "@mui/material";
 import { type FC, useId, useState } from "react";
 import { HEADER_COMPACT_MAX } from "../../lib/layout";
+import ItemLabel from "../ItemLabel";
 import FilterMenu from "./FilterMenu";
 
 interface Props<T> {
@@ -15,9 +10,18 @@ interface Props<T> {
   value: T;
   values: T[];
   onChange?: (value: T) => void;
+  optionSecondaryText?: Record<string, string>;
+  formatValue?: (value: T) => string;
 }
 
-const Select: FC<Props<string>> = ({ label, value, values, onChange }) => {
+const Select: FC<Props<string>> = ({
+  label,
+  value,
+  values,
+  onChange,
+  optionSecondaryText,
+  formatValue = (option) => option,
+}) => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const id = useId();
   const minWidth = label === "Item" ? 208 : 144;
@@ -63,9 +67,7 @@ const Select: FC<Props<string>> = ({ label, value, values, onChange }) => {
           textTransform: "none",
         }}
       >
-        <Typography noWrap sx={{ textTransform: "capitalize" }}>
-          {value}
-        </Typography>
+        <ItemLabel item={formatValue(value)} noWrap />
       </Button>
 
       <FilterMenu anchor={anchor} id={menuId} onClose={() => setAnchor(null)}>
@@ -78,9 +80,10 @@ const Select: FC<Props<string>> = ({ label, value, values, onChange }) => {
               setAnchor(null);
             }}
           >
-            <Typography sx={{ textTransform: "capitalize" }}>
-              {option}
-            </Typography>
+            <ItemLabel
+              item={formatValue(option)}
+              slot={optionSecondaryText?.[option]}
+            />
           </MenuItem>
         ))}
       </FilterMenu>

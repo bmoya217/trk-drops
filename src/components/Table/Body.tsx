@@ -1,4 +1,4 @@
-import { Box, TableBody, Typography } from "@mui/material";
+import { TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC, Fragment } from "react";
@@ -7,6 +7,7 @@ import { openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { selectTableBodyModel } from "../../store/viewSelectors";
 import { useScreen } from "../../store/ScreenContext";
+import ItemLabel from "../ItemLabel";
 import CellText from "./CellText";
 
 const formatter = Intl.NumberFormat("en", {
@@ -51,16 +52,10 @@ const Body: FC<Props> = ({ order, orderBy }) => {
                     align={i ? "center" : "left"}
                   >
                     {!i && isPlayerView ? (
-                      <Box>
-                        <CellText text={formatted} link={link} />
-                        <Typography
-                          color="text.secondary"
-                          variant="caption"
-                          sx={{ paddingLeft: "8px" }}
-                        >
-                          {row.Slot}
-                        </Typography>
-                      </Box>
+                      <ItemLabel
+                        item={<CellText text={formatted} link={link} />}
+                        slot={row.Slot}
+                      />
                     ) : (
                       <CellText
                         text={formatted}

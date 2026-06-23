@@ -1,9 +1,13 @@
 import {
-  BarChart,
+  AlignHorizontalLeft,
   ExpandMore,
   FilterList,
-  TableView,
-  Toc,
+  LocalFireDepartment,
+  Person,
+  PestControl,
+  Shield,
+  TableRows,
+  ViewList,
 } from "@mui/icons-material";
 import {
   Box,
@@ -26,6 +30,7 @@ const DataControls: FC = () => {
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const view = useAppSelector(dataSlice.selectors.selectView);
   const dispatch = useAppDispatch();
+  const iconSx = { mr: 0.75 };
 
   const controlSx = {
     "& .MuiToggleButton-root": {
@@ -36,6 +41,10 @@ const DataControls: FC = () => {
       py: 0.5,
       textTransform: "none",
       whiteSpace: "nowrap",
+      [HEADER_COMPACT_MAX]: {
+        flex: 1,
+        justifyContent: "center",
+      },
     },
     "& .MuiToggleButton-root.Mui-selected": {
       bgcolor: "background.paper",
@@ -48,6 +57,9 @@ const DataControls: FC = () => {
     bgcolor: "action.hover",
     borderRadius: 1,
     p: 0.25,
+    [HEADER_COMPACT_MAX]: {
+      width: "100%",
+    },
   };
 
   const renderControls = () => (
@@ -61,6 +73,7 @@ const DataControls: FC = () => {
           flexDirection: "column",
           flexWrap: "nowrap",
           gap: 0.75,
+          width: "100%",
           "& > :not(style) ~ :not(style)": {
             marginLeft: 0,
           },
@@ -76,8 +89,14 @@ const DataControls: FC = () => {
         sx={controlSx}
         value={difficulty}
       >
-        <ToggleButton value={Difficulty.Mythic}>Mythic</ToggleButton>
-        <ToggleButton value={Difficulty.Heroic}>Heroic</ToggleButton>
+        <ToggleButton value={Difficulty.Mythic}>
+          <LocalFireDepartment fontSize="small" sx={iconSx} />
+          Mythic
+        </ToggleButton>
+        <ToggleButton value={Difficulty.Heroic}>
+          <Shield fontSize="small" sx={iconSx} />
+          Heroic
+        </ToggleButton>
       </ToggleButtonGroup>
 
       <ToggleButtonGroup
@@ -92,10 +111,13 @@ const DataControls: FC = () => {
         value={grouping}
       >
         <ToggleButton value={Grouping.Boss}>
-          <TableView fontSize="small" sx={{ mr: 0.75 }} />
+          <PestControl fontSize="small" sx={iconSx} />
           Boss
         </ToggleButton>
-        <ToggleButton value={Grouping.Player}>Player</ToggleButton>
+        <ToggleButton value={Grouping.Player}>
+          <Person fontSize="small" sx={iconSx} />
+          Player
+        </ToggleButton>
       </ToggleButtonGroup>
 
       <ToggleButtonGroup
@@ -108,12 +130,15 @@ const DataControls: FC = () => {
         value={view}
       >
         <ToggleButton value={View.Table}>
-          <Toc fontSize="small" sx={{ mr: 0.75, transform: "scale(-1, -1)" }} />
+          <TableRows fontSize="small" sx={iconSx} />
           Table
         </ToggleButton>
-        <ToggleButton value={View.List}>List</ToggleButton>
+        <ToggleButton value={View.List}>
+          <ViewList fontSize="small" sx={iconSx} />
+          List
+        </ToggleButton>
         <ToggleButton value={View.Chart}>
-          <BarChart fontSize="small" sx={{ mr: 0.75 }} />
+          <AlignHorizontalLeft fontSize="small" sx={iconSx} />
           Chart
         </ToggleButton>
       </ToggleButtonGroup>
@@ -177,6 +202,8 @@ const DataControls: FC = () => {
                 p: 1,
                 position: "absolute",
                 top: "100%",
+                width: 276,
+                maxWidth: "calc(100vw - 88px)",
                 zIndex: (theme) => theme.zIndex.appBar,
               }}
             >

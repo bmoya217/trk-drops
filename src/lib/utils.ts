@@ -13,6 +13,9 @@ import {
   Row,
 } from "./types";
 
+export const formatSlot = (slot: string) =>
+  slot.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 type RaidbotsReportDate = NonNullable<RaidbotsReport["simbot"]>["date"];
 
 export const CLASS_COLORS = [
@@ -220,8 +223,7 @@ export const formatResults = (
   const player = report.sim?.players?.[0]?.name ?? "anon player";
   const current = report.sim?.statistics?.raid_dps?.mean ?? 0;
   const results = report.sim?.profilesets?.results ?? []; // numerical sim results
-  const items =
-    report.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
+  const items = report.simbot?.meta?.rawFormData?.droptimizerItems ?? []; // item description
   const color = report.simbot?.meta?.rawFormData?.character?.class;
 
   // match itemset list with sim results list
@@ -229,7 +231,9 @@ export const formatResults = (
     const result = results.reduce<RaidbotsProfileResult | undefined>(
       (bestResult, result) => {
         if (item.id !== result.name) return bestResult;
-        if ((bestResult?.mean ?? Number.NEGATIVE_INFINITY) > (result.mean ?? 0)) {
+        if (
+          (bestResult?.mean ?? Number.NEGATIVE_INFINITY) > (result.mean ?? 0)
+        ) {
           return bestResult;
         }
         return result;

@@ -11,6 +11,7 @@ import {
 } from "../lib/types";
 import {
   filterRowsByArmorTypes,
+  formatSlot,
   getComparator,
   getHeadCells,
   getLink,
@@ -31,6 +32,8 @@ export const selectHeaderModel = createSelector(
   [
     selectors.selectArmorTypes,
     selectors.selectColumn,
+    selectors.selectData,
+    selectors.selectDifficulty,
     selectors.selectGroup,
     selectors.selectGrouping,
     selectors.selectGroups,
@@ -42,6 +45,8 @@ export const selectHeaderModel = createSelector(
   (
     armorTypes,
     column,
+    data,
+    difficulty,
     group,
     grouping,
     groups,
@@ -54,6 +59,11 @@ export const selectHeaderModel = createSelector(
     const hasMultipleColumns = headCells.length > 1;
     const isBossTable = grouping === Grouping.Boss && view === View.Table;
     const isPlayerTable = grouping === Grouping.Player && view === View.Table;
+    const slotValues = headCells.slice(1);
+    const itemSlots =
+      grouping === Grouping.Boss
+        ? getItemSlots(Object.values(data[difficulty].Player).flat())
+        : {};
 
     return {
       armorLabel: getSelectedFilterLabel("Armor", armorTypes),
@@ -72,9 +82,12 @@ export const selectHeaderModel = createSelector(
         hasGroup && hasMultipleColumns && (view === View.Chart || isBossTable),
       showGroup: hasGroup,
       showSlot: isPlayerTable && hasMultipleColumns,
-      slotLabel: getSelectedFilterLabel("Slot", slots),
+      slotLabel: getSelectedFilterLabel("Slot", slots.map(formatSlot)),
       slots,
-      slotValues: headCells.slice(1),
+      slotValues,
+      valueSlots: Object.fromEntries(
+        slotValues.map((value) => [value, getBossItemSlot(value, itemSlots)]),
+      ),
     };
   },
 );

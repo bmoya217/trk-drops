@@ -17,7 +17,7 @@ const Toolbar: FC = () => {
         minHeight: "auto",
         position: "relative",
         py: 1,
-        zIndex: "appBar",
+        zIndex: (theme) => theme.zIndex.appBar + 1,
       }}
     >
       <Box

@@ -4,6 +4,7 @@ import { Grouping } from "../../lib/types";
 import { openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
 import { selectListModel } from "../../store/viewSelectors";
+import ItemLabel from "../ItemLabel";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -115,28 +116,23 @@ const List: FC = () => {
                 gap: 1,
               }}
             >
-              <Link
-                color="inherit"
-                href={item.link}
-                underline="none"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (item.link) openUrl(item.link);
-                }}
-              >
-                <Typography fontWeight="bold">{item.item}</Typography>
-              </Link>
-
-              {item.slot ? (
-                <Typography color="text.secondary" variant="caption">
-                  {item.slot}
-                </Typography>
-              ) : null}
-
-              <Typography color="text.secondary" variant="caption">
-                {item.players.length}{" "}
-                {item.players.length === 1 ? "player" : "players"}
-              </Typography>
+              <ItemLabel
+                bold
+                item={
+                  <Link
+                    color="inherit"
+                    href={item.link}
+                    underline="none"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (item.link) openUrl(item.link);
+                    }}
+                  >
+                    {item.item}
+                  </Link>
+                }
+                slot={item.slot}
+              />
             </Box>
 
             <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: 1 }}>
