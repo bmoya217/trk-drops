@@ -14,12 +14,12 @@ import {
   fetchReport,
   fetchReports,
   formatResults,
-  getHeadCells,
+  getColumns,
   validateReport,
 } from "../../lib/utils";
 import { createAppSlice } from "../createAppSlice";
 
-const DIFFICULTY: ByDifficulty = {
+const EMPTY_DATA: ByDifficulty = {
   Heroic: { Boss: {}, Player: {} },
   Mythic: { Boss: {}, Player: {} },
   Dungeon: { Boss: {}, Player: {} },
@@ -48,7 +48,7 @@ const initialState: DataSliceState = {
   view: View.Table,
   armorTypes: [],
   slots: [],
-  data: DIFFICULTY,
+  data: EMPTY_DATA,
   links: {},
   loading: true,
 };
@@ -141,10 +141,10 @@ const getRows = (state: DataSliceState): Row[] => {
 const normalizeSelection = (state: DataSliceState) => {
   const groups = getGroups(state);
   state.group = groups.includes(state.group) ? state.group : (groups[0] ?? "");
-  const headCells = getHeadCells(getRows(state), state.grouping);
-  state.column = headCells.slice(1).includes(state.column)
+  const columns = getColumns(getRows(state), state.grouping);
+  state.column = columns.slice(1).includes(state.column)
     ? state.column
-    : headCells[1];
+    : columns[1];
 };
 
 const selectGroups = createSelector(
@@ -177,9 +177,9 @@ const selectRows = createSelector(
   },
 );
 
-const selectHeadCells = createSelector(
+const selectColumns = createSelector(
   [selectRows, (data: DataSliceState) => data.grouping],
-  getHeadCells,
+  getColumns,
 );
 
 export const dataSlice = createAppSlice({
@@ -224,7 +224,7 @@ export const dataSlice = createAppSlice({
     fetchReports: create.asyncThunk(
       async (): Promise<{ data: ByDifficulty; links: Links }> => {
         const reports = await fetchReports();
-        if (!reports) return { data: DIFFICULTY, links: {} };
+        if (!reports) return { data: EMPTY_DATA, links: {} };
 
         const loadReport = async (report: string, d: Difficulty) => {
           if (!report || report.length < 10) return;
@@ -244,9 +244,9 @@ export const dataSlice = createAppSlice({
 
         const loadedReports = await Promise.all(
           Object.keys(reports).reduce(
-            (diffs, d: Difficulty) => [
-              ...diffs,
-              ...reports[d].map((url) => loadReport(url, d)),
+            (reportLoads, curr: Difficulty) => [
+              ...reportLoads,
+              ...reports[curr].map((url) => loadReport(url, curr)),
             ],
             [],
           ),
@@ -261,13 +261,13 @@ export const dataSlice = createAppSlice({
               links: addLinks(prev.links, curr.links),
             };
           },
-          { data: DIFFICULTY, links: {} },
+          { data: EMPTY_DATA, links: {} },
         );
       },
       {
         pending: (state) => {
           state.loading = true;
-          state.data = DIFFICULTY;
+          state.data = EMPTY_DATA;
         },
         fulfilled: (state, action) => {
           state.loading = false;
@@ -294,6 +294,6 @@ export const dataSlice = createAppSlice({
     selectLoading: (data) => data.loading,
     selectGroups,
     selectRows,
-    selectHeadCells,
+    selectColumns,
   },
 });

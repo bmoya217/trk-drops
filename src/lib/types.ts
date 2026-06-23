@@ -28,8 +28,8 @@ export enum ArmorType {
   Plate = "Plate",
 }
 
-export type Reports_Difficulty = Record<Difficulty, string[]>;
-export type Records = Record<Difficulty, string>;
+export type ReportsByDifficulty = Record<Difficulty, string[]>;
+export type ReportCsvRow = Record<Difficulty, string>;
 
 export interface RaidbotsReport {
   sim?: {

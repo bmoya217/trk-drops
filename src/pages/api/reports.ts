@@ -1,12 +1,16 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { parse } from "csv-parse/sync";
 import { NextApiHandler } from "next";
-import { Difficulty, Records, Reports_Difficulty } from "../../lib/types";
+import {
+  Difficulty,
+  type ReportCsvRow,
+  type ReportsByDifficulty,
+} from "../../lib/types";
 
-const URL =
+const REPORTS_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRX0_D17phIeBDTY7lSEao2OmP_zZTefFzyB4Ro5LGNMoPIhfogHptfZ1RBGMhCMngN1cJq1H_8Pz6_/pub?gid=1538781371&single=true&output=csv";
 
-const getEmptyReports = (): Reports_Difficulty => ({
+const getEmptyReports = (): ReportsByDifficulty => ({
   Mythic: [],
   Heroic: [],
   Dungeon: [],
@@ -15,9 +19,9 @@ const getEmptyReports = (): Reports_Difficulty => ({
 const trimUrl = (value: string) =>
   (value ?? "").substring((value ?? "").lastIndexOf("/") + 1).trim();
 
-const Reports: NextApiHandler<Reports_Difficulty> = async (_, res) => {
+const Reports: NextApiHandler<ReportsByDifficulty> = async (_, res) => {
   try {
-    const response = await fetch(URL, { cache: "no-store" });
+    const response = await fetch(REPORTS_CSV_URL, { cache: "no-store" });
 
     if (!response.ok) {
       res.status(response.status).json(getEmptyReports());
@@ -27,7 +31,7 @@ const Reports: NextApiHandler<Reports_Difficulty> = async (_, res) => {
     const csv = await response.text();
     const records = parse(csv, {
       columns: true,
-    }) as Records[];
+    }) as ReportCsvRow[];
 
     const reports = records.reduce((prev, record) => {
       return {

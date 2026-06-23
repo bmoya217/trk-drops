@@ -13,7 +13,7 @@ import {
   filterRowsByArmorTypes,
   formatSlot,
   getComparator,
-  getHeadCells,
+  getColumns,
   getLink,
 } from "../lib/utils";
 import type { RootState } from ".";
@@ -37,7 +37,7 @@ export const selectHeaderModel = createSelector(
     selectors.selectGroup,
     selectors.selectGrouping,
     selectors.selectGroups,
-    selectors.selectHeadCells,
+    selectors.selectColumns,
     selectors.selectLoading,
     selectors.selectSlots,
     selectors.selectView,
@@ -50,16 +50,16 @@ export const selectHeaderModel = createSelector(
     group,
     grouping,
     groups,
-    headCells,
+    columns,
     loading,
     slots,
     view,
   ) => {
     const hasGroup = Boolean(!loading && group && groups.length);
-    const hasMultipleColumns = headCells.length > 1;
+    const hasMultipleColumns = columns.length > 1;
     const isBossTable = grouping === Grouping.Boss && view === View.Table;
     const isPlayerTable = grouping === Grouping.Player && view === View.Table;
-    const slotValues = headCells.slice(1);
+    const columnOptions = columns.slice(1);
     const itemSlots =
       grouping === Grouping.Boss
         ? getItemSlots(Object.values(data[difficulty].Player).flat())
@@ -84,9 +84,9 @@ export const selectHeaderModel = createSelector(
       showSlot: isPlayerTable && hasMultipleColumns,
       slotLabel: getSelectedFilterLabel("Slot", slots.map(formatSlot)),
       slots,
-      slotValues,
-      valueSlots: Object.fromEntries(
-        slotValues.map((value) => [value, getBossItemSlot(value, itemSlots)]),
+      columnOptions,
+      slotByOption: Object.fromEntries(
+        columnOptions.map((value) => [value, getBossItemSlot(value, itemSlots)]),
       ),
     };
   },
@@ -106,18 +106,18 @@ export const selectChartModel = createSelector(
     selectors.selectLoading,
   ],
   (rows, column, difficulty, links, loading) => {
-    const dataset = rows
+    const chartRows = rows
       .slice()
       .sort(getComparator(Order.desc, column))
       .filter((row) => row[column] !== undefined);
 
     return {
       column,
-      dataset,
+      chartRows,
       difficulty,
       links,
       loading,
-      yLabel: dataset[0]?.Player ? "Player" : "Item",
+      yLabel: chartRows[0]?.Player ? "Player" : "Item",
     };
   },
 );
@@ -137,9 +137,9 @@ const selectArmorRows = createSelector(
   filterRowsByArmorTypes,
 );
 
-const selectArmorHeadCells = createSelector(
+const selectArmorColumns = createSelector(
   [selectArmorRows, selectors.selectGrouping],
-  getHeadCells,
+  getColumns,
 );
 
 const selectIsLargeScreen = (_: RootState, isLargeScreen: boolean) =>
@@ -147,17 +147,17 @@ const selectIsLargeScreen = (_: RootState, isLargeScreen: boolean) =>
 
 export const selectVisibleTableColumns = createSelector(
   [
-    selectArmorHeadCells,
+    selectArmorColumns,
     selectors.selectColumn,
     selectors.selectGrouping,
-    selectors.selectHeadCells,
+    selectors.selectColumns,
     selectIsLargeScreen,
   ],
-  (armorHeadCells, column, grouping, headCells, isLargeScreen) => {
+  (armorColumns, column, grouping, columns, isLargeScreen) => {
     if (grouping === Grouping.Player) return ["Item", "DPS"];
-    if (isLargeScreen) return armorHeadCells;
+    if (isLargeScreen) return armorColumns;
 
-    return [headCells[0], column];
+    return [columns[0], column];
   },
 );
 
@@ -195,7 +195,7 @@ const selectVisibleTableRows = createSelector(
     }
     if (isLargeScreen) return bossRows;
 
-    return rows.filter((row) => row[column]);
+    return rows.filter((row) => row[column] !== undefined);
   },
 );
 
@@ -214,7 +214,7 @@ export const selectTableBodyModel = createSelector(
     selectVisibleTableRows,
     selectors.selectDifficulty,
     selectors.selectGrouping,
-    selectors.selectHeadCells,
+    selectors.selectColumns,
     selectors.selectLinks,
     selectors.selectLoading,
     selectors.selectSlots,
@@ -226,7 +226,7 @@ export const selectTableBodyModel = createSelector(
     rows,
     difficulty,
     grouping,
-    headCells,
+    allColumns,
     links,
     loading,
     slots,
@@ -234,7 +234,7 @@ export const selectTableBodyModel = createSelector(
     orderBy,
   ) => ({
     columns,
-    emptyColSpan: headCells.length,
+    emptyColSpan: allColumns.length,
     isPlayerView: grouping === Grouping.Player,
     rows: rows
       .slice()
@@ -312,7 +312,7 @@ const getBossListItems = (
   const bossRows = filterRowsByArmorTypes(rows, armorTypes);
   const itemSlots = getItemSlots(Object.values(data[difficulty].Player).flat());
 
-  return getHeadCells(bossRows, Grouping.Boss)
+  return getColumns(bossRows, Grouping.Boss)
     .slice(1)
     .map((item) => {
       const players = bossRows

@@ -9,7 +9,7 @@ import {
   RaidbotsDroptimizerItem,
   RaidbotsProfileResult,
   RaidbotsReport,
-  Reports_Difficulty,
+  ReportsByDifficulty,
   Row,
 } from "./types";
 
@@ -93,8 +93,8 @@ export const openUrl = (url: string) => {
 export const descendingComparator =
   (order: Order, orderBy: string) => (a: Row, b: Row) => {
     const mag = order === "desc" ? 1 : -1;
-    if (!a[orderBy]) return 1 * mag;
-    if (!b[orderBy]) return -1 * mag;
+    if (a[orderBy] === undefined) return 1 * mag;
+    if (b[orderBy] === undefined) return -1 * mag;
     if (b[orderBy] < a[orderBy]) {
       return -1;
     }
@@ -110,15 +110,15 @@ export const getComparator = (order: Order, orderBy: string) => {
     : (a: Row, b: Row) => -descendingComparator(order, orderBy)(a, b);
 };
 
-export const getHeadCells = (rows: Row[] = [], grouping: Grouping) => {
-  let headCells = new Set<string>();
-  rows.forEach((row) => Object.keys(row).forEach((key) => headCells.add(key)));
-  headCells.delete(grouping === Grouping.Boss ? "Player" : "Item");
-  headCells.delete("color");
-  headCells.delete("classId");
+export const getColumns = (rows: Row[] = [], grouping: Grouping) => {
+  const columns = new Set<string>();
+  rows.forEach((row) => Object.keys(row).forEach((key) => columns.add(key)));
+  columns.delete(grouping === Grouping.Boss ? "Player" : "Item");
+  columns.delete("color");
+  columns.delete("classId");
   return [
     grouping === Grouping.Boss ? "Player" : "Item",
-    ...Array.from(headCells).sort(),
+    ...Array.from(columns).sort(),
   ];
 };
 
@@ -142,7 +142,7 @@ export const fetchReport = async (
   return page.json();
 };
 
-export const fetchReports = async (): Promise<Reports_Difficulty | null> => {
+export const fetchReports = async (): Promise<ReportsByDifficulty | null> => {
   const reports = await fetch(`api/reports`, {
     cache: "no-store",
   })
@@ -242,7 +242,7 @@ export const formatResults = (
     );
     if (result?.mean === undefined) return prev;
 
-    const isTier = item.item.sourceItem?.name;
+    const isTier = Boolean(item.item.sourceItem?.name);
     const itemId = item.item.id;
     const slot = item.slot.replace(/[0-9]/g, "");
     const itemName = item.item.name;

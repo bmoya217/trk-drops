@@ -12,8 +12,8 @@ const formatter = Intl.NumberFormat("en", {
   maximumFractionDigits: 1,
 });
 
-const getChartSeries = (dataset: unknown[], column: string) => {
-  if (!dataset.length) return [];
+const getChartSeries = (chartRows: unknown[], column: string) => {
+  if (!chartRows.length) return [];
 
   return [
     {
@@ -25,13 +25,13 @@ const getChartSeries = (dataset: unknown[], column: string) => {
 
 const Chart: FC = () => {
   const { width } = useScreen();
-  const { column, dataset, difficulty, links, loading, yLabel } =
+  const { column, chartRows, difficulty, links, loading, yLabel } =
     useAppSelector(selectChartModel);
 
   return (
     <BarChart
-      dataset={dataset}
-      series={getChartSeries(dataset, column)}
+      dataset={chartRows}
+      series={getChartSeries(chartRows, column)}
       yAxis={[
         {
           dataKey: yLabel,
@@ -43,7 +43,7 @@ const Chart: FC = () => {
       ]}
       xAxis={[
         {
-          label: "∆ dps",
+          label: "Δ DPS",
           tickNumber: 10,
           valueFormatter: formatter.format,
           hideTooltip: true,
@@ -51,7 +51,6 @@ const Chart: FC = () => {
       ]}
       width={width - 48}
       layout="horizontal"
-      // tooltip={{ trigger: "none" }}
       slots={{ legend: Legend, bar: Bar }}
       slotProps={{
         legend: {
@@ -62,7 +61,7 @@ const Chart: FC = () => {
         } as Partial<LegendProps>,
         bar: (state) => {
           if (!state) return {};
-          const row = dataset?.[state.dataIndex];
+          const row = chartRows?.[state.dataIndex];
           if (!row) return {};
 
           const value = row[column];
@@ -80,7 +79,7 @@ const Chart: FC = () => {
       onItemClick={(e, item) => {
         e.preventDefault();
         if (!item) return;
-        const row = dataset[item.dataIndex];
+        const row = chartRows[item.dataIndex];
         if (!row) return;
 
         const link = getLink(row, difficulty, links);

@@ -38,8 +38,8 @@ const Header: FC = () => {
     showSlot,
     slotLabel,
     slots,
-    slotValues,
-    valueSlots,
+    columnOptions,
+    slotByOption,
   } = useAppSelector(selectHeaderModel);
   const dispatch = useAppDispatch();
 
@@ -100,9 +100,9 @@ const Header: FC = () => {
           <Select
             label={columnLabel}
             value={column}
-            values={slotValues}
+            values={columnOptions}
             formatValue={columnLabel === "Slot" ? formatSlot : undefined}
-            optionSecondaryText={valueSlots}
+            optionSecondaryText={slotByOption}
             onChange={(column: string) =>
               dispatch(dataSlice.actions.setColumn(column))
             }
@@ -140,7 +140,7 @@ const Header: FC = () => {
             id="slot-filter-menu"
             onClose={() => setSlotAnchor(null)}
           >
-            {slotValues.map((slot) => {
+            {columnOptions.map((slot) => {
               const selected = slots.includes(slot);
 
               return (
