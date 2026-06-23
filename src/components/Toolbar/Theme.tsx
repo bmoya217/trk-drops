@@ -3,18 +3,13 @@ import { Box, Fab } from "@mui/material";
 import { FC, useContext } from "react";
 import { HEADER_COMPACT_MAX } from "../../lib/layout";
 import { useAppSelector } from "../../store/hooks";
-import { dataSlice } from "../../store/slices/dataSlice";
 import { ThemeContext } from "../../store/ThemeContext";
+import { selectRaidbotsLink } from "../../store/viewSelectors";
 import Raidbots from "./Raidbots";
 
 const Theme: FC = () => {
   const { mode, setTheme } = useContext(ThemeContext);
-  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
-  const group = useAppSelector(dataSlice.selectors.selectGroup);
-  const links = useAppSelector(dataSlice.selectors.selectLinks);
-
-  const link = group + "_" + difficulty;
-  const raidbots = links?.[link];
+  const raidbots = useAppSelector(selectRaidbotsLink);
 
   return (
     <Box

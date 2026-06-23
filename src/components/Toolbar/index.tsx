@@ -15,7 +15,9 @@ const Toolbar: FC = () => {
         gap: 1.5,
         justifyContent: "space-between",
         minHeight: "auto",
+        position: "relative",
         py: 1,
+        zIndex: "appBar",
       }}
     >
       <Box

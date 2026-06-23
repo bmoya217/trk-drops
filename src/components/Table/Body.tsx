@@ -2,19 +2,12 @@ import { Box, TableBody, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { FC, Fragment } from "react";
-import { Grouping, type Order } from "../../lib/types";
-import {
-  getComparator,
-  filterRowsByArmorTypes,
-  getHeadCells,
-  getLink,
-  openUrl,
-} from "../../lib/utils";
+import { type Order } from "../../lib/types";
+import { openUrl } from "../../lib/utils";
 import { useAppSelector } from "../../store/hooks";
+import { selectTableBodyModel } from "../../store/viewSelectors";
 import { useScreen } from "../../store/ScreenContext";
-import { dataSlice } from "../../store/slices/dataSlice";
 import CellText from "./CellText";
-import { getVisibleTableColumns, getVisibleTableRows } from "./helpers";
 
 const formatter = Intl.NumberFormat("en", {
   notation: "compact",
@@ -28,42 +21,14 @@ interface Props {
 
 const Body: FC<Props> = ({ order, orderBy }) => {
   const { isLargeScreen } = useScreen();
-  const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
-  const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
-  const armorTypes = useAppSelector(dataSlice.selectors.selectArmorTypes);
-  const column = useAppSelector(dataSlice.selectors.selectColumn);
-  const slots = useAppSelector(dataSlice.selectors.selectSlots);
-  const links = useAppSelector(dataSlice.selectors.selectLinks);
-  const loading = useAppSelector(dataSlice.selectors.selectLoading);
-  const headCells = useAppSelector(dataSlice.selectors.selectHeadCells);
-  const rows = useAppSelector(dataSlice.selectors.selectRows);
-
-  const isPlayerView = grouping === Grouping.Player;
-  const bossRows = filterRowsByArmorTypes(rows, armorTypes);
-  const armorHeadCells = getHeadCells(bossRows, grouping);
-  const dynamicHead = getVisibleTableColumns({
-    armorHeadCells,
-    column,
-    grouping,
-    headCells,
-    isLargeScreen,
-  });
-  const dynamicRows = getVisibleTableRows({
-    bossRows,
-    column,
-    grouping,
-    isLargeScreen,
-    rows,
-    slots,
-  });
-  const sortedRows = dynamicRows?.slice().sort((a, b) => {
-    return getComparator(order, orderBy)(a, b);
-  });
+  const { columns, emptyColSpan, isPlayerView, rows, showEmpty, slots } =
+    useAppSelector((state) =>
+      selectTableBodyModel(state, isLargeScreen, order, orderBy),
+    );
 
   return (
     <TableBody>
-      {sortedRows.map((row, index) => {
-        const link = getLink(row, difficulty, links);
+      {rows.map(({ row, link }, index) => {
         const onClick = () => link && openUrl(link);
         return (
           <Fragment key={`enhanced-row-group-${index}`}>
@@ -74,7 +39,7 @@ const Body: FC<Props> = ({ order, orderBy }) => {
               sx={link ? { cursor: "pointer" } : {}}
               onClick={onClick}
             >
-              {dynamicHead.map((col, i) => {
+              {columns.map((col, i) => {
                 const value = row[col];
                 const formatted =
                   typeof value === "number" ? formatter.format(value) : value;
@@ -87,19 +52,14 @@ const Body: FC<Props> = ({ order, orderBy }) => {
                   >
                     {!i && isPlayerView ? (
                       <Box>
-                        <CellText
-                          text={formatted}
-                          link={link}
-                        />
-                        {!slots.length ? (
-                          <Typography
-                            color="text.secondary"
-                            variant="caption"
-                            sx={{ paddingLeft: "8px" }}
-                          >
-                            {row.Slot}
-                          </Typography>
-                        ) : null}
+                        <CellText text={formatted} link={link} />
+                        <Typography
+                          color="text.secondary"
+                          variant="caption"
+                          sx={{ paddingLeft: "8px" }}
+                        >
+                          {row.Slot}
+                        </Typography>
                       </Box>
                     ) : (
                       <CellText
@@ -120,9 +80,9 @@ const Body: FC<Props> = ({ order, orderBy }) => {
         );
       })}
 
-      {!dynamicRows.length && !loading && (
+      {showEmpty && (
         <TableRow sx={{ justifyContent: "center" }}>
-          <TableCell colSpan={headCells.length}>
+          <TableCell colSpan={emptyColSpan}>
             <Typography> No valid reports :)</Typography>
           </TableCell>
         </TableRow>

@@ -16,33 +16,15 @@ import {
 } from "@mui/material";
 import { FC, useState } from "react";
 import { HEADER_COMPACT_MAX } from "../../lib/layout";
-import { Difficulty, Grouping, View, type ByDifficulty } from "../../lib/types";
-import { BOSSES } from "../../lib/utils";
+import { Difficulty, Grouping, View } from "../../lib/types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { dataSlice } from "../../store/slices/dataSlice";
-
-const getDefaultGroup = ({
-  data,
-  difficulty,
-  grouping,
-}: {
-  data: ByDifficulty;
-  difficulty: Difficulty;
-  grouping: Grouping;
-}) => {
-  if (grouping === Grouping.Boss) return BOSSES[0];
-
-  const players = Object.keys(data[difficulty].Player);
-
-  return players.length ? players[0] : "";
-};
 
 const DataControls: FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const difficulty = useAppSelector(dataSlice.selectors.selectDifficulty);
   const grouping = useAppSelector(dataSlice.selectors.selectGrouping);
   const view = useAppSelector(dataSlice.selectors.selectView);
-  const data = useAppSelector(dataSlice.selectors.selectData);
   const dispatch = useAppDispatch();
 
   const controlSx = {
@@ -104,11 +86,6 @@ const DataControls: FC = () => {
           if (!value) return;
 
           dispatch(dataSlice.actions.setGrouping(value));
-          dispatch(
-            dataSlice.actions.setGroup(
-              getDefaultGroup({ data, difficulty, grouping: value }),
-            ),
-          );
         }}
         size="small"
         sx={controlSx}

@@ -1,6 +1,4 @@
-import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/query";
 import { dataSlice, persistDataPreferences } from "./slices/dataSlice";
 
 // `combineSlices` automatically combines the reducers using
@@ -17,10 +15,6 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     reducer: rootReducer,
     preloadedState,
   });
-  // configure listeners using the provided defaults
-  // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
-  setupListeners(store.dispatch);
-
   if (typeof window !== "undefined") {
     store.subscribe(() => {
       persistDataPreferences(store.getState().data);
@@ -30,15 +24,5 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
   return store;
 };
 
-export const store = makeStore();
-
-// Infer the type of `store`
-export type AppStore = typeof store;
-// Infer the `AppDispatch` type from the store itself
+export type AppStore = ReturnType<typeof makeStore>;
 export type AppDispatch = AppStore["dispatch"];
-export type AppThunk<ThunkReturnType = void> = ThunkAction<
-  ThunkReturnType,
-  RootState,
-  unknown,
-  Action
->;

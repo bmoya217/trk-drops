@@ -1,4 +1,4 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, type PayloadAction } from "@reduxjs/toolkit";
 import {
   ArmorType,
   ByDifficulty,
@@ -6,7 +6,6 @@ import {
   Difficulty,
   Grouping,
   Links,
-  Reports_Difficulty,
   Row,
   View,
 } from "../../lib/types";
@@ -39,9 +38,6 @@ export interface DataSliceState {
   data: ByDifficulty;
   links: Links;
   loading: boolean;
-  groups: string[];
-  rows: Row[];
-  headCells: string[];
 }
 
 const initialState: DataSliceState = {
@@ -55,9 +51,6 @@ const initialState: DataSliceState = {
   data: DIFFICULTY,
   links: {},
   loading: true,
-  groups: BOSSES,
-  rows: [],
-  headCells: [],
 };
 
 type PersistedDataPreferences = Pick<
@@ -71,57 +64,8 @@ type PersistedDataPreferences = Pick<
   | "view"
 >;
 
-const isEnumValue = <T extends Record<string, string>>(
-  enumType: T,
-  value: unknown
-): value is T[keyof T] =>
-  typeof value === "string" && Object.values(enumType).includes(value);
-
-const getStringArray = (value: unknown) =>
-  Array.isArray(value) && value.every((item) => typeof item === "string")
-    ? value
-    : undefined;
-
-export const loadDataPreferences = (): Partial<PersistedDataPreferences> => {
-  if (typeof window === "undefined") return {};
-
-  try {
-    const storedPreferences = window.localStorage.getItem(
-      DATA_PREFERENCES_STORAGE_KEY
-    );
-    if (!storedPreferences) return {};
-
-    const parsed = JSON.parse(storedPreferences);
-    if (!parsed || typeof parsed !== "object") return {};
-
-    return {
-      ...(isEnumValue(Difficulty, parsed.difficulty)
-        ? { difficulty: parsed.difficulty }
-        : {}),
-      ...(isEnumValue(Grouping, parsed.grouping)
-        ? { grouping: parsed.grouping }
-        : {}),
-      ...(typeof parsed.group === "string" ? { group: parsed.group } : {}),
-      ...(typeof parsed.column === "string"
-        ? { column: parsed.column }
-        : {}),
-      ...(isEnumValue(View, parsed.view) ? { view: parsed.view } : {}),
-      ...(getStringArray(parsed.armorTypes)
-        ? {
-            armorTypes: getStringArray(parsed.armorTypes).filter((armorType) =>
-              isEnumValue(ArmorType, armorType)
-            ),
-          }
-        : {}),
-      ...(getStringArray(parsed.slots) ? { slots: parsed.slots } : {}),
-    };
-  } catch {
-    return {};
-  }
-};
-
 export const getDataPreferences = (
-  state: DataSliceState
+  state: DataSliceState,
 ): PersistedDataPreferences => ({
   armorTypes: state.armorTypes,
   column: state.column,
@@ -133,7 +77,7 @@ export const getDataPreferences = (
 });
 
 export const createInitialDataState = (
-  preferences: Partial<PersistedDataPreferences> = {}
+  preferences: Partial<PersistedDataPreferences> = {},
 ): DataSliceState => ({
   ...initialState,
   ...preferences,
@@ -145,7 +89,7 @@ export const persistDataPreferences = (state: DataSliceState) => {
 
   window.localStorage.setItem(DATA_PREFERENCES_STORAGE_KEY, preferences);
   document.cookie = `${DATA_PREFERENCES_STORAGE_KEY}=${encodeURIComponent(
-    preferences
+    preferences,
   )}; max-age=${PERSISTED_DATA_PREFERENCES_MAX_AGE}; path=/; samesite=lax`;
 };
 
@@ -180,9 +124,7 @@ const addLinks = (links: Links, newLinks: Links) => {
 
 const getGroups = (state: DataSliceState): string[] => {
   if (state.grouping === Grouping.Boss) return BOSSES;
-  return Object.keys(
-    state.data?.[state.difficulty]?.Player ?? {}
-  ).sort();
+  return Object.keys(state.data?.[state.difficulty]?.Player ?? {}).sort();
 };
 
 const getRows = (state: DataSliceState): Row[] => {
@@ -196,53 +138,82 @@ const getRows = (state: DataSliceState): Row[] => {
   return [...difficultyRows, ...playerRows];
 };
 
-const updateDerivedData = (state: DataSliceState) => {
-  state.groups = getGroups(state);
-  state.group = state.groups.includes(state.group)
-    ? state.group
-    : (state.groups[0] ?? "");
-  state.rows = getRows(state);
-  state.headCells = getHeadCells(state.rows, state.grouping);
-  state.column = state.headCells.slice(1).includes(state.column)
+const normalizeSelection = (state: DataSliceState) => {
+  const groups = getGroups(state);
+  state.group = groups.includes(state.group) ? state.group : (groups[0] ?? "");
+  const headCells = getHeadCells(getRows(state), state.grouping);
+  state.column = headCells.slice(1).includes(state.column)
     ? state.column
-    : state.headCells[1];
+    : headCells[1];
 };
+
+const selectGroups = createSelector(
+  [
+    (data: DataSliceState) => data.grouping,
+    (data: DataSliceState) => data.difficulty,
+    (data: DataSliceState) => data.data,
+  ],
+  (grouping, difficulty, data) =>
+    grouping === Grouping.Boss
+      ? BOSSES
+      : Object.keys(data?.[difficulty]?.Player ?? {}).sort(),
+);
+
+const selectRows = createSelector(
+  [
+    (data: DataSliceState) => data.difficulty,
+    (data: DataSliceState) => data.grouping,
+    (data: DataSliceState) => data.group,
+    (data: DataSliceState) => data.data,
+  ],
+  (difficulty, grouping, group, data) => {
+    const difficultyRows = data?.[difficulty]?.[grouping]?.[group] ?? [];
+    const dungeonRows =
+      grouping === Grouping.Player
+        ? (data?.Dungeon?.Player?.[group] ?? [])
+        : [];
+
+    return [...difficultyRows, ...dungeonRows];
+  },
+);
+
+const selectHeadCells = createSelector(
+  [selectRows, (data: DataSliceState) => data.grouping],
+  getHeadCells,
+);
 
 export const dataSlice = createAppSlice({
   name: "data",
   initialState,
   reducers: (create) => ({
-    hydratePreferences: create.reducer(
-      (state, action: PayloadAction<Partial<PersistedDataPreferences>>) => {
-        Object.assign(state, action.payload);
-      }
-    ),
     setDifficulty: create.reducer(
       (state, action: PayloadAction<Difficulty>) => {
         state.difficulty = action.payload;
-        updateDerivedData(state);
-      }
+        normalizeSelection(state);
+      },
     ),
     setGrouping: create.reducer((state, action: PayloadAction<Grouping>) => {
       state.grouping = action.payload;
-      updateDerivedData(state);
+      normalizeSelection(state);
     }),
     setGroup: create.reducer((state, action: PayloadAction<string>) => {
       state.group = action.payload;
-      updateDerivedData(state);
+      normalizeSelection(state);
     }),
     setColumn: create.reducer((state, action: PayloadAction<string>) => {
       state.column = action.payload;
-      updateDerivedData(state);
+      normalizeSelection(state);
     }),
     setView: create.reducer((state, action: PayloadAction<View>) => {
       state.view = action.payload;
     }),
-    toggleArmorType: create.reducer((state, action: PayloadAction<ArmorType>) => {
-      state.armorTypes = state.armorTypes.includes(action.payload)
-        ? state.armorTypes.filter((armorType) => armorType !== action.payload)
-        : [...state.armorTypes, action.payload];
-    }),
+    toggleArmorType: create.reducer(
+      (state, action: PayloadAction<ArmorType>) => {
+        state.armorTypes = state.armorTypes.includes(action.payload)
+          ? state.armorTypes.filter((armorType) => armorType !== action.payload)
+          : [...state.armorTypes, action.payload];
+      },
+    ),
     toggleSlot: create.reducer((state, action: PayloadAction<string>) => {
       state.slots = state.slots.includes(action.payload)
         ? state.slots.filter((slot) => slot !== action.payload)
@@ -258,13 +229,17 @@ export const dataSlice = createAppSlice({
         const loadReport = async (report: string, d: Difficulty) => {
           if (!report || report.length < 10) return;
 
-          const $ = await fetchReport(report);
-          if (!validateReport($, d)) return;
-          const result = formatResults($, d);
-          return {
-            ...result,
-            d,
-          };
+          try {
+            const $ = await fetchReport(report);
+            if (!validateReport($, d)) return;
+            const result = formatResults($, d);
+            return {
+              ...result,
+              d,
+            };
+          } catch {
+            return;
+          }
         };
 
         const loadedReports = await Promise.all(
@@ -273,14 +248,11 @@ export const dataSlice = createAppSlice({
               ...diffs,
               ...reports[d].map((url) => loadReport(url, d)),
             ],
-            []
-          )
+            [],
+          ),
         );
 
-        const filteredReports = loadedReports.filter(
-          (report): report is { data: Data; links: Links; d: Difficulty } =>
-            Boolean(report)
-        );
+        const filteredReports = loadedReports.filter(Boolean);
 
         return filteredReports.reduce(
           (prev, curr) => {
@@ -289,26 +261,24 @@ export const dataSlice = createAppSlice({
               links: addLinks(prev.links, curr.links),
             };
           },
-          { data: DIFFICULTY, links: {} }
+          { data: DIFFICULTY, links: {} },
         );
       },
       {
         pending: (state) => {
           state.loading = true;
           state.data = DIFFICULTY;
-          state.rows = [];
-          state.headCells = [];
         },
         fulfilled: (state, action) => {
           state.loading = false;
           state.data = action.payload.data;
           state.links = action.payload.links;
-          updateDerivedData(state);
+          normalizeSelection(state);
         },
         rejected: (state) => {
           state.loading = false;
         },
-      }
+      },
     ),
   }),
   selectors: {
@@ -322,8 +292,8 @@ export const dataSlice = createAppSlice({
     selectData: (data) => data.data,
     selectLinks: (data) => data.links,
     selectLoading: (data) => data.loading,
-    selectGroups: (data) => data.groups,
-    selectRows: (data) => data.rows,
-    selectHeadCells: (data) => data.headCells,
+    selectGroups,
+    selectRows,
+    selectHeadCells,
   },
 });
