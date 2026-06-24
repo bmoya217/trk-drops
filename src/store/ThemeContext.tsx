@@ -2,7 +2,6 @@ import {
   createTheme,
   CssBaseline,
   ThemeProvider as MuiThemeProvider,
-  Theme,
 } from "@mui/material";
 import {
   createContext,
@@ -22,7 +21,6 @@ const THEME_MAX_AGE = 60 * 60 * 24 * 365;
 
 interface Context {
   mode?: ThemeMode;
-  theme?: Theme;
   setTheme?: Dispatch<SetStateAction<ThemeMode>>;
 }
 
@@ -65,10 +63,9 @@ const ThemeProvider: FC<{ children: ReactNode; initialMode?: ThemeMode }> = ({
   const value = useMemo(
     () => ({
       mode: theme,
-      theme: activeTheme,
       setTheme,
     }),
-    [activeTheme, theme]
+    [theme]
   );
 
   useIsomorphicLayoutEffect(() => {

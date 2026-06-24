@@ -217,7 +217,6 @@ export const selectTableBodyModel = createSelector(
     selectors.selectColumns,
     selectors.selectLinks,
     selectors.selectLoading,
-    selectors.selectSlots,
     selectOrder,
     selectOrderBy,
   ],
@@ -229,7 +228,6 @@ export const selectTableBodyModel = createSelector(
     allColumns,
     links,
     loading,
-    slots,
     order,
     orderBy,
   ) => ({
@@ -241,7 +239,6 @@ export const selectTableBodyModel = createSelector(
       .sort(getComparator(order, orderBy))
       .map((row) => ({ row, link: getLink(row, difficulty, links) })),
     showEmpty: !rows.length && !loading,
-    slots,
   }),
 );
 

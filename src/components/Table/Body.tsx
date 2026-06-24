@@ -22,7 +22,7 @@ interface Props {
 
 const Body: FC<Props> = ({ order, orderBy }) => {
   const { isLargeScreen } = useScreen();
-  const { columns, emptyColSpan, isPlayerView, rows, showEmpty, slots } =
+  const { columns, emptyColSpan, isPlayerView, rows, showEmpty } =
     useAppSelector((state) =>
       selectTableBodyModel(state, isLargeScreen, order, orderBy),
     );

@@ -1,8 +1,3 @@
-export enum Screen {
-  Small = "Small",
-  Large = "Large",
-}
-
 export enum Difficulty {
   Mythic = "Mythic",
   Heroic = "Heroic",
